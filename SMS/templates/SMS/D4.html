@@ -1,0 +1,544 @@
+{% extends 'SMS/base.html' %}
+
+{% block content %}
+{% load fontawesome %}
+
+{% load staticfiles %}
+
+
+{% load bootstrap3 %} {# Load the tag library #} 
+{% bootstrap_css %} {# Load CSS and JavaScript #} 
+{% bootstrap_javascript %} {# Embeds Bootstrap JS #}
+{% bootstrap_messages %} {# Display django.contrib.messages as Bootstrap alerts #}
+ 
+
+{% block extrahead %}   {# Extra Resources Start #}
+{% endblock %}          {# Extra Resources End #}
+
+{{ form_due.media }}        {# Form required JS and CSS #}
+{{ form_D4_occ.media }}        {# Form required JS and CSS #}
+
+
+{% include 'SMS/D8_header.html' %} 
+
+  {% if messages %}
+<ul class="messages">
+    {% for message in messages %}
+    <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>
+        {% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}Important: {% endif %}
+        {{ message }}
+    </li>
+    {% endfor %}
+</ul>
+{% endif %}
+      
+
+
+<div class="container-fluid">      
+  <div class="row">    
+    <div class= "col-md-2">      <h4>      D4 - root cause analysis        </h4>    
+    </div>    
+    <div class= "col-md-2">    {% if claim.is_past_D4 %}       
+      <h5 class="text-danger">      {% else %}       <h5>      {% endif %}       due date: {{ claim.due_date_D4 }}                  </h5>    
+    </div>    
+
+{% if user_profile.isStaff == True %}
+
+  <form method="POST" class="form-inline">    
+    {% csrf_token %}       
+    
+      {% bootstrap_form_errors form_due %}       
+      {% bootstrap_field form_due.due_date_D3 layout='inline'  form_group_class="hidden" %}
+      {% bootstrap_field form_due.due_date_D4 layout='inline' %}
+      {% bootstrap_field form_due.due_date_D5 layout='inline'  form_group_class="hidden" %}
+      {% buttons %}
+       <button type="submit" class="btn btn-primary" name="Button_due_date">New due date D4</button> (00:00 o'clock)   
+      {% endbuttons %}
+      </form> 
+{% endif %}              
+
+  </div>         
+
+  <div class="row">      
+    <div class="col-md-5">Claim uploaded by NMB-member: {{ creator.firstname }} {{ creator.lastname }}, 
+      <a href="mailto:{{ creator.email }}?subject=Question to claim No.: {{ claim.pk}}">{{ creator.email }}</a>        
+    </div>   
+  </div>
+  <hr />
+  
+  <div class="row">      
+    <div class="col-md-10">
+    {% if tasks_D4 %}
+     You have {{ tasks_D4|length }} open tasks in your Task list.  <a target="_blank" href="{% url 'task_tracker' 'due_date' claim 'D4' 9999 %}"><span class="glyphicon glyphicon-tasks orange"></span> Open tasks for D4 <span class="glyphicon glyphicon-tasks orange"></span></a> 
+    {% else %}
+       <a target="_blank" href="{% url 'task_tracker' 'due_date' claim 'D4' 9999 %}"><span class="glyphicon glyphicon-tasks green"></span> Add new task for D4 <span class="glyphicon glyphicon-tasks green"></span></a>    
+    {% endif %}
+    </div>   
+  </div>
+  <hr />
+      
+  
+  <div class="row">
+    <div class="col-md-6 text-center bg-success no_padding_right">
+    <hr style="width:1px; height:28px; margin:0px;  border-right:1px solid; float:right; border-color:grey;">
+      <h4>Occurance</h4>
+    </div>
+    <div class="col-md-6 text-center bg-info">
+      <h4>Detection</h4>
+    </div>
+  </div>
+  <div class="row">
+    <form method="POST">    {% csrf_token %}       
+    <div class="col-md-6 bg-success no_padding_right">
+     {% bootstrap_form_errors form type='all' %}
+     {% bootstrap_field form.root_cause_occ %}
+     {% buttons %}
+       <button type="submit" class="btn btn-default" name="save_root_causes">Save root causes</button> 
+     {% endbuttons %}
+
+    </div>
+    <div class="col-md-6 bg-info">
+     {% bootstrap_field form.root_cause_det %}
+     {% buttons %}
+       <button type="submit" class="btn btn-default" name="save_root_causes">Save root causes</button> 
+     {% endbuttons %}
+
+    </div>
+    </form>
+
+  </div>
+  <hr />
+  <div class="row">
+    <div class="col-md-6 text-center bg-success no_padding_right">
+    <hr style="width:1px; height:28px; margin:0px;  border-right:1px solid; float:right; border-color:grey;">
+      <h4>Occurance</h4>
+    </div>
+    <div class="col-md-6 text-center bg-info">
+      <h4>Detection</h4>
+    </div>
+  </div>
+  <div class="row">
+     <form method="POST" class="form-inline">    {% csrf_token %}       
+     {% bootstrap_form_errors form_D4_occ type='all' %}
+    <div class="col-md-6  bg-success no_padding_right">
+    <hr style="width:1px; height:135px; margin:0px;  border-right:1px solid; float:right; border-color:grey;">
+    Please reproduce the failure by creating same conditions.
+    <br>
+     {% bootstrap_field form_D4_occ.reproduction_occ_pilot  %}
+     {% bootstrap_field form_D4_occ.reproduction_occ_date  %}
+     {% bootstrap_field form_D4_occ.defect_occ_reproduced  %}
+    
+  <br>
+  Trial run to test the efficency of corrective actions (please come back after D6!)
+  <br>     
+     {% bootstrap_field form_D4_occ.effective_occ_pilot  %}
+     {% bootstrap_field form_D4_occ.effective_occ_date  %}
+     {% bootstrap_field form_D4_occ.effective_occ_reproduced  %}
+     
+     {% buttons %}
+       <button type="submit" class="btn btn-default" name="save_reproduction">Save reproduction data</button> 
+     {% endbuttons %}
+     
+    </div>
+    <div class="col-md-6 bg-info">
+    Please reproduce the non-detection of the failure by creating same conditions.
+    <br>
+     {% bootstrap_field form_D4_occ.reproduction_det_pilot  %}
+     {% bootstrap_field form_D4_occ.reproduction_det_date  %}
+     {% bootstrap_field form_D4_occ.defect_det_reproduced  %}
+    
+  <br>
+  Trial run to test the efficency of corrective actions (please come back after D6!)
+  <br>     
+     {% bootstrap_field form_D4_occ.effective_det_pilot  %}
+     {% bootstrap_field form_D4_occ.effective_det_date  %}
+     {% bootstrap_field form_D4_occ.effective_det_reproduced  %}
+     
+     {% buttons %}
+       <button type="submit" class="btn btn-default" name="save_reproduction">Save reproduction data</button> 
+     {% endbuttons %}
+    <br>
+    <br>
+    </div>
+     </form>
+  </div>
+<hr />
+  <div class="row row-eq-height">
+    <div class="col-md-6 text-center bg-success no_padding_right">
+    <hr style="width:1px; height:28px; margin:0px;  border-right:1px solid; float:right; border-color:grey;">
+      <h4>Occurance</h4>
+    </div>
+    <div class="col-md-6 text-center bg-info">
+      <h4>Detection</h4>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-6  bg-success no_padding_right">
+    <hr style="width:1px; height:50px; margin:0px;  border-right:1px solid; float:right; border-color:grey;">
+      Here you can post Files that describe the root-cause analysis.
+      <br>
+      {% for file in files_occ %}
+        {{ file.title }} <a href="../../media/{{ file.file }}" target="_blank"><span class="glyphicon glyphicon-cloud-download"></span></a> &nbsp;&nbsp;
+      {% endfor %}
+
+      <br>
+      <form method="POST" class="form-inline"  enctype="multipart/form-data">    
+      {% csrf_token %}       
+    
+      {% bootstrap_form_errors form_files_occ %}       
+      {% bootstrap_form form_files_occ layout='inline' %}
+      {% buttons %}
+       <button type="submit" class="btn btn-success" name="new_occ_file">Add new file</button> 
+       {% endbuttons %}
+      </form> 
+    <br> 
+    </div>
+    <div class="col-md-6  bg-info">
+      Here you can post Files that describe the root-cause analysis.
+      <br>
+      {% for file in files_det %}
+        {{ file.title }} &nbsp; <a href="../../media/{{ file.file }}" target="_blank"><span class="glyphicon glyphicon-cloud-download"></span></a>
+      {% endfor %}
+
+      <br>
+      <form method="POST" class="form-inline"  enctype="multipart/form-data">    
+      {% csrf_token %}       
+    
+      {% bootstrap_form_errors form_files_det %}       
+      {% bootstrap_form form_files_det layout='inline' %}
+      {% buttons %}
+       <button type="submit" class="btn btn-success" name="new_det_file">Add new file</button> 
+       {% endbuttons %}
+      </form> 
+    <br> 
+    </div>
+  </div>
+<hr />
+  <div class="row row-eq-height">
+    <div class="col-md-6 text-center bg-success no_padding_right">
+    <hr style="width:1px; height:28px; margin:0px;  border-right:1px solid; float:right; border-color:grey;">
+      <h4>Occurance</h4>
+    </div>
+    <div class="col-md-6 text-center bg-info">
+      <h4>Detection</h4>
+    </div>
+  </div>
+  <div class="row row-eq-height">
+    <div class="col-md-6 no_padding_right bg-success">
+    <hr style="width:1px; height:210px; margin:0px;  border-right:1px solid; float:right; border-color:grey;">
+     <form method="POST" class="form-inline">    {% csrf_token %}       
+     {% bootstrap_form_errors form_ishi_occ type='all' %}
+     
+      <svg height="220px">
+          <text x="0" y="17" font-size="20" font-family="arial">Method</text>
+          <line x1="20" y1="20" x2="100" y2="100" stroke="#765373" stroke-width="2" />
+            <foreignObject x="50" y="30" width="200" height="150">
+              <a class="nolink" href="#" data-toggle="popover" title="Method" data-content="
+                 <ul>
+                    <li>Are work instructions posted at workstations?</li>
+                    <li>Are work instructions up to date?</li>
+                    <liHave correct tools/fixtures been used?</li>
+                    <li>Is the job done the same way in all shifts?</li>
+                    <li>Is preventive maintenace defined? Is it sufficient?</li>
+                    <li>Are parts within defined standards? Are standards suitable?</li>
+                  </ul>
+              ">
+              {% bootstrap_field form_ishi_occ.method layout='inline' %}
+              </a>
+            </foreignObject>
+
+          <text x="230" y="17" font-size="20" font-family="arial">Machine</text>
+          <line x1="250" y1="20" x2="330" y2="100" stroke="#765373" stroke-width="2" />
+            <foreignObject x="280" y="30" width="200" height="150">
+              <a class="nolink" href="#" data-toggle="popover" title="Machine" data-content="
+                 <ul>
+                    <li>Are tools/machines functioning properly?</li>
+                    <li>Has preventive maintenace been performed?</li>
+                    <liDid any specific event occure? (power shutdown, ...)</li>
+                    <li>Do error proofing systems work properly? (Poka Yoke, Control station, ...)</li>
+                    <li>Have machine/process parameters been properly set up?</li>
+                    <li>Are machine/process parameters properly defined?</li>
+                  </ul>
+              ">
+              {% bootstrap_field form_ishi_occ.machine layout='inline' %}</a>
+            </foreignObject>
+
+          <text x="0" y="200" font-size="20" font-family="arial">Man</text>
+          <line x1="20" y1="180" x2="100" y2="100" stroke="#765373" stroke-width="2" />
+            <foreignObject x="50" y="120" width="200" height="150">
+              <a class="nolink" href="#" data-toggle="popover" title="Man" data-content="
+                 <ul>
+                    <li>Are workers abilited to the job? (Check concerned production period)</li>
+                    <li>Did workers receive necessary training?</li>
+                    <li>Is training adapted to the needs?</li>
+                    <li>Do workers perfectly understand applicable work instructions?</li>
+                    <li>Were all work instructions properly followed and applied?</li>
+                  </ul>
+              ">
+              {% bootstrap_field form_ishi_occ.man layout='inline' %}</a>
+            </foreignObject>
+
+          <text x="230" y="200" font-size="20" font-family="arial">Material</text>
+          <line x1="250" y1="180" x2="330" y2="100" stroke="#765373" stroke-width="2" />
+            <foreignObject x="280" y="120" width="200" height="150">
+              <a class="nolink" href="#" data-toggle="popover" title="Material" data-content="
+                 <ul>
+                    <li>Are used components/materials within specification?</li>
+                    <li>Were there any changes/modifications on components/materials?</li>
+                    <li>Are all components/materials approved?</li>
+                    <li>Are correct components/materials used?</li>
+                    <li>Is ther any risk during manipulations?</li>
+                  </ul>
+              ">
+              {% bootstrap_field form_ishi_occ.material layout='inline' %}</a>
+            </foreignObject>
+           
+          <line x1="0" y1="100" x2="500" y2="100" stroke="#765373" stroke-width="2" />
+            <foreignObject x="480" y="75" width="200" height="150">
+              {% bootstrap_field form_ishi_occ.problem layout='inline' %}
+            </foreignObject>
+
+            <foreignObject x="700" y="85" width="200" height="150">
+              {% buttons %}
+              <button type="submit" class="btn btn-default" name="Save_Ishi_Occ" >Save Ishikawa</button> 
+              {% endbuttons %}        
+            </foreignObject>
+
+      </svg>
+      </form>
+      
+    </div>
+    <div class="col-md-6 bg-info">
+     <form method="POST" class="form-inline">    {% csrf_token %}       
+     {% bootstrap_form_errors form_ishi_det type='all' %}
+      <svg height="220px">
+          <text x="0" y="17" font-size="20" font-family="arial">Method</text>
+          <line x1="20" y1="20" x2="100" y2="100" stroke="#765373" stroke-width="2" />
+            <foreignObject x="50" y="30" width="200" height="150">
+              <a class="nolink" href="#" data-toggle="popover" title="Method" data-content="
+                 <ul>
+                    <li>Are work instructions posted at workstations?</li>
+                    <li>Are work instructions up to date?</li>
+                    <liHave correct tools/fixtures been used?</li>
+                    <li>Is the job done the same way in all shifts?</li>
+                    <li>Is preventive maintenace defined? Is it sufficient?</li>
+                    <li>Are parts within defined standards? Are standards suitable?</li>
+                  </ul>
+              ">
+              {% bootstrap_field form_ishi_det.method layout='inline' %}</a>
+            </foreignObject>
+
+          <text x="230" y="17" font-size="20" font-family="arial">Machine</text>
+          <line x1="250" y1="20" x2="330" y2="100" stroke="#765373" stroke-width="2" />
+            <foreignObject x="280" y="30" width="200" height="150">
+              <a class="nolink" href="#" data-toggle="popover" title="Machine" data-content="
+                 <ul>
+                    <li>Are tools/machines functioning properly?</li>
+                    <li>Has preventive maintenace been performed?</li>
+                    <liDid any specific event occure? (power shutdown, ...)</li>
+                    <li>Do error proofing systems work properly? (Poka Yoke, Control station, ...)</li>
+                    <li>Have machine/process parameters been properly set up?</li>
+                    <li>Are machine/process parameters properly defined?</li>
+                  </ul>
+              ">
+              {% bootstrap_field form_ishi_det.machine layout='inline' %}</a>
+            </foreignObject>
+
+          <text x="0" y="200" font-size="20" font-family="arial">Man</text>
+          <line x1="20" y1="180" x2="100" y2="100" stroke="#765373" stroke-width="2" />
+            <foreignObject x="50" y="120" width="200" height="150">
+              <a class="nolink" href="#" data-toggle="popover" title="Man" data-content="
+                 <ul>
+                    <li>Are workers abilited to the job? (Check concerned production period)</li>
+                    <li>Did workers receive necessary training?</li>
+                    <li>Is training adapted to the needs?</li>
+                    <li>Do workers perfectly understand applicable work instructions?</li>
+                    <li>Were all work instructions properly followed and applied?</li>
+                  </ul>
+              ">
+              {% bootstrap_field form_ishi_det.man layout='inline' %}</a>
+            </foreignObject>
+
+          <text x="230" y="200" font-size="20" font-family="arial">Material</text>
+          <line x1="250" y1="180" x2="330" y2="100" stroke="#765373" stroke-width="2" />
+            <foreignObject x="280" y="120" width="200" height="150">
+              <a class="nolink" href="#" data-toggle="popover" title="Material" data-content="
+                 <ul>
+                    <li>Are used components/materials within specification?</li>
+                    <li>Were there any changes/modifications on components/materials?</li>
+                    <li>Are all components/materials approved?</li>
+                    <li>Are correct components/materials used?</li>
+                    <li>Is ther any risk during manipulations?</li>
+                  </ul>
+              ">
+              {% bootstrap_field form_ishi_det.material layout='inline' %}</a>
+            </foreignObject>
+           
+          <line x1="0" y1="100" x2="480" y2="100" stroke="#765373" stroke-width="2" />
+            <foreignObject x="480" y="75" width="200" height="150">
+              {% bootstrap_field form_ishi_det.problem layout='inline' %}
+            </foreignObject>
+
+            <foreignObject x="700" y="85" width="200" height="150">
+              {% buttons %}
+              {% bootstrap_button "Save Ishikawa" name="Save_Ishi_Det" button_type="submit" button_class="btn-default" %} 
+              {% endbuttons %}        
+            </foreignObject>
+
+      </svg>
+    </form>
+    
+    </div>
+  </div>
+  <hr />
+  <div class="row row-eq-height">
+    <div class="col-md-6 text-center bg-success no_padding_right">
+    <hr style="width:1px; height:28px; margin:0px;  border-right:1px solid; float:right; border-color:grey;">
+      <h4>Occurance</h4>
+    </div>
+    <div class="col-md-6 text-center bg-info">
+      <h4>Detection</h4>
+    </div>
+  </div>
+
+  <div class="row row-eq-height">
+    <div class="col-md-6 no_padding_right bg-success">
+    <hr style="width:1px; height:230px; margin:0px;  border-right:1px solid; float:right; border-color:grey;">
+     <form method="POST" class="form-inline">    {% csrf_token %}       
+     {% bootstrap_form_errors form_W5_occ type='all' %}
+     
+      <svg height="230px">
+          <line x1="150" y1="65" x2="150" y2="80" stroke="#765373" stroke-width="2" />
+          <line x1="150" y1="80" x2="220" y2="80" stroke="#765373" stroke-width="2" />
+          <text x="90" y="95" font-size="20" font-family="arial">Why?</text>
+            <foreignObject x="0" y="10" width="200" height="150">
+              <a class="nolink" href="#" data-toggle="popover" title="5 Why system" data-content="
+                 Take the problem and that issue from the above Ishikawa, that leads most likely to the root cause.<br>
+                 Example: Car does not start<br>
+                 Why does the car not start?<br>
+                    &nbsp;  &nbsp;The battery is empty.<br>
+                 Why is the battery empty?<br>
+                      &nbsp;&nbsp;The alternator does not work.<br>
+                Why does the alternator not work?<br>
+                      &nbsp;&nbsp;The fan belt cracked.<br>
+                Why did it crack?<br>
+                      &nbsp;&nbsp;The belt never has been changed.<br>
+                Why has the belt never been changed?<br>
+                      &nbsp;&nbsp;The car has never been maintained.
+              ">
+              {% bootstrap_field form_W5_occ.Why1 layout='inline' %}</a>
+            </foreignObject>
+          <line x1="335" y1="105" x2="335" y2="120" stroke="#765373" stroke-width="2" />
+          <line x1="335" y1="120" x2="420" y2="120" stroke="#765373" stroke-width="2" />
+          <text x="275" y="135" font-size="20" font-family="arial">Why?</text>
+            <foreignObject x="185" y="50" width="200" height="150">
+              {% bootstrap_field form_W5_occ.Why2 layout='inline' %}
+            </foreignObject>
+          <line x1="520" y1="145" x2="520" y2="160" stroke="#765373" stroke-width="2" />
+          <line x1="520" y1="160" x2="620" y2="160" stroke="#765373" stroke-width="2" />
+          <text x="460" y="175" font-size="20" font-family="arial">Why?</text>
+            <foreignObject x="370" y="90" width="200" height="150">
+              {% bootstrap_field form_W5_occ.Why3 layout='inline' %}
+            </foreignObject>
+          <line x1="705" y1="185" x2="705" y2="200" stroke="#765373" stroke-width="2" />
+          <line x1="705" y1="200" x2="820" y2="200" stroke="#765373" stroke-width="2" />
+          <text x="645" y="215" font-size="20" font-family="arial">Why?</text>
+            <foreignObject x="555" y="130" width="200" height="150">
+              {% bootstrap_field form_W5_occ.Why4 layout='inline' %}
+            </foreignObject>
+            <foreignObject x="740" y="170" width="200" height="150">
+              {% bootstrap_field form_W5_occ.Why5 layout='inline' %}
+            </foreignObject>
+
+            <foreignObject x="825" y="10" width="200" height="150">
+              {% buttons %}
+              {% bootstrap_button "Save 5 Why" name="Save_W5_occ" button_type="submit" button_class="btn-default" %} 
+              {% endbuttons %}        
+            </foreignObject>
+
+      </svg>
+      </form>
+      
+    </div>
+    <div class="col-md-6 no_padding_right bg-info">
+    <hr style="width:1px; height:230px; margin:0px;  border-right:1px solid; float:right; border-color:grey;">
+     <form method="POST" class="form-inline">    {% csrf_token %}       
+     {% bootstrap_form_errors form_W5_det type='all' %}
+     
+      <svg height="230px">
+          <line x1="150" y1="65" x2="150" y2="80" stroke="#765373" stroke-width="2" />
+          <line x1="150" y1="80" x2="220" y2="80" stroke="#765373" stroke-width="2" />
+          <text x="90" y="95" font-size="20" font-family="arial">Why?</text>
+            <foreignObject x="0" y="10" width="200" height="150">
+              {% bootstrap_field form_W5_det.Why1 layout='inline' %}
+            </foreignObject>
+          <line x1="335" y1="105" x2="335" y2="120" stroke="#765373" stroke-width="2" />
+          <line x1="335" y1="120" x2="420" y2="120" stroke="#765373" stroke-width="2" />
+          <text x="275" y="135" font-size="20" font-family="arial">Why?</text>
+            <foreignObject x="185" y="50" width="200" height="150">
+              {% bootstrap_field form_W5_det.Why2 layout='inline' %}
+            </foreignObject>
+          <line x1="520" y1="145" x2="520" y2="160" stroke="#765373" stroke-width="2" />
+          <line x1="520" y1="160" x2="620" y2="160" stroke="#765373" stroke-width="2" />
+          <text x="460" y="175" font-size="20" font-family="arial">Why?</text>
+            <foreignObject x="370" y="90" width="200" height="150">
+              {% bootstrap_field form_W5_det.Why3 layout='inline' %}
+            </foreignObject>
+          <line x1="705" y1="185" x2="705" y2="200" stroke="#765373" stroke-width="2" />
+          <line x1="705" y1="200" x2="820" y2="200" stroke="#765373" stroke-width="2" />
+          <text x="645" y="215" font-size="20" font-family="arial">Why?</text>
+            <foreignObject x="555" y="130" width="200" height="150">
+              {% bootstrap_field form_W5_det.Why4 layout='inline' %}
+            </foreignObject>
+            <foreignObject x="740" y="170" width="200" height="150">
+              {% bootstrap_field form_W5_det.Why5 layout='inline' %}
+            </foreignObject>
+
+            <foreignObject x="825" y="10" width="200" height="150">
+              {% buttons %}
+              {% bootstrap_button "Save 5 Why" name="Save_W5_det" button_type="submit" button_class="btn-default" %} 
+              {% endbuttons %}        
+            </foreignObject>
+
+      </svg>
+      </form>
+      
+    </div>
+  </div>           
+      
+      
+  <div class="row row-eq-height">
+    <br>
+    <div class="col-md-5">
+    After filling in all relevant data in the forms above you can submit the D4 here.
+    <br>
+      <form method="POST" class="form-inline">    {% csrf_token %}       
+      {% buttons %}
+      {% bootstrap_button "Submit D4" name="SubmitD4" button_type="submit" button_class="btn-primary" %} 
+  {% if user_profile.isStaff == True %}
+      {% bootstrap_button "Accept D4" name="AcceptD4" button_type="submit" button_class="btn-success" %} 
+      {% bootstrap_button "Reject D4" name="RejectD4" button_type="submit" button_class="btn-danger" %} 
+  {% endif %}              
+      {% endbuttons %}        
+      </form>
+    </div>
+  </div>
+  &nbsp;
+</div>  
+
+<script>
+$(document).ready(function(){
+    $('[data-toggle="tooltip"]').tooltip(); 
+});
+</script>
+
+<script>
+$(document).ready(function(){
+    $('[data-toggle="popover"]').popover({
+     trigger: "hover",
+     html: true,
+     container: 'body',
+     }); 
+});
+</script>
+{% endblock %}

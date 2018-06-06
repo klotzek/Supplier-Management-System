@@ -1,0 +1,41 @@
+{% extends 'SMS/base.html' %}
+
+{% block content %}
+{# Load the tag library #}
+{% load bootstrap3 %}
+
+{# Load CSS and JavaScript #}
+{% bootstrap_css %}
+{% bootstrap_javascript %}
+
+{# Display django.contrib.messages as Bootstrap alerts #}
+{% bootstrap_messages %}
+
+
+<div class="col-md-4">
+
+<h3>
+
+{% if 'user_new'  in request.path %}new user{% endif %}
+{% if 'new_claim'  in request.path %}new claim{% endif %}
+{% if 'vendor_new'  in request.path %}new vendor{% endif %}
+{% if 'vendor_edit'  in request.path %}edit vendor{% endif %}
+
+
+
+ </h3>
+    <form method="POST" class="form"  {% if form.is_multipart %}enctype="multipart/form-data"{% endif %} {% if layout != 'vertical' %}class="form-{{ layout }}"{% endif %}>
+    {% csrf_token %}
+
+        {% bootstrap_form form layout='inline' %}
+
+  {% buttons %}
+    <button type="submit" class="btn btn-default">
+     Save
+    </button>
+  {% endbuttons %}
+
+    </form>
+</div>
+{% endblock %}
+

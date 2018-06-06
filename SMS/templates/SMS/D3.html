@@ -1,0 +1,465 @@
+{% extends 'SMS/base.html' %}
+
+{% block content %}
+{% load fontawesome %}
+
+{% load bootstrap3 %} {# Load the tag library #} 
+{% bootstrap_css %} {# Load CSS and JavaScript #} 
+{% bootstrap_javascript %} {# Embeds Bootstrap JS #}
+{% bootstrap_messages %} {# Display django.contrib.messages as Bootstrap alerts #}
+ 
+
+{% block extrahead %}   {# Extra Resources Start #}
+{% endblock %}          {# Extra Resources End #}
+
+{{ form_due.media }}        {# Form required JS and CSS #}
+{{ form.media }}        {# Form required JS and CSS #}
+
+
+{% include 'SMS/D8_header.html' %} 
+
+<div class="container-fluid">      
+  <div class="row">    
+    <div class= "col-md-2">      <h4>      D3 - Containment Actions        </h4>    
+    </div>    
+    <div class= "col-md-2">    {% if claim.is_past_D3 %}       
+      <h5 class="text-danger">      {% else %}       <h5>      {% endif %}       due date: {{ claim.due_date_D3 }}                  </h5>    
+    </div>    
+
+{% if user_profile.isStaff == True %}
+
+  <form method="POST" class="form-inline">    
+    {% csrf_token %}       {% bootstrap_form_errors form_due type='non_fields' %}       
+      {% bootstrap_field form_due.due_date_D3 layout='inline' %}
+      {% bootstrap_field form_due.due_date_D4 layout='inline'  form_group_class="hidden" %}
+      {% bootstrap_field form_due.due_date_D5 layout='inline'  form_group_class="hidden" %}
+
+      {% buttons %}
+       <button type="submit" class="btn btn-primary" name="Button_due_date">New due date D3</button> (00:00 o'clock)   
+      {% endbuttons %}
+      </form> 
+{% endif %}              
+
+  </div>         
+
+  <div class="row">      
+    <div class="col-md-5">Claim uploaded by NMB-member: {{ creator.firstname }} {{ creator.lastname }}, 
+      <a href="mailto:{{ creator.email }}?subject=Question to claim No.: {{ claim.pk}}">{{ creator.email }}</a>        
+    </div>   
+  </div>
+  <hr />
+  
+  <div class="row">      
+    <div class="col-md-10">
+    {% if tasks_D3 %}
+     You have {{ tasks_D3|length }} open tasks in your Task list.  <a target="_blank" href="{% url 'task_tracker' 'due_date' claim 'D3' 9999 %}"><span class="glyphicon glyphicon-tasks orange"></span> Open tasks for D3 <span class="glyphicon glyphicon-tasks orange"></span></a> 
+    {% else %}
+       <a target="_blank" href="{% url 'task_tracker' 'due_date' claim 'D3' 9999 %}"><span class="glyphicon glyphicon-tasks green"></span> Add new task for D3 <span class="glyphicon glyphicon-tasks green"></span></a>    
+    {% endif %}
+    </div>   
+  </div>
+  <hr />
+  
+      
+  <form method="POST" class="form-inline"  {% if form.is_multipart %}enctype="multipart/form-data"{% endif %}>    {% csrf_token %}       {% bootstrap_form_errors form type='non_fields' %}
+  
+      <strong>Actions necessary</strong> {% bootstrap_field form.actions_necessary layout='inline'  %}
+      &nbsp;
+      <strong>Actions ongoing</strong> {% bootstrap_field form.actions_ongoing layout='inline'  %}
+      &nbsp;
+      {% bootstrap_field form.completion_date layout='inline'  %}
+      
+      <br />
+      
+  <div class="row">      
+    <div class="col-md-12">
+    <h4>Sorting activities</h4>
+    </div>
+  </div>
+      
+  <div class="row">      
+    <div class="col-md-2">
+      <table class="table table-bordered">
+        <thead>
+          <tr class="bg-danger">
+            <th>Final customer</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>sorting necessary<br />
+                {% bootstrap_field form.FC_necessary layout='inline'  %}
+            </td>
+          </tr>
+          <tr>
+            <td>{% bootstrap_field form.FC_sorting_date layout='inline'  %}
+          </tr>
+          <tr>
+            <td>{% bootstrap_field form.FC_qty layout='inline'  %}
+          </tr>
+          <tr>
+            <td>{% bootstrap_field form.FC_NOK layout='inline'  %}
+          </tr>
+          <tr>
+            <td>{% bootstrap_field form.FC_NOK_date layout='inline'  %}
+          </tr>
+          <tr>
+            <td>{% bootstrap_field form.FC_date_from layout='inline'  %}
+          </tr>
+          <tr>
+            <td>{% bootstrap_field form.FC_date_to layout='inline'  %}
+          </tr>
+          <tr>
+            <td>{% bootstrap_field form.FC_comment layout='inline'  %}
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="col-md-2">
+      <table class="table table-bordered">
+        <thead>
+          <tr class="bg-primary">
+            <th>In transit to final customer</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>sorting necessary<br />
+                {% bootstrap_field form.FC_transit_necessary layout='inline'  %}
+            </td>
+          </tr>
+          <tr>
+            <td>{% bootstrap_field form.FC_transit_sorting_date layout='inline'  %}
+          </tr>
+          <tr>
+            <td>{% bootstrap_field form.FC_transit_qty layout='inline'  %}
+          </tr>
+          <tr>
+            <td>{% bootstrap_field form.FC_transit_NOK layout='inline'  %}
+          </tr>
+          <tr>
+            <td>{% bootstrap_field form.FC_transit_NOK_date layout='inline'  %}
+          </tr>
+          <tr>
+            <td>{% bootstrap_field form.FC_transit_date_from layout='inline'  %}
+          </tr>
+          <tr>
+            <td>{% bootstrap_field form.FC_transit_date_to layout='inline'  %}
+          </tr>
+          <tr>
+            <td>{% bootstrap_field form.FC_transit_comment layout='inline'  %}
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="col-md-2">
+      <table class="table table-bordered">
+        <thead>
+          <tr class="bg-success">
+            <th>NMB plant</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>sorting necessary<br />
+                {% bootstrap_field form.NMB_necessary layout='inline'  %}
+            </td>
+          </tr>
+          <tr>
+            <td>{% bootstrap_field form.NMB_sorting_date layout='inline'  %}
+          </tr>
+          <tr>
+            <td>{% bootstrap_field form.NMB_qty layout='inline'  %}
+          </tr>
+          <tr>
+            <td>{% bootstrap_field form.NMB_NOK layout='inline'  %}
+          </tr>
+          <tr>
+            <td>{% bootstrap_field form.NMB_NOK_date layout='inline'  %}
+          </tr>
+          <tr>
+            <td>{% bootstrap_field form.NMB_date_from layout='inline'  %}
+          </tr>
+          <tr>
+            <td>{% bootstrap_field form.NMB_date_to layout='inline'  %}
+          </tr>
+          <tr>
+            <td>{% bootstrap_field form.NMB_comment layout='inline'  %}
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="col-md-2">
+      <table class="table table-bordered">
+        <thead>
+          <tr class="bg-warning">
+            <th>in transit to NMB</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>sorting necessary<br />
+                {% bootstrap_field form.NMB_transit_necessary layout='inline'  %}
+            </td>
+          </tr>
+          <tr>
+            <td>{% bootstrap_field form.NMB_transit_sorting_date layout='inline'  %}
+          </tr>
+          <tr>
+            <td>{% bootstrap_field form.NMB_transit_qty layout='inline'  %}
+          </tr>
+          <tr>
+            <td>{% bootstrap_field form.NMB_transit_NOK layout='inline'  %}
+          </tr>
+          <tr>
+            <td>{% bootstrap_field form.NMB_transit_NOK_date layout='inline'  %}
+          </tr>
+          <tr>
+            <td>{% bootstrap_field form.NMB_transit_date_from layout='inline'  %}
+          </tr>
+          <tr>
+            <td>{% bootstrap_field form.NMB_transit_date_to layout='inline'  %}
+          </tr>
+          <tr>
+            <td>{% bootstrap_field form.NMB_transit_comment layout='inline'  %}
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="col-md-2">
+      <table class="table table-bordered">
+        <thead>
+          <tr class="bg-info">
+            <th>Supplier</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>sorting necessary<br />
+                {% bootstrap_field form.supplier_necessary layout='inline'  %}
+            </td>
+          </tr>
+          <tr>
+            <td>{% bootstrap_field form.supplier_sorting_date layout='inline'  %}
+          </tr>
+          <tr>
+            <td>{% bootstrap_field form.supplier_qty layout='inline'  %}
+          </tr>
+          <tr>
+            <td>{% bootstrap_field form.supplier_NOK layout='inline'  %}
+          </tr>
+          <tr>
+            <td>{% bootstrap_field form.supplier_NOK_date layout='inline'  %}
+          </tr>
+          <tr>
+            <td>{% bootstrap_field form.supplier_date_from layout='inline'  %}
+          </tr>
+          <tr>
+            <td>{% bootstrap_field form.supplier_date_to layout='inline'  %}
+          </tr>
+          <tr>
+            <td>{% bootstrap_field form.supplier_comment layout='inline'  %}
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="col-md-2">
+      <table class="table table-bordered">
+        <thead>
+          <tr class="bg-dark">
+            <th>Sub-supplier</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>sorting necessary<br />
+                {% bootstrap_field form.sub_supplier_necessary layout='inline'  %}
+            </td>
+          </tr>
+          <tr>
+            <td>{% bootstrap_field form.sub_supplier_sorting_date layout='inline'  %}
+          </tr>
+          <tr>
+            <td>{% bootstrap_field form.sub_supplier_qty layout='inline'  %}
+          </tr>
+          <tr>
+            <td>{% bootstrap_field form.sub_supplier_NOK layout='inline'  %}
+          </tr>
+          <tr>
+            <td>{% bootstrap_field form.sub_supplier_NOK_date layout='inline'  %}
+          </tr>
+          <tr>
+            <td>{% bootstrap_field form.sub_supplier_date_from layout='inline'  %}
+          </tr>
+          <tr>
+            <td>{% bootstrap_field form.sub_supplier_date_to layout='inline'  %}
+          </tr>
+          <tr>
+            <td>{% bootstrap_field form.sub_supplier_comment layout='inline'  %}
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-6">
+    &nbsp;
+    </div>
+    <div class="col-md-6">
+      <table class="table table-bordered">
+        <tr>
+          <td class="col-md-1">
+            Total parts sorted:
+          </td>
+          <td class="col-md-1">
+            {{ sorting_data.0 }}
+          </td>
+          <td class="col-md-1">Total parts NOK:
+          </td>
+          <td class="col-md-1">
+            {{ sorting_data.1 }}
+          </td>
+          <td class="col-md-1">PPM
+          </td>
+          <td class="col-md-1">
+            {% load humanize %}
+            {{ sorting_data.2  | intcomma }}
+          </td>
+        </tr>
+      </table>
+    </div>
+  </div>
+      
+  <div class="row">
+    <div class="col-md-6">
+      <table class="table table-bordered">
+        <tr>
+          <td class="col-md-1">
+            Total parts sorted:
+          </td>
+          <td class="col-md-1">
+            {{ sorting_data.3 }}
+          </td>
+          <td class="col-md-1">Total parts NOK:
+          </td>
+          <td class="col-md-1">
+            {{ sorting_data.4 }}
+          </td>
+          <td class="col-md-1">PPM
+          </td>
+          <td class="col-md-1">
+            {{ sorting_data.5 | intcomma }}
+          </td>
+        </tr>
+      </table>
+    </div>
+  </div>
+  
+  <div class="row">
+    <div class="col-md-4">
+                  <a class="nolink" href="#" data-toggle="popover" title="Lessons Learned" data-content="
+              Traceability data of the parts and the components must be used:<br />
+              <ul>
+                <li>Are the parts coming from same period of production?</li>
+                <li>Are production dates consecutives or not?</li>
+                <li>Is there any link with a specific supplier or component?</li>
+                <li>Is there any link with a production line, a machine, a specific tool, a specific cavity?</li>
+                <li>Is there any link to an operator?</li>
+              </ul>
+              "><strong>What did you learn from sorting?</strong></a> &nbsp; {% bootstrap_field form.LL layout='inline'  %}
+    </div> 
+  </div>
+    &nbsp;
+  <div class="row">
+    <div class="col-md-10">
+      <table class="table table-bordered">
+        <tr>
+          <td rowspan="3" class="col-md-1"><strong>Marking on 1st delivery OK parts</strong>
+          </td>
+          
+          <td class="col-md-1"><strong>Quantity</strong>
+          </td>
+          
+          <td class="col-md-1"><strong>Delivery Note Nb</strong>
+          </td>
+          
+          <td class="col-md-1"><strong>Delivery date at NMB</strong>
+          </td>
+          
+          <td colspan="2" class="col-md-3"><strong>Identification agreed with NMB</strong>
+          
+        </tr>  
+        <tr>
+        
+        
+          <td class="col-md-1">{% bootstrap_field form.fst_OK_parts_qty layout='inline'  %}
+          </td>
+          
+          <td class="col-md-1">{% bootstrap_field form.fst_OK_parts_del_note layout='inline'  %}
+          </td>
+          
+          <td class="col-md-1">{% bootstrap_field form.fst_OK_parts_del_date layout='inline'  %}
+          </td>
+          <td class="col-md-1"><strong>on parts</strong>
+          
+          </td>
+          <td class="col-md-2">{% bootstrap_field form.mark_on_parts layout='inline'  %}
+          </td>
+
+          
+        </tr>  
+        <tr>
+        
+        
+          <td class="col-md-1">
+          </td>
+          
+          <td class="col-md-1">
+          
+          <td class="col-md-1">
+          </td>
+          <td class="col-md-1"><strong>on labels</strong>
+          </td>
+          <td class="col-md-2">{% bootstrap_field form.mark_on_labels layout='inline'  %}
+          </td>
+          
+        </tr>  
+      </table>
+    </div>
+  </div>
+            
+      
+      
+  <div class="row"> 
+    <div class="col-md-3"> 
+      {% buttons %}
+      {% bootstrap_button "Save" name="Save" button_type="submit" button_class="btn-default" %} 
+      {% bootstrap_button "Save & Submit D3" name="Submit" button_type="submit" button_class="btn-primary" %} 
+{% if user_profile.isStaff == True %}
+      {% bootstrap_button "Accept D3" name="Accept" button_type="submit" button_class="btn-success" %} 
+      {% bootstrap_button "Reject D3" name="Reject" button_type="submit" button_class="btn-danger" %} 
+{% endif %}              
+        
+          
+      {% endbuttons %}        
+      </form>
+    </div>
+  </div>
+  &nbsp;
+</div>  
+
+<script>
+$(document).ready(function(){
+    $('[data-toggle="tooltip"]').tooltip(); 
+});
+</script>
+
+<script>
+$(document).ready(function(){
+    $('[data-toggle="popover"]').popover({
+     trigger: "hover",
+     html: true,
+     }); 
+});
+</script>
+{% endblock %}

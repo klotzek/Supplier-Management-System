@@ -1,0 +1,223 @@
+{% extends 'SMS/base.html' %}
+
+{% block content %}
+{# Load the tag library #}
+{% load bootstrap3 %}
+
+{# Load CSS and JavaScript #}
+{% bootstrap_css %}
+{% bootstrap_javascript %}
+
+{# Display django.contrib.messages as Bootstrap alerts #}
+{% bootstrap_messages %}
+
+<div class="container-fluid">
+<div class= "row">
+<div class="col-md-12">
+
+<h3>
+
+{% if 'new_claim'  in request.path %}new claim{% endif %}
+{% if 'claim_edit'  in request.path %}edit claim{% endif %}
+
+ </h3>
+
+</div>
+</div>
+
+    <form method="POST" class="form"  {% if form.is_multipart %}enctype="multipart/form-data"{% endif %}>
+    {% csrf_token %}
+      {% bootstrap_form_errors form type='non_fields' %} 
+
+{% if 'claim_edit'  in request.path %}
+<h4>
+<div class="row">
+
+    <div class = "col-md-2 col-xs-3">
+    Claim No. {{ claim.pk | stringformat:"07d" }}
+    </div>
+    <div class = "col-md-2 col-xs-3">
+    Date: {{ claim.created_date|date:'d.m.Y' }}
+    </div>
+    <div class = "col-md-2 col-xs-3">
+    from {{ claim.created_by }}
+    </div>
+    <div class = "col-md-2 col-xs-3">
+    NMB Plant: {{ claim.plant }}
+    </div>
+</div>
+</h4>
+<hr />
+{% endif %}
+
+
+
+<div class = "row">
+  <div class="col-md-4">
+      {% bootstrap_field form.File %}
+  </div>
+  <div class="col-md-3">
+      {% bootstrap_field form.OK_picture %}
+  </div>
+  <div class="col-md-3">
+      {% bootstrap_field form.NOK_picture %}
+  </div>
+</div>
+<hr />
+
+<div class="row">
+  <div class="col-md-2">
+    {% if no_label %}
+        {% bootstrap_field form.part_number  layout='inline' %}
+    {% else %}
+        {% bootstrap_field form.part_number %}
+    {% endif %}
+  </div>
+  <div class="col-md-2">
+    {% if no_label %}
+      {% bootstrap_field form.speaking_name  layout='inline' %}
+    {% else %}
+      {% bootstrap_field form.speaking_name  %}
+    {% endif %}
+  </div>
+  <div class="col-md-2">
+    {% if no_label %}
+      {% bootstrap_field form.project  layout='inline' %} 
+    {% else %}
+      {% bootstrap_field form.project  %} 
+    {% endif %}
+  </div>
+  <div class="col-md-2">
+    {% if no_label %}
+      {% bootstrap_field form.plant  layout='inline' label='NMB-plant' %}
+    {% else %}
+      {% bootstrap_field form.plant  %}
+    {% endif %}
+  </div>
+  <div class="col-md-2">
+    {% if no_label %}
+      {% bootstrap_field form.responsible_in_plant  layout='inline' %}  
+    {% else %}
+      {% bootstrap_field form.responsible_in_plant %}  
+    {% endif %}
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-md-2">
+    {% if no_label %}
+      {% bootstrap_field form.car_maker  layout='inline' %}
+    {% else %}
+      {% bootstrap_field form.car_maker %}  
+    {% endif %}
+  </div>
+  <div class="col-md-2">
+    {% if no_label %}
+      {% bootstrap_field form.classification  layout='inline' %}  
+    {% else %}
+      {% bootstrap_field form.classification  %}  
+    {% endif %}
+  </div>
+  <div class="col-md-2">
+    {% if no_label %}
+      {% bootstrap_field form.milage  layout='inline' %} 
+    {% else %}
+      {% bootstrap_field form.milage  %} 
+    {% endif %}
+  </div>
+  <div class="col-md-2">
+    {% if no_label %}
+      {% bootstrap_field form.special_characteristic_impact  layout='inline' %}
+    {% else %}
+      <label></label>
+      {% bootstrap_field form.special_characteristic_impact  layout='inline' %}
+    {% endif %}
+  </div>
+  <div class="col-md-2">
+    {% if no_label %}
+      {% bootstrap_field form.reoccurance  layout='inline' %}  
+    {% else %}
+      <label></label>
+      {% bootstrap_field form.reoccurance  layout='inline' %}  
+    {% endif %}
+  </div>
+</div>
+
+
+<div class="row">
+  <div class="col-md-4">
+    {% bootstrap_field form.D2_description  layout='inline' %}
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-md-2">
+    {% if no_label %}
+        {% bootstrap_field form2.what_happened  layout='inline' %}
+    {% else %}
+        {% bootstrap_field form2.what_happened %}
+    {% endif %}
+  </div>
+  <div class="col-md-2">
+    {% if no_label %}
+      {% bootstrap_field form2.why_problem  layout='inline' %}
+    {% else %}
+      {% bootstrap_field form2.why_problem  %}
+    {% endif %}
+  </div>
+  <div class="col-md-2">
+    {% if no_label %}
+      {% bootstrap_field form2.when_detected  layout='inline' %} 
+    {% else %}
+      {% bootstrap_field form2.when_detected  %} 
+    {% endif %}
+  </div>
+  <div class="col-md-2">
+    {% if no_label %}
+      {% bootstrap_field form2.who_detected  layout='inline' %}
+    {% else %}
+      {% bootstrap_field form2.who_detected  %}
+    {% endif %}
+  </div>
+</div>
+ 
+<div class="row">
+  <div class="col-md-2">
+    {% if no_label %}
+        {% bootstrap_field form2.where_detected  layout='inline' %}
+    {% else %}
+        {% bootstrap_field form2.where_detected %}
+    {% endif %}
+  </div>
+  <div class="col-md-2">
+    {% if no_label %}
+      {% bootstrap_field form2.how_detected  layout='inline' %}
+    {% else %}
+      {% bootstrap_field form2.how_detected  %}
+    {% endif %}
+  </div>
+  <div class="col-md-2">
+    {% if no_label %}
+      {% bootstrap_field form2.how_many_NOK  layout='inline' %} 
+    {% else %}
+      {% bootstrap_field form2.how_many_NOK  %} 
+    {% endif %}
+  </div>
+</div>
+
+
+
+
+  {% buttons %}
+    <button type="submit" class="btn btn-default">
+{% if 'new_claim'  in request.path %}Save{% endif %}
+{% if 'claim_edit'  in request.path %}Update{% endif %}
+
+    </button>
+  {% endbuttons %}
+
+    </form>
+</div>
+
+{% endblock %}
+

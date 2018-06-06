@@ -1,0 +1,289 @@
+{% extends 'SMS/base.html' %} 
+{% block content %} 
+{# Load the tag library #} 
+{% load bootstrap3 %} 
+{# Load CSS and JavaScript #} 
+{% bootstrap_css %} 
+{% bootstrap_javascript %} 
+{# Display django.contrib.messages as Bootstrap alerts #} 
+{% bootstrap_messages %} 
+{% include 'SMS/D8_header.html' %}
+{% load static %}
+ 
+<div class="container-fluid">  
+  <form method="POST" class="form"  {% if form.is_multipart %}enctype="multipart/form-data"{% endif %}>    {% csrf_token %}       {% bootstrap_form_errors form type='non_fields' %}  
+
+   <div class="row">
+    <div class= "col-md-2">
+      <h4>
+      D2 - Problem Description
+      </h4>
+    </div>
+   </div>
+   
+  
+   <div class="row">
+      <div class="col-md-5">
+          Claim uploaded by NMB-member: {{ creator.firstname }} {{ creator.lastname }}, <a href="mailto:{{ creator.email }}?subject=Question to claim No.: {{ claim.pk}}">{{ creator.email }}</a> 
+      </div>
+   </div>
+   <div class = "row">  
+      <div class="col-md-8">
+      
+        <table class="table table-responsive ">
+        <thead>        
+          <tr>
+            <th  scope="col" class = "text-center bg-danger">NOK part</th><th  scope="col" class = "text-center bg-success">OK part</th>
+          </tr>
+          <tr>
+          </thead>
+          <tbody>
+            <td class="text-center bg-danger">
+              <a href="../../media/{{ claim.NOK_picture }}" target="_blank">
+              <img src="../../media/{{ claim.NOK_picture }}" class=" img-thumbnail" />
+              </a>
+            </td>
+            <td  class="text-center bg-success">
+              <a href="../../media/{{ claim.OK_picture }}" target="_blank">
+              <img src="../../media/{{ claim.OK_picture }}" class="img-thumbnail" />
+              </a>
+            </td>
+          </tr>
+          </tbody>
+        </table>  
+      </div>
+    </div>
+    
+    {% if claim.File  %}    
+    <div class="row">
+      <div class="col-md-4">
+        Please also take a look at this File: <a href="../../media/{{ claim.File }}" target="_blank">{{ claim.File }}</a>
+      </div>  
+    </div>
+    {% endif %}
+
+
+
+
+    <div class="row">
+      <div class="col-md-4">
+        <label>
+        Description of failure as seen by NMB or customer:
+        </label>
+      </div>  
+    </div>
+
+    <div class="row">
+      <div class="col-md-4">
+        {{ claim.D2_description }}
+      </div>  
+    </div>
+    
+<hr />    
+    
+    <div class="row">
+      <div class="col-md-8">
+        <table class="table table-bordered">
+          <thead>
+            <tr>
+              <th colspan="2">Customer View</th><th colspan="2">Supplier View</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>
+              <a class="nolink" href="#" data-toggle="popover" title="What happened?" data-content="Description of the problem with clear and precise facts. Reoccurance information.">
+              What happened?
+              </a>
+              </td><td>{{ d2_cv.what_happened }}</td><td>
+              <a class="nolink" href="#" data-toggle="popover" title=" What is the difference between OK and NOK parts?" data-content="
+                Problem must be described as the deviation between an OK and an NOK part. <br />
+                Focus on the part and not on NMB application or process.
+                <ul>
+                  <li>Description of the problem with clear and precise facts as seen by NMB</li>
+                </ul>
+              ">
+              What is the difference between OK and NOK parts?
+              </a>
+              </td><td>{% bootstrap_field form.difference layout='inline' %}</td>
+            </tr>
+            <tr>
+              <td>
+              <a class="nolink" href="#" data-toggle="popover" title="Why is it a problem?" data-content="
+              Impact of the problem for the assembly site and/or for NMB. <br />
+              <ul>
+                <li>Impact on NMB because of this defect?</li>
+                <li>Impact on the logistic management of the part</li>
+                <li>Impact on the handling of the part</li>
+                <li>Impact on the assembly of the part</li>
+                <li>Technical impact in the application</li>
+                <li>Impact on the product reliability</li>
+                <li>Impact in term of safety - regulation</li>
+                <li>How important is the problem?</li>
+              </ul>
+              ">
+              Why is it a problem?
+              </a>
+              </td><td>{{ d2_cv.why_problem }}</td><td>
+              <a class="nolink" href="#" data-toggle="popover" title="Was the part produced in the standard process?" data-content="
+                   Any product or process deviation or rework or operation done by non qualified/authorized person must be taken in consideration. 
+                   If the answer is NO, the deviation must be clearly described and the references of the associated documents mentioned. 
+                   Use traceability information on the part to answer the question.
+              ">
+              Was the part produced in the standard process?
+              </a>
+              </td><td>{% bootstrap_field form.standard_process  layout='inline' %}</td>
+            </tr>
+            <tr>
+              <td>
+              <a class="nolink" href="#" data-toggle="popover" title="When was the problem detected?" data-content="
+                First occurence at NMB.
+                <ul>
+                  <li>date of the detection of the problem</li>
+                  <li>Exact time, hour, minute</li>
+                  <li>Manufacturing shift</li>
+                </ul>
+                In addition, the following data must be added for warranty issues:
+                <ul>
+                  <li>Mileage of the car</il>
+                  <li>Date of the registration of the car</li>
+                  <li>Date of notification</li>
+                 </ul> 
+              ">
+              When was the problem detected?
+              </a>
+              </td><td>{{d2_cv.when_detected}}</td><td>
+              <a class="nolink" href="#" data-toggle="popover" title="When was it produced?" data-content="
+                    <ul>
+                      <li>Date of production of the part</li>
+                      <li>Exact time based on traceability data of the parts and their sub assemblies, can include date of test of the part</li>
+                      <li>Manufacturing shift</li>
+                      <li>Traceability data when avalaible</li>
+                    </ul>
+              ">
+              When was it produced?
+              </a>
+              </td><td>{% bootstrap_field form.when_produced  layout='inline' %}</td>
+            </tr>
+            <tr>
+              <td>
+              <a class="nolink" href="#" data-toggle="popover" title="Who has detected the problem?" data-content="
+                Name and function of the person who detected the problem first.
+              ">
+              Who has detected the problem?
+              </a>
+              </td><td>{{ d2_cv.who_detected }}</td><td>
+              <a class="nolink" href="#" data-toggle="popover" title="Who produced the part?" data-content="
+                 These information are related to the person working at the station responsible for the defect and the person in charge of the detection of the defect.
+                 <ul>
+                  <li>Name</li>
+                  <li>Function of the person, qualification, status (temporary or supplier employee)</li>
+                  <li>Name of the company when relevant (subcontracted part for instance)</li>
+                </ul>
+              ">
+              Who produced the part?
+              </a>
+              </td><td>{% bootstrap_field form.who_produced layout='inline'  %}</td>
+            </tr>
+            <tr>
+              <td>
+              <a class="nolink" href="#" data-toggle="popover" title="Where was the problem detected?" data-content="
+                <ul>
+                  <il>Plant name or Customer name</li>
+                  <li>Assembly line name</li>
+                  <li>Step of the process of assembly including step before and after (reception, warehouse, subassembly, assembly, test, warehouse, logistic, garage, field...)</li>
+              ">
+              Where was the problem detected?
+              </a>
+              </td><td>{{d2_cv.where_detected}}</td><td>
+              <a class="nolink" href="#" data-toggle="popover" title="In which other application or process is the product used?" data-content="
+                    If applicable, defined data is requested
+                    <ul>
+                      <li>Product description</li>
+                      <li>Supplier and/or NMB products</li>
+                      <li>NMB applications</li>
+                      <li>Extend the answer to other different products  or processes if the same symptom is potentially present (same assembly machine for instance)</li>
+                    </ul>
+              ">
+              In which other application or process is the product used?
+              </a>
+              </td><td>{% bootstrap_field form.other_application  layout='inline' %}</td>
+            </tr>
+            <tr>
+              <td>
+              <a class="nolink" href="#" data-toggle="popover" title="How was the problem detected?" data-content="
+                <ul>
+                  <li>Operation done to detect the defect</li>
+                  <li>Reference to the work instruction when relevant</li>
+                  <li>Type of tool or machine used to detect the defect</li>
+                  <li>Process parameters including distance, time to detect visually the problem, limits or master samples used</li>
+                  <li>Environmental conditions such as light, temperature, ambient noise...</li>
+                </ul>
+              ">
+              How was the problem detected?
+              </a>
+              </td><td>{{d2_cv.how_detected}}</td><td>
+              <a class="nolink" href="#" data-toggle="popover" title="Going to the shopfloor, using the testing equipment or applying the work instruction with the defined limits, without any warning to the operators, do we catch the defect ?" data-content="
+                If the answer is YES, precise elements that lead to the detection (machine number, operator name and qualification, work instruction used...)
+                <br />
+                If the concerned operators have been warned to do the test, give the information
+                ">
+              Do we catch the defect when reinjecting NOK part in standard process?
+              </a>
+              </td><td>{% bootstrap_field form.reinjecting layout='inline'  %}</td>
+            </tr>
+            <tr>
+              <td>
+              <a class="nolink" href="#" data-toggle="popover" title="How many NOK parts?" data-content="
+                  <ul>
+                    <li>How many NOK parts have been found by NMB?</li>
+                    <li>Estimated costs (when appropriate)</li>
+                  </ul>
+              ">
+              How many NOK parts?
+              </a>
+              </td><td>{{d2_cv.how_many_NOK}}</td><td>
+              <a class="nolink" href="#" data-toggle="popover" title="Did a similar problem happen previously at NMB or internally?" data-content="
+                   Consult Line, Claim Management, etc. to answer to the question
+                   <ul>
+                    <li>If yes, how many times, complete the information via graphic board.</li>
+                    <li>Product designation and references</li>
+                    <li>Dates of detection of the previous defects</li>
+                    <li>Location of the detection</li>
+                    <li>Quantity of the defects</li>
+                    <li>Reference of the previous analysis</li>
+                  </ul>
+              ">
+              Did a similar problem happen previously at NMB or internally?
+              </a>
+              </td><td>{% bootstrap_field form.similar_problem layout='inline'  %}</td>
+            </tr>
+          </tbody>
+          
+        </table>
+      </div>
+    </div>
+    
+    {% buttons %}     
+    <button type="submit" class="btn btn-default">Save     
+    </button>  {% endbuttons %}     
+  </form>
+</div>
+
+<script>
+$(document).ready(function(){
+    $('[data-toggle="tooltip"]').tooltip(); 
+});
+</script>
+
+<script>
+$(document).ready(function(){
+    $('[data-toggle="popover"]').popover({
+     trigger: "hover",
+     html: true,
+     }); 
+});
+</script>
+
+{% endblock %}
+

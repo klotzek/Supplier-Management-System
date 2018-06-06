@@ -1,0 +1,43 @@
+{% extends 'SMS/base.html' %} {% block content %} {% load fontawesome %}  
+<div class = "container-fluid">
+  <div class="row">  
+    <div class="col-md-4"><h3>User</h3>{% if user_profile.isAdmin == True %}      
+      <p>    &nbsp;            
+        <a href="{% url 'user_new' show_company%}">{% fontawesome_icon 'plus' color='green' %} Add user for vendor {{company.name}} {% fontawesome_icon 'plus' color='green' %}</a>    
+      </p>     {% endif %}      
+      <table class="table table-hover">           
+        <tr>        <td><strong>Name:</strong></td>        <td>{{user_profile.lastname}}</td>           
+        </tr>           
+        <tr>        <td><strong>Firstname:</strong></td>        <td>{{user_profile.firstname}}</td>           
+        </tr>           
+        <tr>        <td><strong>Mailadress:</strong></td>        <td>{{user_profile.email}}</td>           
+        </tr>            
+        <tr>        <td><strong>Admin:</strong></td>        <td>{{user_profile.isAdmin}}</td>           
+        </tr>    
+      </table><h3>Company</h3>    
+      <p>    
+      </p>{% if user_profile.isStaff == True %}      
+      <p>           
+        <a href="{% url 'vendor_new' %}">{% fontawesome_icon 'plus' color='green' %} Add new vendor {% fontawesome_icon 'plus' color='green' %}</a>    
+      </p>     {% endif %} {% if user_profile.isAdmin == True or user_profile.isStaff == True %}      
+      <p>    &nbsp;            
+        <a href="{% url 'vendor_edit' show_company %}">{% fontawesome_icon 'pencil' color='orange' %} Edit vendor {{company.name}} {% fontawesome_icon 'pencil' color='orange' %}</a>    
+      </p>     {% endif %}      
+      <table class="table table-hover">           
+        <tr>        <td><strong>Name:</strong></td>        <td>{{company.name}}</td>           
+        </tr>           
+        <tr>        <td><strong>DUNS:</strong></td>        <td>{{company.DUNS}}</td>           
+        </tr>           
+        <tr>        <td><strong>Adress:</strong></td>        <td>{{company.adress1}}</td>           
+        </tr>        <td><strong>Adress:</strong></td>        <td>{{company.adress2}}</td>           
+        </tr>            
+        <tr>        <td><strong>Postcode:</strong></td>        <td>{{company.postcode}}</td>           
+        </tr>            
+        <tr>        <td><strong>Postal town:</strong></td>        <td>{{company.town}}</td>           
+        </tr>            
+        <tr>        <td><strong>Country:</strong></td>        <td>{{company.country}}</td>           
+        </tr>    
+      </table>  
+    </div>  
+  </div>
+</div>{% endblock %}

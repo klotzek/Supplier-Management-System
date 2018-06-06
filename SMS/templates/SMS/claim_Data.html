@@ -1,0 +1,112 @@
+{% extends 'SMS/base.html' %}
+
+{% block content %}
+
+{% load bootstrap3 %} {# Load the tag library #} 
+{% bootstrap_css %} {# Load CSS and JavaScript #} 
+{% bootstrap_javascript %} {# Embeds Bootstrap JS #}
+{% bootstrap_messages %} {# Display django.contrib.messages as Bootstrap alerts #}
+ 
+
+{% block extrahead %}   {# Extra Resources Start #}
+{% endblock %}          {# Extra Resources End #}
+
+{{ form.media }}        {# Form required JS and CSS #}
+
+
+{% include 'SMS/D8_header.html' %}
+
+ 
+<div class="container-fluid">  
+  <div class="row">    
+    <div class = "col-md-2 col-xs-3">    Claim No.: {{ claim.pk | stringformat:"07d" }}     
+    </div>    
+    <div class = "col-md-2 col-xs-3">    Claim opened: {{ claim.created_date|date:'d.m.Y' }}     
+    </div>    
+    <div class = "col-md-2 col-xs-3">    from: {{ claim.created_by }}     
+    </div>    
+    <div class = "col-md-2 col-xs-3">    NMB Plant: {{ claim.plant }}     
+    </div>    
+    <div class = "col-md-2 col-xs-3">    Part No.: {{ claim.part_number }}     
+    </div>    
+    <div class = "col-md-2 col-xs-3">    Part Name: {{ claim.speaking_name }}     
+    </div>
+  </div>
+  <div class="row">    
+    <div class = "col-md-2 col-xs-3">    Car maker: {{ claim.car_maker }}     
+    </div>    
+    <div class = "col-md-2 col-xs-3">    Classification: {{ claim.classification }}     
+    </div>    
+    <div class = "col-md-2 col-xs-3">    milage: {{ claim.milage }}     
+    </div>    
+    <div class = "col-md-2 col-xs-3 {% if claim.special_characteristic_impact %} text-danger{% endif %}">    
+    {% if claim.special_characteristic_impact %}<strong>{% endif %}
+    Special characteristic impact: {{ claim.special_characteristic_impact }}     
+    {% if claim.special_characteristic_impact %}</strong>{% endif %}
+    </div>    
+    <div class = "col-md-2 col-xs-3{% if claim.reoccurance %} text-danger {% endif %}">    
+    {% if claim.special_characteristic_impact %}<strong>{% endif %}
+    Reoccurance: {{ claim.reoccurance }}     
+    {% if claim.special_characteristic_impact %}</strong>{% endif %}
+    </div>      
+    <div class = "col-md-2 col-xs-3">    
+    Project: {{ claim.project }}     
+    </div>      
+  </div>
+  <hr />
+  <form method="POST" class="form"  {% if form.is_multipart %}enctype="multipart/form-data"{% endif %}>    
+  {% csrf_token %}       
+  {% bootstrap_form_errors form type='non_fields' %}  
+
+  <div class="row">
+    <div class="col-md-2">
+      <h4>
+      Traceability Data
+      </h4>
+    </div>
+  </div> 
+   <div class = "row">  
+      <div class="col-md-8">    
+        <table class="table table-responsive table-hover table-sm">        
+          <tr>        <td>             {% bootstrap_field form.production_date_1 %}         </td>        <td>       {% bootstrap_field form.operator_1 %}            </td>        <td>            {% bootstrap_field form.batch_1 %}         </td><td>             {% bootstrap_field form.cavity_1 %}         </td>      
+          </tr>                        
+          <tr>        <td>             {% bootstrap_field form.production_date_2 %}         </td>        <td>          {% bootstrap_field form.operator_2 %}         </td>                <td>        {% bootstrap_field form.batch_2 %}         </td> <td>           {% bootstrap_field form.cavity_2 %}       </td>       
+          </tr>      
+          <tr>        <td>            {% bootstrap_field form.production_date_3 %}        </td>        <td>         {% bootstrap_field form.operator_3 %}         </td>        <td>          {% bootstrap_field form.batch_3 %}         </td><td>           {% bootstrap_field form.cavity_3 %}         </td>        
+          </tr>    
+        </table>  
+      </div>
+    </div>
+  <div class="row">
+    <div class="col-md-4">
+      <h4>
+      Acceptance
+     <small class="text-muted">Please give an answer after initial analysis</small>
+      </h4>
+    </div>
+  </div> 
+
+    <div class = "row">  
+      <div class="col-md-2">
+
+
+        <label>Click if claim is accepted</label>
+        {% bootstrap_field form.accepted %}   
+      </div>  
+      <div class="col-md-2">      
+        <label>Click if claim is refused
+        </label>      {% bootstrap_field form.refused %}   
+      </div>
+    </div>
+
+{% buttons %}     
+    <button type="submit" class="btn btn-default">Save     
+    </button>  
+    {% if user_profile.isStaff == True and claim.status_id %}
+      {% bootstrap_button "Accept refusal" name="Refusal" button_type="submit" button_class="btn-success" %} 
+    {% endif %}              
+
+    {% endbuttons %}     
+  </form>
+</div>
+{% endblock %}

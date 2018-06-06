@@ -1,0 +1,44 @@
+{% extends 'SMS/base.html' %} {% block content %} {% load fontawesome %} 
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-md-10"><h3>Claims</h3>{% if user_profile.isStaff == True %}     
+      <a href="{% url 'new_claim' show_company %}"><span class="glyphicon glyphicon-plus green"></span> Add new claim for {{ company.name }} <span class="glyphicon glyphicon-plus green"></span></a>     {% endif %} 
+      <table class="table table-hover table-condensed">    
+        <thead>        
+          <th>claim number
+          </th>        
+          <th>status
+          </th>        
+          <th>creation date
+          </th>        
+          <th>due date
+          </th>        
+          <th>part number
+          </th>        
+          <th>speaking name
+          </th>        
+          <th>plant
+          </th>        
+          <th>responsible
+          </th>        
+          <th>classification
+          </th>        
+          <th>RMA
+          </th>{% if user_profile.isStaff == True %}         
+          <th>
+          </th>        
+          <th>
+          </th>{% endif %}              
+        </thead>    
+        <tbody>    {% for claim in claims %}     {% if claim.is_past_D3 %}
+          <tr class="danger">    {% else %}
+            <tr>    {% endif %}         <td>
+                <a href="{% url 'claim_Data' claim.pk %}">{{ claim.pk | stringformat:"07d"}}</a></td>        <td>{{ claim.status }}</td>        <td>{{ claim.created_date|date:'d.m.Y' }}</td>        <td>{{ claim.due_date_D3|date:'d.m.Y; H:i' }}</td>        <td>{{ claim.part_number }}</td>        <td>{{ claim.speaking_name }}</td>        <td>{{ claim.plant }}</td>        <td>{{ claim.responsible_in_plant }}</td>        <td>{{ claim.classification }}</td>        <td>{{ claim.RMA }}</td>{% if user_profile.isStaff == True %}         <td>          
+                <a href="{% url 'claim_remove' claim.pk %}" title="Delete this claim" onclick="return confirm('Are you sure?')"><span class="glyphicon glyphicon-minus red"></span> Delete this claim</a>        </td>             <td>          
+                <a href="{% url 'claim_edit' claim.pk %}" title="Edit this claim" ><span class="glyphicon glyphicon-pencil orange"></span> Edit this claim</a>        </td>     {% endif %}              
+            </tr>    {% endfor %}     
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>{% endblock %}

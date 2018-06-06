@@ -1,0 +1,141 @@
+{% extends 'SMS/base.html' %}
+
+{% block content %}
+{% load fontawesome %}
+
+{% load staticfiles %}
+
+
+{% load bootstrap3 %} {# Load the tag library #} 
+{% bootstrap_css %} {# Load CSS and JavaScript #} 
+{% bootstrap_javascript %} {# Embeds Bootstrap JS #}
+{% bootstrap_messages %} {# Display django.contrib.messages as Bootstrap alerts #}
+ 
+
+{% block extrahead %}   {# Extra Resources Start #}
+{% endblock %}          {# Extra Resources End #}
+
+{{ form_due.media }}        {# Form required JS and CSS #}
+{{ form_D4_occ.media }}        {# Form required JS and CSS #}
+
+
+{% include 'SMS/D8_header.html' %} 
+
+  {% if messages %}
+<ul class="messages">
+    {% for message in messages %}
+    <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>
+        {% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}Important: {% endif %}
+        {{ message }}
+    </li>
+    {% endfor %}
+</ul>
+{% endif %}
+      
+
+
+<div class="container-fluid">      
+  <div class="row">    
+    <div class= "col-md-3">      <h4>      D5 - choose and verify permanent corrections        </h4>    
+    </div>    
+    <div class= "col-md-2">    {% if claim.is_past_D5 %}       
+      <h5 class="text-danger">      {% else %}       <h5>      {% endif %}       due date: {{ claim.due_date_D5 }}                  </h5>    
+    </div>    
+
+{% if user_profile.isStaff == True %}
+
+  <form method="POST" class="form-inline">    
+    {% csrf_token %}       
+    
+      {% bootstrap_form_errors form_due %}       
+      {% bootstrap_field form_due.due_date_D3 layout='inline'  form_group_class="hidden" %}
+      {% bootstrap_field form_due.due_date_D4 layout='inline'  form_group_class="hidden" %}
+      {% bootstrap_field form_due.due_date_D5 layout='inline' %}
+      {% buttons %}
+       <button type="submit" class="btn btn-primary" name="Button_due_date">New due date D5</button> (00:00 o'clock)   
+      {% endbuttons %}
+      </form> 
+{% endif %}              
+
+  </div>         
+
+  <div class="row">      
+    <div class="col-md-5">Claim uploaded by NMB-member: {{ creator.firstname }} {{ creator.lastname }}, 
+      <a href="mailto:{{ creator.email }}?subject=Question to claim No.: {{ claim.pk}}">{{ creator.email }}</a>        
+    </div>   
+  </div>
+  <hr />
+
+  <div class="row">
+    <div class="col-md-6 text-center bg-success no_padding_right">
+    <hr style="width:1px; height:28px; margin:0px;  border-right:1px solid; float:right; border-color:grey;">
+      <h4>Occurance</h4>
+    </div>
+
+    <div class="col-md-6 text-center bg-info">
+      <h4>Detection</h4>
+    </div>
+  </div>
+
+  <div class="row row-eq-height">
+    <div class="col-md-6 bg-success no_padding_right">
+    <hr style="width:1px; height:28px; margin:0px;  border-right:1px solid; float:right; border-color:grey;">
+    Please plan your corrective actions for occurance here. Don't forget to also have tasks for effectiveness tests.
+    <br>
+    {% if tasks_D5 %}
+     You have {{ tasks_D5|length }} open tasks in your Task list.  <a target="_blank" href="{% url 'task_tracker' 'due_date' claim 'D5 Occurance' 9999 %}"><span class="glyphicon glyphicon-tasks orange"></span> Open tasks for D5 Occurance <span class="glyphicon glyphicon-tasks orange"></span></a> 
+    {% else %}
+       <a target="_blank" href="{% url 'task_tracker' 'due_date' claim 'D5 Occurance' 9999 %}"><span class="glyphicon glyphicon-tasks green"></span> Add new task for D5 Occurance <span class="glyphicon glyphicon-tasks green"></span></a>    
+    {% endif %}
+    <br>
+    </div>
+ 
+    <div class="col-md-6  bg-info">
+    Please plan your corrective actions for non-detection here. Don't forget to also have tasks for effectiveness tests.
+    <br>
+    {% if tasks_D5_det %}
+     You have {{ tasks_D5_det|length }} open tasks in your Task list.  <a target="_blank" href="{% url 'task_tracker' 'due_date' claim 'D5 Detection' 9999 %}"><span class="glyphicon glyphicon-tasks orange"></span> Open tasks for D5, non-Detection <span class="glyphicon glyphicon-tasks orange"></span></a> 
+    {% else %}
+       <a target="_blank" href="{% url 'task_tracker' 'due_date' claim 'D5 Detection' 9999 %}"><span class="glyphicon glyphicon-tasks green"></span> Add new task for D5 non-Detection <span class="glyphicon glyphicon-tasks green"></span></a>    
+    {% endif %}
+    </div>
+  </div>
+
+ 
+ 
+      
+  <div class="row">
+    <br>
+    <div class="col-md-5">
+    After filling in all relevant data in the forms above you can submit the D4 here.
+    <br>
+      <form method="POST" class="form-inline">    {% csrf_token %}       
+      {% buttons %}
+      {% bootstrap_button "Submit D5" name="SubmitD5" button_type="submit" button_class="btn-primary" %} 
+  {% if user_profile.isStaff == True %}
+      {% bootstrap_button "Accept D5" name="AcceptD5" button_type="submit" button_class="btn-success" %} 
+      {% bootstrap_button "Reject D5" name="RejectD5" button_type="submit" button_class="btn-danger" %} 
+  {% endif %}              
+      {% endbuttons %}        
+      </form>
+    </div>
+  </div>
+  &nbsp;
+</div>  
+
+<script>
+$(document).ready(function(){
+    $('[data-toggle="tooltip"]').tooltip(); 
+});
+</script>
+
+<script>
+$(document).ready(function(){
+    $('[data-toggle="popover"]').popover({
+     trigger: "hover",
+     html: true,
+     container: 'body',
+     }); 
+});
+</script>
+{% endblock %}

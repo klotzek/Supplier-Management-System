@@ -1,0 +1,75 @@
+.orange {
+    color:orange;
+}
+
+.green {
+    color:green;
+}
+
+.red {
+    color:red;
+}
+
+a.nolink {
+  color: black;
+}
+
+.h_2 {
+  margin-top: 0px; 
+  margin-bottom: 0px;
+  font-size: 36px;
+  font-family: inherit;
+  font-weight:600;
+  line-height: 1.3;
+  color: inherit;
+}
+
+.h_3 {
+  margin-top: 0px; 
+  margin-bottom: 0px;
+  font-size: 24px;
+  font-family: inherit;
+  font-weight:500;
+  line-height: 1.1;
+  color: inherit;
+}
+
+.add_margin {
+  margin-top: 20px; 
+  margin-left: 20px;
+}
+
+svg {
+  overflow: visible !important;
+}
+
+div.no_padding_right {
+  padding-right: 0px;
+}
+
+div.ohne_bottom_margin {
+  margin-bottom: 0px !important; 
+}
+
+hr {
+  margin-top: 5px !important;
+  margin-bottom: 5px !important;
+}
+
+.bg-img {
+  margin: 0px;
+  padding: 0px;
+  background-image: url("../../../static/images/minebeamitsumi-town.png");
+  height: 10em;
+}
+
+/*
+ * Row with equal height columns
+ * --------------------------------------------------
+ */
+.row-eq-height {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display:         flex;
+}
