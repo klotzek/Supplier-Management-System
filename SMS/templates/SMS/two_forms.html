@@ -19,6 +19,9 @@
 {% if 'user_new'  in request.path %}
 new user for vendor {{company}}
 {% endif %}
+{% if 'user_new'  in request.path %}
+new user for vendor {{company}}
+{% endif %}
 
  </h3>
     <form method="POST" class="form">{% csrf_token %}

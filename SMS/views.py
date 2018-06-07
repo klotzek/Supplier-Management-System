@@ -1,8 +1,8 @@
 import pdb
 import os
 from django.shortcuts import render, get_object_or_404, redirect, render_to_response
-from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
+from django.http import HttpResponse
 from .models import UserProfile, Company, Claim, ClaimStatus, Team, D2_CV, D2_SV, D3, PenaltyPeriods, Ishikawa_occurance, Ishikawa_detection, Task, W5_occurance, W5_detection, D4, D4_reproduction, File
 from django.contrib.auth.models import User
 from django.contrib import messages
@@ -47,6 +47,32 @@ def vendor_new(request):
 
 @login_required
 def user_new(request, company_id):
+    actual_user_id = request.user
+    user_profile = UserProfile.objects.get(user_id=actual_user_id)
+    user_profile.company_id = company_id
+    company = Company.objects.get(pk=user_profile.company_id)
+    show_company = company_id
+    vendors=[(vendor.pk, vendor.name) for vendor in Company.objects.all()]
+
+    if request.method == "POST":
+        form1 = UserForm(request.POST)
+        form2 = UserProfileForm(request.POST)
+        if form1.is_valid() and form2.is_valid():
+            new_user = User.objects.create_user(**form1.cleaned_data)
+            new_user_profile = form2.save(commit=False)
+            user = User.objects.get(username = request.POST.get("username"))
+            new_user_profile.user_id =  user.pk
+            new_user_profile.company_id=show_company 
+            new_user_profile.save()
+            return redirect('index')
+    else:
+        form1 = UserForm()
+        form2 = UserProfileForm()
+        return render(request, 'SMS/two_forms.html',{'user_profile':user_profile, 'company':company, 'show_company':show_company, 'vendors':vendors,  'form1': form1, 'form2':form2})
+
+
+@login_required
+def user_edit(request, company_id):
     actual_user_id = request.user
     user_profile = UserProfile.objects.get(user_id=actual_user_id)
     user_profile.company_id = company_id
@@ -612,14 +638,21 @@ def D1D8(request, claim):
 
            
 
-# @login_required
+@login_required
 def task_tracker(request, order, project, subproject, id):
-    actual_user_id = request.user
-    user_profile = UserProfile.objects.get(user_id=actual_user_id)
 
+    actual_user_id = request.user
+#     pdb.set_trace()
+    user_profile = UserProfile.objects.get(user_id=actual_user_id)
+#     user_profile = UserProfile.objects.filter(user_id=actual_user_id).first
+#     try:
+#         user_profile = UserProfile.objects.get(user_id=actual_user_id)
+#     except:
+#         user_profile=None
+    
+    
     company = Claim.objects.get(pk=project).related_to.name
     path = 'uploads/' + company + '/Claim_' + str(project)
-#     pdb.set_trace()
     tasks = Task.objects.filter(project=project, subproject=subproject, closed=False).order_by(order)
     tasks_done = Task.objects.filter(project=project, subproject=subproject, closed = True)
     task_to_edit = None

@@ -133,7 +133,23 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+STATICFILES_DIRS = [
+    '/home/admin/SupplierManagementSystem/SMS/static',
+    '/usr/local/lib/python3.6/dist-packages/django/contrib/admin/static/admin',
+    ]
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 LOGIN_REDIRECT_URL = '/SMS/'
+
+# MEDIA_ROOT = BASE_DIR.child('media')
+# STATIC_ROOT = BASE_DIR.child('static')
+# 
+# STATICFILES_DIRS = (
+#     BASE_DIR.child('SMS').child('static'),
+#     )
+# 
+# STATIC_URL = '/static/'
+# MEDIA_URL = '/media/'
+# 
+# LOGIN_REDIRECT_URL = '/SMS/'
