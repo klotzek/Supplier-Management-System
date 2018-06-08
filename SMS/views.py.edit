@@ -1,10 +1,11 @@
 import pdb
 import os
 from django.shortcuts import render, get_object_or_404, redirect, render_to_response
-from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
+from django.http import HttpResponse
 from .models import UserProfile, Company, Claim, ClaimStatus, Team, D2_CV, D2_SV, D3, PenaltyPeriods, Ishikawa_occurance, Ishikawa_detection, Task, W5_occurance, W5_detection, D4, D4_reproduction, File
 from django.contrib.auth.models import User
+from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib import messages
 from .forms import Claim_New_Form, CompanyForm, UserForm, UserProfileForm, Team_Form, Data_Form, D2_CV_Form, D2_SV_Form, Claim_Form, D3_Form, Ishi_Occ_Form , Ishi_Det_Form, TaskForm, TaskFormBig, W5_Occ_Form , W5_Det_Form, D4Form, D4Form_reproduction, FileForm 
 from datetime import datetime, timedelta
@@ -641,14 +642,21 @@ def D1D8(request, claim):
 
            
 
-# @login_required
+@login_required 
 def task_tracker(request, order, project, subproject, id):
-    actual_user_id = request.user
-    user_profile = UserProfile.objects.get(user_id=actual_user_id)
 
+    actual_user_id = request.user
+#     pdb.set_trace()
+    user_profile = UserProfile.objects.get(user_id=actual_user_id)
+#     user_profile = UserProfile.objects.filter(user_id=actual_user_id).first
+#     try:
+#         user_profile = UserProfile.objects.get(user_id=actual_user_id)
+#     except:
+#         user_profile=None
+    
+    
     company = Claim.objects.get(pk=project).related_to.name
     path = 'uploads/' + company + '/Claim_' + str(project)
-#     pdb.set_trace()
     tasks = Task.objects.filter(project=project, subproject=subproject, closed=False).order_by(order)
     tasks_done = Task.objects.filter(project=project, subproject=subproject, closed = True)
     task_to_edit = None

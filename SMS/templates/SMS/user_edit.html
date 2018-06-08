@@ -16,12 +16,7 @@
 
 <h3>
 
-{% if 'user_new'  in request.path %}
-new user for vendor {{company}}
-{% endif %}
-{% if 'user_edit'  in request.path %}
-edit user for vendor {{user_profile.user}}
-{% endif %}
+edit user {{user_profile.user}}
 
  </h3>
     <form method="POST" class="form">{% csrf_token %}

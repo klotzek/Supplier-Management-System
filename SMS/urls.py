@@ -25,6 +25,7 @@ urlpatterns = [
     path('vendor_new/', views.vendor_new, name='vendor_new'),
     path('vendor_edit/<int:vendor>', views.vendor_edit, name='vendor_edit'),
     path('user_new/<int:company_id>', views.user_new, name='user_new'),
+    path('user_edit/<int:user>', views.user_edit, name='user_edit'),
     path('task_tracker/<str:order>/<int:project>/<str:subproject>/<int:id>', views.task_tracker, name='task_tracker'),
 #     path('task_tracker/<int:project>/<str:subproject>/<int:id>', views.task_tracker, name='task_tracker'),
 #     path('userprofile_new/<int:new_user>', views.userprofile_new, name='userprofile_new'),

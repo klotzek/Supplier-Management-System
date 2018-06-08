@@ -13,7 +13,10 @@
     {% if user_profile.isAdmin == True %}      
       <p>    &nbsp;            
         <a href="{% url 'user_new' show_company%}"><span class="glyphicon glyphicon-plus green"></span> Add user for vendor {{company.name}} <span class="glyphicon glyphicon-plus green"></span></a>    
-      </p>     {% endif %}      
+      </p>     {% endif %}
+      <p>
+        <a href="{% url 'user_edit' user_profile.user_id %}"><span class="glyphicon glyphicon-pencil orange"></span> Edit user {{user_profile.user}} <span class="glyphicon glyphicon-pencil orange"></span></a>    
+      </p>      
       <table class="table table-hover">           
         <tr>        <td><strong>Name:</strong></td>        <td>{{user_profile.lastname}}</td>           
         </tr>           
