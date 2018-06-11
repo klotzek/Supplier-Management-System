@@ -66,7 +66,7 @@ def user_new(request, company_id):
             new_user_profile.save()
             return redirect('index')
     else:
-        form1 = PasswordChangeForm(request.user)
+        form1 = UserForm()
         form2 = UserProfileForm()
         return render(request, 'SMS/two_forms.html',{'user_profile':user_profile, 'company':company, 'show_company':show_company, 'vendors':vendors,  'form1': form1, 'form2':form2})
 
@@ -95,7 +95,7 @@ def user_edit(request, user):
             new_user_profile.save()
             return redirect('index')
     else:
-        form1 = UserForm(instance=user)
+        form1 = PasswordChangeForm(request.user)
         form2 = UserProfileForm(instance=user_profile)
         return render(request, 'SMS/user_edit.html',{'user_profile':user_profile, 'company':company, 'show_company':show_company, 'vendors':vendors,  'form1': form1, 'form2':form2})
 
