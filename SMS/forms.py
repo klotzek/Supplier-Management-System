@@ -1,7 +1,7 @@
 import pdb
 from bootstrap_datepicker.widgets import DatePicker 
 from django import forms
-from .models import Company, Claim, UserProfile, Team, D2_CV, D2_SV, D3, Ishikawa_occurance, Ishikawa_detection, Task, W5_occurance, W5_detection, D4, D4_reproduction, File
+from .models import Company, Claim, UserProfile, Team, D2_CV, D2_SV, D3, Ishikawa_occurance, Ishikawa_detection, Task, W5_occurance, W5_detection, D4, D4_reproduction, File, Comment
 from django.contrib.auth.models import User
 
 
@@ -90,11 +90,23 @@ class D4Form_det(forms.ModelForm):
           'effective_det_reproduced',
         ]
 
+class CommentForm(forms.ModelForm):
+    class Meta:
+        model=Comment
+        widgets={
+          'comment':forms.Textarea(attrs={'rows':1, 'cols':120}),
+        }
+        fields=[
+          'comment', 
+          'file', 
+        ]
+
+
 class TaskForm(forms.ModelForm):
     class Meta:
         model=Task
         widgets={
-          'task':forms.Textarea(attrs={'rows':1, 'cols':40}),
+          'task':forms.Textarea(attrs={'rows':1, 'cols':35}),
           'comment':forms.Textarea(attrs={'rows':1, 'cols':40}),
           'due_date': DatePicker(options={
                 "format": "yyyy-mm-dd",
@@ -110,6 +122,7 @@ class TaskForm(forms.ModelForm):
           'pilot',
           'due_date',
           'comment',
+          'status',
           'importance',
           'file',
         ]

@@ -334,8 +334,8 @@ class W5_detection(models.Model):
     
 
 
-STATUS_CHOICES = (('OPEN', 'open'), 
-                  ('CLOSED', 'closed'))
+STATUS_CHOICES = (('INTERNAL', 'internal'), 
+                  ('ALL', 'all'))
 IMPORTANCE_CHOICES = (('LOW', 'low'),
                       ('MID', 'mid'),
                       ('HIGH', 'high'),
@@ -354,6 +354,7 @@ class Task(models.Model):
     closed = models.BooleanField(default = False)
     importance = models.CharField(max_length=10, choices=IMPORTANCE_CHOICES, default='IMP')
     file = models.FileField(blank=True, null=True, upload_to='uploads/')
+    status = models.CharField(max_length=15, choices=STATUS_CHOICES, default = 'INTERNAL')
     @property
     def timely_status(self):
         if datetime.date(timezone.now()) > self.due_date:
@@ -370,6 +371,18 @@ class File(models.Model):
     
     def __str__(self):
         return str(self.project) + " " + str(self.subproject) + "  File " + str(self.pk)
+        
+class Comment(models.Model):
+    project = models.CharField(max_length=25)
+    subproject = models.CharField(max_length=25)
+    task = models.IntegerField()
+    author =  models.CharField(max_length=25)
+    comment =  models.TextField(verbose_name='new comment')
+    date_issued = models.DateField(auto_now_add=True)
+    file = models.FileField(blank=True, null=True, upload_to='uploads/')
+    
+    def __str__(self):
+        return str(self.project) + " " + str(self.subproject) + "  Comment " + str(self.pk)
         
     
     

@@ -1,0 +1,103 @@
+{% load staticfiles %}
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+        <link rel="stylesheet" href="{% static 'css/SMS.css' %}">
+        <script src="https://code.jquery.com/jquery-1.11.2.min.js"></script>
+        <script src="{% static 'js/bootstrap.js' %}"></script>
+        <script src="{% static 'js/moment.js' %}"></script>
+        <script src="{% static 'js/bootstrap-datetimepicker.min.js' %}"></script>
+
+        <title>Supplier Management System</title>
+    </head>
+ <body>
+
+{% load bootstrap3 %} {# Load the tag library #} 
+{% bootstrap_css %} {# Load CSS and JavaScript #} 
+{% bootstrap_javascript %} {# Embeds Bootstrap JS #}
+{% bootstrap_messages %} {# Display django.contrib.messages as Bootstrap alerts #}
+
+{% load fontawesome %}
+{% fontawesome_stylesheet %}
+ 
+
+{% block extrahead %}   {# Extra Resources Start #}
+{% endblock %}          {# Extra Resources End #}
+
+{{ form.media }}        {# Form required JS and CSS #}
+
+
+<div class="bg-img">
+  <div class="row">
+  <div class="col-md-12">
+  <p class="h_2 add_margin"> Details of {{ task_data.0 }} {{ task_data.1 }} Task Nb. {{ task_data.2}} 
+  </p>   
+  </div>
+  </div>
+</div>
+
+<div class="container-fluid">      
+  <div class="row">    
+    <div class= "col-md-2">      <h5>Edit this task or add comments:     </h5>    
+    </div>
+  </div>
+  
+  <div class="row">    
+    <div class= "col-md-12"> 
+      <form method="POST" class="form-inline"  {% if form.is_multipart %}enctype="multipart/form-data"{% endif %}>    
+      {% csrf_token %}       
+    
+      {% bootstrap_form_errors form %}       
+      {% bootstrap_form form layout='inline' %}
+      {% buttons %}
+       <button type="submit" class="btn btn-default" name="edit_task">Save & back</button> 
+       {% endbuttons %}
+      </form> 
+    </div>
+  </div>
+  
+  <hr />
+  
+  <div class="row">    
+    <div class= "col-md-12">
+      {% if comments %}
+
+      {% endif %} 
+       
+      <form method="POST" class="form-inline"  {% if form2.is_multipart %}enctype="multipart/form-data"{% endif %}> 
+      {% csrf_token %}       
+    
+      {% bootstrap_form_errors form2 %}       
+      {% bootstrap_form form2 layout='inline' %}
+      {% buttons %}
+       <button type="submit" class="btn btn-success" name="new_comment">New comment</button> 
+       {% endbuttons %}
+      </form>   
+    </div>
+   </div>
+
+   <hr>
+
+    {% for comment in comments %}
+        <div class="row">
+          <div class="col-md-4">
+          {{ user_profile.user }} wrote on {{ comment.date_issued}}{% if comment.file %}&nbsp;(and he left a file to download here: <a href="../../../../media/{{ comment.file }}" target="_blank"><span class="glyphicon glyphicon-cloud-download"></span></a>){% endif %}:
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-12">
+            <div class=" bg-success" >
+            {{ comment.comment }}
+            </div>
+          </div>
+        </div>
+        <br>
+    {% endfor %}
+
+
+  </body>
+</html>    
