@@ -37,9 +37,10 @@
           <tr>        <td>             {% bootstrap_field form.teammember_3 %}         </td>        <td>           {% bootstrap_field form.function_3 %}      </td>        <td>           {% bootstrap_field form.mail_3 %}         </td><td>{% bootstrap_field form.phone_3 %}</td>          
         </table>  
       </div>
-    </div>    {% buttons %}     
-    <button type="submit" class="btn btn-default">Save     
-    </button>  {% endbuttons %}     
+    </div>
+      {% buttons %}     
+      {% bootstrap_button "Save" name="save_D1" button_type="submit" button_class="btn-default" icon="glyphicon glyphicon-floppy-saved" %} 
+      {% endbuttons %}     
   </form>
 </div>
 {% endblock %}

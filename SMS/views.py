@@ -3,12 +3,12 @@ import os
 from django.shortcuts import render, get_object_or_404, redirect, render_to_response
 from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
-from .models import UserProfile, Company, Claim, ClaimStatus, Team, D2_CV, D2_SV, D3, PenaltyPeriods, Ishikawa_occurance, Ishikawa_detection, Task, W5_occurance, W5_detection, D4, D4_reproduction, File , Comment
+from .models import UserProfile, Company, Claim, ClaimStatus, Team, D2_CV, D2_SV, D3, PenaltyPeriods, Ishikawa_occurance, Ishikawa_detection, Task, W5_occurance, W5_detection, D4, D4_reproduction, File , Comment, D7
 from django.contrib import messages
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth.models import User
-from .forms import Claim_New_Form, CompanyForm, UserForm, UserProfileForm, Team_Form, Data_Form, D2_CV_Form, D2_SV_Form, Claim_Form, D3_Form, Ishi_Occ_Form , Ishi_Det_Form, TaskForm, TaskFormBig, W5_Occ_Form , W5_Det_Form, D4Form, D4Form_reproduction, FileForm, CommentForm 
+from .forms import Claim_New_Form, CompanyForm, UserForm, UserProfileForm, Team_Form, Data_Form, D2_CV_Form, D2_SV_Form, Claim_Form, D3_Form, Ishi_Occ_Form , Ishi_Det_Form, TaskForm, TaskFormBig, W5_Occ_Form , W5_Det_Form, D4Form, D4Form_reproduction, FileForm, CommentForm, D7Form 
 from datetime import datetime, timedelta
 from django.utils import timezone
 from django.core.mail import send_mail
@@ -128,10 +128,12 @@ def claims(request, company_id):
     company = Company.objects.get(pk=company_id)
     vendors=[(vendor.pk, vendor.name) for vendor in Company.objects.all()]
     show_company = company_id
-    claims = Claim.objects.filter(related_to = company_id, valid = 'True')
+    claims = Claim.objects.filter(related_to = company_id, valid = 'True').exclude(status__status = 'Closed')
+    claims_closed = Claim.objects.filter(related_to = company_id, valid = 'True', status__status = 'Closed')
+#     claims = Claim.objects.filter(related_to = company_id, valid = 'True', status__status = 'Closed')
 #     pdb.set_trace()
      
-    return render(request, 'SMS/claims.html', {'vendors':vendors, 'user_profile':user_profile, 'claims':claims, 'show_company':show_company, 'company':company,}) 
+    return render(request, 'SMS/claims.html', {'vendors':vendors, 'user_profile':user_profile, 'claims_closed':claims_closed, 'claims':claims, 'show_company':show_company, 'company':company,}) 
     
 @login_required
 def claim_edit(request, claim):
@@ -266,6 +268,7 @@ def D1D8(request, claim):
     ishi_det = Ishikawa_detection.objects.filter(claim_id=claim).first()
     W5_occ = W5_occurance.objects.filter(claim_id=claim).first()
     W5_det = W5_detection.objects.filter(claim_id=claim).first()
+    D7docu = D7.objects.filter(claim_id=claim).first()
           
     sorting_data = [0,0,'-',0,0,'-'] 
        
@@ -409,6 +412,7 @@ def D1D8(request, claim):
         if '/SMS/D3/' in request.path:
             tasks_D3 = Task.objects.filter(project=claim, subproject='D3', closed=False).order_by('due_date')
             form=D3_Form(request.POST, instance=d3)
+            form_due=Claim_Form(request.POST, instance=claim)
 #             pdb.set_trace()
             if form.is_valid():
 #                 pdb.set_trace()
@@ -577,12 +581,123 @@ def D1D8(request, claim):
                 claim.status_id = ClaimStatus.objects.get(status='D4 rejected').pk
                 claim.save()
                 return redirect('claims', company_id)
-                
+
+
 
         if '/SMS/D5/' in request.path:
-            tasks_D5 = Task.objects.filter(project=claim, subproject='D5 Occurance', closed=False).order_by('due_date')
+            tasks_D5_occ = Task.objects.filter(project=claim, subproject='D5 Occurance', closed=False).order_by('due_date')
             tasks_D5_det = Task.objects.filter(project=claim, subproject='D5 Detection', closed=False).order_by('due_date')
-            form_due= Claim_Form(request.POST, instance=claim)
+            tasks_D5_occ_all = Task.objects.filter(project=claim, subproject='D5 Occurance').order_by('due_date')
+            tasks_D5_det_all = Task.objects.filter(project=claim, subproject='D5 Detection').order_by('due_date')
+            pdb.set_trace()
+            
+            if 'SubmitD5' in request.POST:
+                if tasks_D5_occ:
+                    messages.add_message(request, messages.ERROR, 'You still have open tasks at occurance.') 
+                if tasks_D5_det:
+                    messages.add_message(request, messages.ERROR, 'You still have open tasks at detection.') 
+                if not tasks_D5_occ_all:
+                    messages.add_message(request, messages.ERROR, 'You don`t have any tasks at occurance.') 
+                if not tasks_D5_det_all:
+                    messages.add_message(request, messages.ERROR, 'You don`t have any tasks at detection.') 
+
+                if tasks_D5_occ_all and tasks_D5_det_all and not tasks_D5_occ and not tasks_D5_det:
+                    claim.status_id = ClaimStatus.objects.get(status='D5 uploaded').pk
+                    claim.save()
+                    return redirect('claims', company_id)
+                return redirect('D5', claim)
+                
+            if 'AcceptD5' in request.POST:
+                claim.status_id = ClaimStatus.objects.get(status='D5 accepted').pk
+                claim.save()
+                return redirect('claims', company_id)
+                
+            if 'RejectD5' in request.POST:
+                claim.status_id = ClaimStatus.objects.get(status='D5 rejected').pk
+                claim.save()
+                return redirect('claims', company_id)
+                
+
+#         if '/SMS/D5/' in request.path:
+#             tasks_D5 = Task.objects.filter(project=claim, subproject='D5 Occurance', closed=False).order_by('due_date')
+#             tasks_D5_det = Task.objects.filter(project=claim, subproject='D5 Detection', closed=False).order_by('due_date')
+#             form_due= Claim_Form(request.POST, instance=claim)
+
+                
+
+        if '/SMS/D6/' in request.path:
+            tasks_D6_occ = Task.objects.filter(project=claim, subproject='D6 Occurance', closed=False).order_by('due_date')
+            tasks_D6_det = Task.objects.filter(project=claim, subproject='D6 Detection', closed=False).order_by('due_date')
+            tasks_D6_occ_all = Task.objects.filter(project=claim, subproject='D6 Occurance').order_by('due_date')
+            tasks_D6_det_all = Task.objects.filter(project=claim, subproject='D6 Detection').order_by('due_date')
+            pdb.set_trace()
+            
+            if 'SubmitD6' in request.POST:
+                if tasks_D6_occ:
+                    messages.add_message(request, messages.ERROR, 'You still have open tasks at occurance.') 
+                if tasks_D6_det:
+                    messages.add_message(request, messages.ERROR, 'You still have open tasks at detection.') 
+                if not tasks_D6_occ_all:
+                    messages.add_message(request, messages.ERROR, 'You don`t have any tasks at occurance.') 
+                if not tasks_D6_det_all:
+                    messages.add_message(request, messages.ERROR, 'You don`t have any tasks at detection.') 
+
+                if tasks_D6_occ_all and tasks_D6_det_all and not tasks_D6_occ and not tasks_D6_det:
+                    claim.status_id = ClaimStatus.objects.get(status='D6 uploaded').pk
+                    claim.save()
+                    return redirect('claims', company_id)
+                return redirect('D6', claim)
+                
+            if 'AcceptD6' in request.POST:
+                claim.status_id = ClaimStatus.objects.get(status='D6 accepted').pk
+                claim.save()
+                return redirect('claims', company_id)
+                
+            if 'RejectD6' in request.POST:
+                claim.status_id = ClaimStatus.objects.get(status='D6 rejected').pk
+                claim.save()
+                return redirect('claims', company_id)
+                
+
+        if '/SMS/D7/' in request.path:
+            form=D7Form(request.POST, instance=D7docu)
+            form_due=Claim_Form(request.POST, instance=claim)
+#             pdb.set_trace()
+            if form.is_valid():
+#                 pdb.set_trace()
+                if 'Submit8D' in request.POST:
+                  claim.status_id = ClaimStatus.objects.get(status='D7 uploaded').pk
+                  claim.save()
+                if 'AcceptD7' in request.POST:
+                   claim.status_id = ClaimStatus.objects.get(status='D7 accepted').pk
+                   claim.save()
+                if 'RejectD7' in request.POST:
+                   claim.status_id = ClaimStatus.objects.get(status='D7 rejected').pk
+                   claim.save()
+#                 d7_data=form.save()
+                d7_data=form.save(commit=False)
+                d7_data.claim_id=claim.pk
+                d7_data.save()
+                return redirect('D7', claim)    
+            return render(request, 'SMS/D7.html', {'vendors':vendors, 'user_profile':user_profile, 'show_company':show_company, 'company':company, 'claim':claim, 'creator':creator,
+                                                    'form_due':form_due, 'form':form
+                                                   })
+        if '/SMS/D8/' in request.path:
+            form_due=Claim_Form(request.POST, instance=claim)
+            if 'Accept8D' in request.POST:
+                   claim.status_id = ClaimStatus.objects.get(status='Closed').pk
+                   claim.save()
+            if 'Reopen8D' in request.POST:
+                   claim.status_id = ClaimStatus.objects.get(status='Opened').pk
+                   claim.save()
+            return redirect('D8', claim)    
+#             return render(request, 'SMS/D8.html', {'vendors':vendors, 'user_profile':user_profile, 'show_company':show_company, 'company':company, 'claim':claim, 'creator':creator,
+#                                                     'form_due':form_due
+#                                                    })
+#         if '/SMS/D5/' in request.path:
+#             tasks_D5 = Task.objects.filter(project=claim, subproject='D5 Occurance', closed=False).order_by('due_date')
+#             tasks_D5_det = Task.objects.filter(project=claim, subproject='D5 Detection', closed=False).order_by('due_date')
+#             form_due= Claim_Form(request.POST, instance=claim)
 
                 
 
@@ -613,14 +728,14 @@ def D1D8(request, claim):
             files_occ = File.objects.filter(project = claim, subproject='occ')
             files_det = File.objects.filter(project = claim, subproject='det')
             root_causes = D4.objects.filter(claim_id=claim).first()
-            occ_D4 = D4_reproduction.objects.filter(claim_id = claim).first()
+            occ_D4 = D4_reproduction.objects.filter(claim_id = claim).first()   #deckt auch det ab.
             form = D4Form(instance = root_causes)
             form_due= Claim_Form(instance=claim)
             form_ishi_occ = Ishi_Occ_Form(instance=ishi_occ)
             form_ishi_det = Ishi_Det_Form(instance=ishi_det)
             form_W5_occ = W5_Occ_Form(instance=W5_occ)
             form_W5_det = W5_Det_Form(instance=W5_det)
-            form_D4_occ =  D4Form_reproduction(instance= occ_D4)
+            form_D4_occ =  D4Form_reproduction(instance= occ_D4)    #deckt auch det ab.
             form_files_occ = FileForm()
             form_files_det = FileForm()
 #             pdb.set_trace()
@@ -637,6 +752,30 @@ def D1D8(request, claim):
 #             pdb.set_trace()
             return render(request, 'SMS/D5.html', {'vendors':vendors, 'user_profile':user_profile, 'show_company':show_company, 'company':company, 'claim':claim, 'creator':creator,
                                                     'form_due':form_due, 'tasks_D5':tasks_D5, 'tasks_D5_det':tasks_D5_det
+                                                   })
+
+        if '/SMS/D6/' in request.path:
+            form_due= Claim_Form(instance=claim)
+            tasks_D6 = Task.objects.filter(project=claim, subproject='D6 Occurance', closed=False).order_by('due_date')
+            tasks_D6_det = Task.objects.filter(project=claim, subproject='D6 Detection', closed=False).order_by('due_date')
+#             pdb.set_trace()
+            return render(request, 'SMS/D6.html', {'vendors':vendors, 'user_profile':user_profile, 'show_company':show_company, 'company':company, 'claim':claim, 'creator':creator,
+                                                    'form_due':form_due, 'tasks_D6':tasks_D6, 'tasks_D6_det':tasks_D6_det
+                                                   })
+
+        if '/SMS/D7/' in request.path:
+            form_due= Claim_Form(instance=claim)
+            form=D7Form(instance=D7docu)
+#             pdb.set_trace()
+            return render(request, 'SMS/D7.html', {'vendors':vendors, 'user_profile':user_profile, 'show_company':show_company, 'company':company, 'claim':claim, 'creator':creator,
+                                                    'form_due':form_due, 'form':form
+                                                   })
+
+        if '/SMS/D8/' in request.path:
+            form_due= Claim_Form(instance=claim)
+#             pdb.set_trace()
+            return render(request, 'SMS/D8.html', {'vendors':vendors, 'user_profile':user_profile, 'show_company':show_company, 'company':company, 'claim':claim, 'creator':creator,
+                                                    'form_due':form_due
                                                    })
 
            
@@ -705,14 +844,9 @@ def task_details(request, order, project, subproject, id):
 
     company = Claim.objects.get(pk=project).related_to.name
     path = 'uploads/' + company + '/Claim_' + str(project) + '/Task_' + str(id)
-#     pdb.set_trace()
-#     tasks = Task.objects.filter(project=project, subproject=subproject, closed=False).order_by(order)
-#     tasks_done = Task.objects.filter(project=project, subproject=subproject, closed = True)
-#     task_to_edit = None
-#     if id < 9000:
     task_to_edit = Task.objects.get(project=project, subproject=subproject, pk=id)
     try:
-        comments = Comment.objects.filter(project=project, subproject=subproject, task=id)
+        comments = Comment.objects.filter(project=project, subproject=subproject, task=id).order_by('-pk')
     except:
         comments = None
 
@@ -725,24 +859,24 @@ def task_details(request, order, project, subproject, id):
     form2 = CommentForm()
     if request.method == "POST":
         if 'edit_task' in request.POST:
-#             pdb.set_trace()
             form=TaskForm(request.POST, request.FILES, instance = task_to_edit)
             if form.is_valid():
               new_task=form.save(commit=False)
-#               pdb.set_trace()
               new_task.project = project
               new_task.subproject = subproject
               new_task.original_due_date =  task_to_edit.original_due_date
               new_task.file.field.upload_to = path
               new_task.save()
               
-#               send_mail('new task', 'Es gibt neue Aufgaben. Juhu!', 'juergen@klotzek.de', ('juergen.klotzek@nmb-minebea.com', 'juergen@klotzek.de'))
               return redirect('task_tracker', order, project, subproject, 9999)
           
         if 'new_comment' in request.POST:
-#             pdb.set_trace()
             form2=CommentForm(request.POST, request.FILES)
             if form2.is_valid():
+#                 subject = 'new comment.... ( '
+#                 subject = 'new comment ( ' + proj + subproj + ', Task Nb. ' + id + ')'
+#                 mail_text = str(user_profile.user) + ' wrote: ' +  form2.cleaned_data['comment']
+#                 mail_text = ' wrote: '
 #                 pdb.set_trace()
                 new_comment=form2.save(commit=False)
                 new_comment.project=project
@@ -752,71 +886,15 @@ def task_details(request, order, project, subproject, id):
 #                 pdb.set_trace()
                 new_comment.file.field.upload_to = path
                 new_comment.save()
+#                send_mail(subject, mail_text, 'juergen.klotzek@nmb-minebea.com', ['juergen.klotzek@nmb-minebea.com', 'juergen@klotzek.de'], fail_silently=False,)
+#                 send_mail('subject', 'mail_text', 'juergen.klotzek@nmb-minebea.com', ['juergen.klotzek@nmb-minebea.com', 'juergen@klotzek.de'], fail_silently=False,)
                 return redirect('task_details', order, project, subproject, id)
 
 
     return render(request, 'SMS/task_details.html', {'user_profile':user_profile, 'task_data':task_data, 'form':form, 'form2':form2, 
                                                       'comments':comments, 
-#                                                       'tasks_done':tasks_done, 
-#                                                       'form_edit':form_edit 
                                                       })        
  
-# def task_tracker(request, order, project, subproject, id):
-#     actual_user_id = request.user
-#     user_profile = UserProfile.objects.get(user_id=actual_user_id)
-# 
-#     company = Claim.objects.get(pk=project).related_to.name
-#     path = 'uploads/' + company + '/Claim_' + str(project)
-# #     pdb.set_trace()
-#     tasks = Task.objects.filter(project=project, subproject=subproject, closed=False).order_by(order)
-#     tasks_done = Task.objects.filter(project=project, subproject=subproject, closed = True)
-#     task_to_edit = None
-#     if id < 9000:
-#         task_to_edit = Task.objects.get(project=project, subproject=subproject, pk=id)
-# 
-#     proj = 'Claim Nb. ' + str(project)
-#     subproj = ', Division ' + subproject
-#     task_data = [proj, subproj, id, order]
-#     
-#     
-#     form = TaskForm()
-#     form_edit = TaskFormBig(instance=task_to_edit)
-#     if request.method == "POST":
-#         if 'new_task' in request.POST:
-#             form=TaskForm(request.POST, request.FILES)
-#             if form.is_valid():
-#               new_task=form.save(commit=False)
-#               new_task.project = project
-#               new_task.subproject = subproject
-#               new_task.original_due_date =  form.cleaned_data['due_date']
-#               new_task.file.field.upload_to = path
-#               new_task.save()
-#               
-# #               send_mail('new task', 'Es gibt neue Aufgaben. Juhu!', 'juergen@klotzek.de', ('juergen.klotzek@nmb-minebea.com', 'juergen@klotzek.de'))
-#               return redirect('task_tracker', order, project, subproject, 9999)
-# 
-#         if 'edit_task' in request.POST:
-#             form_edit=TaskFormBig(request.POST, request.FILES, instance = task_to_edit)
-#             if form_edit.is_valid():
-#               task_edit = form_edit.save(commit=False)
-#               task_edit.file.field.upload_to = path
-#               task_edit.save()
-#               return redirect('task_tracker', order, project, subproject, 9999)
-# 
-#         if 'reopen' in request.POST:
-#             task_to_edit.closed = False
-#             task_to_edit.closed_date = None
-#             task_to_edit.save()
-#             return redirect('task_tracker', order, project, subproject, 9999)
-# 
-#         if 'task_done' in request.POST:
-#             task_to_edit.closed = True
-#             task_to_edit.closed_date = timezone.now()
-#             task_to_edit.save()
-#             return redirect('task_tracker', order, project, subproject, 9999)
-# 
-#     return render(request, 'SMS/task_tracker.html', {'user_profile':user_profile, 'task_data':task_data, 'form':form, 'tasks':tasks, 'tasks_done':tasks_done, 'form_edit':form_edit })        
-#  
 # 
 # @login_required
 # def certs(request, company_id):

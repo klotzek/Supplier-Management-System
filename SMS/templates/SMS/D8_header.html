@@ -43,10 +43,13 @@
           <a href="{% url 'D5' claim.pk %}">D5</a>        
         </li>                    
         <li role="presentation" {% if '/D6/'  in request.path %}class="active"{% endif %}>          
-          <a href="{% url 'D1' claim.pk %}">D6</a>        
+          <a href="{% url 'D6' claim.pk %}">D6</a>        
         </li>                    
         <li role="presentation" {% if '/D7/'  in request.path %}class="active"{% endif %}>          
-          <a href="{% url 'D1' claim.pk %}">D7</a>        
+          <a href="{% url 'D7' claim.pk %}">D7</a>        
+        </li>              
+        <li role="presentation" {% if '/D8/'  in request.path %}class="active"{% endif %}>          
+          <a href="{% url 'D8' claim.pk %}">D8</a>        
         </li>              
       </ul>         
     </div>  

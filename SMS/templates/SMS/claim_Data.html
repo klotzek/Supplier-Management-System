@@ -100,10 +100,10 @@
     </div>
 
 {% buttons %}     
-    <button type="submit" class="btn btn-default">Save     
-    </button>  
+      {% bootstrap_button "Save" name="save_base_data" button_type="submit" button_class="btn-default" icon="glyphicon glyphicon-floppy-saved" %} 
     {% if user_profile.isStaff == True and claim.status_id %}
-      {% bootstrap_button "Accept refusal" name="Refusal" button_type="submit" button_class="btn-success" %} 
+      {% bootstrap_button "Accept refusal" name="Refusal" button_type="submit" button_class="btn-success" icon="glyphicon glyphicon-ok" %} 
+      {% bootstrap_button "Reject refusal" name="Reject_Refusal" button_type="submit" button_class="btn-danger" icon="glyphicon glyphicon-minus-sign" %} 
     {% endif %}              
 
     {% endbuttons %}     

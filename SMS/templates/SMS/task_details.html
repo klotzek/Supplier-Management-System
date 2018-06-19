@@ -54,7 +54,7 @@
       {% bootstrap_form_errors form %}       
       {% bootstrap_form form layout='inline' %}
       {% buttons %}
-       <button type="submit" class="btn btn-default" name="edit_task">Save & back</button> 
+      {% bootstrap_button "Save & back" name="edit_task" button_type="submit" button_class="btn-default" icon="glyphicon glyphicon-floppy-saved" %} 
        {% endbuttons %}
       </form> 
     </div>
@@ -85,12 +85,12 @@
     {% for comment in comments %}
         <div class="row">
           <div class="col-md-4">
-          {{ user_profile.user }} wrote on {{ comment.date_issued}}{% if comment.file %}&nbsp;(and he left a file to download here: <a href="../../../../media/{{ comment.file }}" target="_blank"><span class="glyphicon glyphicon-cloud-download"></span></a>){% endif %}:
+          {{ comment.author }} wrote on {{ comment.date_issued}}{% if comment.file %}&nbsp;(and he left a file to download here: <a href="../../../../media/{{ comment.file }}" target="_blank"><span class="glyphicon glyphicon-cloud-download"></span></a>){% endif %}:
           </div>
         </div>
         <div class="row">
           <div class="col-md-12">
-            <div class=" bg-success" >
+            <div style="background-color: ghostwhite" >
             {{ comment.comment }}
             </div>
           </div>

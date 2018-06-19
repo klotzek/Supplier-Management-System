@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Company, UserProfile, Claim, ClaimStatus, ClaimClassification, Plant, Team, D2_CV, D2_SV, D3, PenaltyPeriods, Ishikawa_occurance, Ishikawa_detection, Task, Comment, D4, D4_reproduction, File, W5_occurance, W5_detection
+from .models import Company, UserProfile, Claim, ClaimStatus, ClaimClassification, Plant, Team, D2_CV, D2_SV, D3, PenaltyPeriods, Ishikawa_occurance, Ishikawa_detection, Task, Comment, D4, D4_reproduction, File, W5_occurance, W5_detection, D7
 
 # Register your models here.
   
@@ -23,5 +23,6 @@ admin.site.register(D4_reproduction)
 admin.site.register(File)
 admin.site.register(W5_occurance)
 admin.site.register(W5_detection)
+admin.site.register(D7)
 
                  

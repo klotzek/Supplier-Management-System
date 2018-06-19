@@ -25,9 +25,7 @@ edit user {{user_profile.user}}
         {% bootstrap_form form2 layout='inline' %}
 
   {% buttons %}
-    <button type="submit" class="btn btn-default">
-     Save
-    </button>
+      {% bootstrap_button "Save" name="edit_user" button_type="submit" button_class="btn-default" icon="glyphicon glyphicon-floppy-saved" %} 
   {% endbuttons %}
 
     </form>

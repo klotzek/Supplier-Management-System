@@ -1,9 +1,189 @@
 import pdb
 from bootstrap_datepicker.widgets import DatePicker 
 from django import forms
-from .models import Company, Claim, UserProfile, Team, D2_CV, D2_SV, D3, Ishikawa_occurance, Ishikawa_detection, Task, W5_occurance, W5_detection, D4, D4_reproduction, File, Comment
+from .models import Company, Claim, UserProfile, Team, D2_CV, D2_SV, D3, Ishikawa_occurance, Ishikawa_detection, Task, W5_occurance, W5_detection, D4, D4_reproduction, File, Comment, D7
 from django.contrib.auth.models import User
 
+
+
+class D7Form(forms.ModelForm):
+    class Meta:
+        widgets={
+           'DFMEA_done': forms.RadioSelect, 
+           'DFMEA_date': DatePicker(options={
+                "format": "yyyy-mm-dd",
+                "autoclose": True,
+                "calendarWeeks":True,
+                "weekStart":1,
+                "todayHighlight": True,
+          }),
+           'PFMEA_done': forms.RadioSelect, 
+           'PFMEA_date': DatePicker(options={
+                "format": "yyyy-mm-dd",
+                "autoclose": True,
+                "calendarWeeks":True,
+                "weekStart":1,
+                "todayHighlight": True,
+          }),
+           'LFMEA_done': forms.RadioSelect, 
+           'LFMEA_date': DatePicker(options={
+                "format": "yyyy-mm-dd",
+                "autoclose": True,
+                "calendarWeeks":True,
+                "weekStart":1,
+                "todayHighlight": True,
+          }),
+           'controlplan_done': forms.RadioSelect, 
+           'controlplan_date': DatePicker(options={
+                "format": "yyyy-mm-dd",
+                "autoclose": True,
+                "calendarWeeks":True,
+                "weekStart":1,
+                "todayHighlight": True,
+          }),
+           'WI_done': forms.RadioSelect, 
+           'WI_date': DatePicker(options={
+                "format": "yyyy-mm-dd",
+                "autoclose": True,
+                "calendarWeeks":True,
+                "weekStart":1,
+                "todayHighlight": True,
+          }),
+           'MP_done': forms.RadioSelect, 
+           'MP_date': DatePicker(options={
+                "format": "yyyy-mm-dd",
+                "autoclose": True,
+                "calendarWeeks":True,
+                "weekStart":1,
+                "todayHighlight": True,
+          }),
+           'Dstand_done': forms.RadioSelect, 
+           'Dstand_date': DatePicker(options={
+                "format": "yyyy-mm-dd",
+                "autoclose": True,
+                "calendarWeeks":True,
+                "weekStart":1,
+                "todayHighlight": True,
+          }),
+           'toolDstand_done': forms.RadioSelect, 
+           'toolDstand_date': DatePicker(options={
+                "format": "yyyy-mm-dd",
+                "autoclose": True,
+                "calendarWeeks":True,
+                "weekStart":1,
+                "todayHighlight": True,
+          }),
+           'LLcard_done': forms.RadioSelect, 
+           'LLcard_date': DatePicker(options={
+                "format": "yyyy-mm-dd",
+                "autoclose": True,
+                "calendarWeeks":True,
+                "weekStart":1,
+                "todayHighlight": True,
+          }),
+           'Gstand_done': forms.RadioSelect, 
+           'Gstand_date': DatePicker(options={
+                "format": "yyyy-mm-dd",
+                "autoclose": True,
+                "calendarWeeks":True,
+                "weekStart":1,
+                "todayHighlight": True,
+          }),
+           'Tstand_done': forms.RadioSelect, 
+           'Tstand_date': DatePicker(options={
+                "format": "yyyy-mm-dd",
+                "autoclose": True,
+                "calendarWeeks":True,
+                "weekStart":1,
+                "todayHighlight": True,
+          }),
+           'procedure_done': forms.RadioSelect, 
+           'procedure_date': DatePicker(options={
+                "format": "yyyy-mm-dd",
+                "autoclose": True,
+                "calendarWeeks":True,
+                "weekStart":1,
+                "todayHighlight": True,
+          }),
+           'spec_done': forms.RadioSelect, 
+           'spec_date': DatePicker(options={
+                "format": "yyyy-mm-dd",
+                "autoclose": True,
+                "calendarWeeks":True,
+                "weekStart":1,
+                "todayHighlight": True,
+          }),
+           'other_done': forms.RadioSelect, 
+           'other_date': DatePicker(options={
+                "format": "yyyy-mm-dd",
+                "autoclose": True,
+                "calendarWeeks":True,
+                "weekStart":1,
+                "todayHighlight": True,
+          }),
+          
+        }
+        model=D7
+        fields=[
+          'DFMEA_done',
+          'DFMEA_pilot',
+          'DFMEA_date',
+          'DFMEA_comment',
+          'PFMEA_done',
+          'PFMEA_pilot',
+          'PFMEA_date',
+          'PFMEA_comment',
+          'LFMEA_done',
+          'LFMEA_pilot',
+          'LFMEA_date',
+          'LFMEA_comment',
+          'controlplan_done',
+          'controlplan_pilot',
+          'controlplan_date',
+          'controlplan_comment',
+          'WI_done',
+          'WI_pilot',
+          'WI_date',
+          'WI_comment',
+          'MP_done',
+          'MP_pilot',
+          'MP_date',
+          'MP_comment',
+          'Dstand_done',
+          'Dstand_pilot',
+          'Dstand_date',
+          'Dstand_comment',
+          'toolDstand_done',
+          'toolDstand_pilot',
+          'toolDstand_date',
+          'toolDstand_comment', 
+          'LLcard_done',
+          'LLcard_pilot',
+          'LLcard_date',
+          'LLcard_comment',
+          'Gstand_done',
+          'Gstand_pilot',
+          'Gstand_date',
+          'Gstand_comment',
+          'Tstand_done',
+          'Tstand_pilot',
+          'Tstand_date',
+          'Tstand_comment',
+          'procedure_done',
+          'procedure_pilot',
+          'procedure_date',
+          'procedure_comment',
+          'spec_done',
+          'spec_pilot',
+          'spec_date',
+          'spec_comment',
+          'other_done',
+          'other_pilot',
+          'other_date',
+          'other_comment',
+
+        
+        ]
 
 class FileForm(forms.ModelForm):
     class Meta:
@@ -124,7 +304,7 @@ class TaskForm(forms.ModelForm):
           'comment',
           'status',
           'importance',
-          'file',
+#           'file',
         ]
     def clean_importance(self):
         imp =  self.cleaned_data.get('importance', '')
@@ -250,6 +430,7 @@ class D3_Form(forms.ModelForm):
                 "autoclose": True,
                 "calendarWeeks":True,
                 "weekStart":1,
+                "todayHighlight": True,
                 }
               ), 
            'date_1': DatePicker(options={
@@ -257,6 +438,7 @@ class D3_Form(forms.ModelForm):
                 "autoclose": True,
                 "calendarWeeks":True,
                 "weekStart":1,
+                "todayHighlight": True,
                 }
               ), 
            'date_2': DatePicker(options={
@@ -264,6 +446,7 @@ class D3_Form(forms.ModelForm):
                 "autoclose": True,
                 "calendarWeeks":True,
                 "weekStart":1,
+                "todayHighlight": True,
                 }
               ), 
            'date_2': DatePicker(options={
@@ -271,6 +454,7 @@ class D3_Form(forms.ModelForm):
                 "autoclose": True,
                 "calendarWeeks":True,
                 "weekStart":1,
+                "todayHighlight": True,
                 }
               ), 
            'FC_necessary': forms.RadioSelect,
@@ -279,6 +463,7 @@ class D3_Form(forms.ModelForm):
                 "autoclose": True,
                 "calendarWeeks":True,
                 "weekStart":1,
+                "todayHighlight": True,
                 }
               ), 
            'FC_NOK_date': DatePicker(options={
@@ -286,6 +471,7 @@ class D3_Form(forms.ModelForm):
                 "autoclose": True,
                 "calendarWeeks":True,
                 "weekStart":1,
+                "todayHighlight": True,
                 }
               ), 
            'FC_date_from': DatePicker(options={
@@ -293,6 +479,7 @@ class D3_Form(forms.ModelForm):
                 "autoclose": True,
                 "calendarWeeks":True,
                 "weekStart":1,
+                "todayHighlight": True,
                 }
               ), 
            'FC_date_to': DatePicker(options={
@@ -300,6 +487,7 @@ class D3_Form(forms.ModelForm):
                 "autoclose": True,
                 "calendarWeeks":True,
                 "weekStart":1,
+                "todayHighlight": True,
                 }
               ), 
            'FC_transit_necessary': forms.RadioSelect,
@@ -308,6 +496,7 @@ class D3_Form(forms.ModelForm):
                 "autoclose": True,
                 "calendarWeeks":True,
                 "weekStart":1,
+                "todayHighlight": True,
                 }
               ), 
            'FC_transit_NOK_date': DatePicker(options={
@@ -315,6 +504,7 @@ class D3_Form(forms.ModelForm):
                 "autoclose": True,
                 "calendarWeeks":True,
                 "weekStart":1,
+                "todayHighlight": True,
                 }
               ), 
            'FC_transit_date_from': DatePicker(options={
@@ -322,6 +512,7 @@ class D3_Form(forms.ModelForm):
                 "autoclose": True,
                 "calendarWeeks":True,
                 "weekStart":1,
+                "todayHighlight": True,
                 }
               ), 
            'FC_transit_date_to': DatePicker(options={
@@ -329,6 +520,7 @@ class D3_Form(forms.ModelForm):
                 "autoclose": True,
                 "calendarWeeks":True,
                 "weekStart":1,
+                "todayHighlight": True,
                 }
               ), 
            'NMB_necessary': forms.RadioSelect,
@@ -337,6 +529,7 @@ class D3_Form(forms.ModelForm):
                 "autoclose": True,
                 "calendarWeeks":True,
                 "weekStart":1,
+                "todayHighlight": True,
                 }
               ), 
            'NMB_NOK_date': DatePicker(options={
@@ -344,6 +537,7 @@ class D3_Form(forms.ModelForm):
                 "autoclose": True,
                 "calendarWeeks":True,
                 "weekStart":1,
+                "todayHighlight": True,
                 }
               ), 
            'NMB_date_from': DatePicker(options={
@@ -351,6 +545,7 @@ class D3_Form(forms.ModelForm):
                 "autoclose": True,
                 "calendarWeeks":True,
                 "weekStart":1,
+                "todayHighlight": True,
                 }
               ), 
            'NMB_date_to': DatePicker(options={
@@ -358,6 +553,7 @@ class D3_Form(forms.ModelForm):
                 "autoclose": True,
                 "calendarWeeks":True,
                 "weekStart":1,
+                "todayHighlight": True,
                 }
               ), 
            'NMB_transit_necessary': forms.RadioSelect,
@@ -366,6 +562,7 @@ class D3_Form(forms.ModelForm):
                 "autoclose": True,
                 "calendarWeeks":True,
                 "weekStart":1,
+                "todayHighlight": True,
                 }
               ), 
            'NMB_transit_NOK_date': DatePicker(options={
@@ -373,6 +570,7 @@ class D3_Form(forms.ModelForm):
                 "autoclose": True,
                 "calendarWeeks":True,
                 "weekStart":1,
+                "todayHighlight": True,
                 }
               ), 
            'NMB_transit_date_from': DatePicker(options={
@@ -380,6 +578,7 @@ class D3_Form(forms.ModelForm):
                 "autoclose": True,
                 "calendarWeeks":True,
                 "weekStart":1,
+                "todayHighlight": True,
                 }
               ), 
            'NMB_transit_date_to': DatePicker(options={
@@ -387,6 +586,7 @@ class D3_Form(forms.ModelForm):
                 "autoclose": True,
                 "calendarWeeks":True,
                 "weekStart":1,
+                "todayHighlight": True,
                 }
               ), 
            'supplier_necessary': forms.RadioSelect,
@@ -395,6 +595,7 @@ class D3_Form(forms.ModelForm):
                 "autoclose": True,
                 "calendarWeeks":True,
                 "weekStart":1,
+                "todayHighlight": True,
                 }
               ), 
            'supplier_NOK_date': DatePicker(options={
@@ -402,6 +603,7 @@ class D3_Form(forms.ModelForm):
                 "autoclose": True,
                 "calendarWeeks":True,
                 "weekStart":1,
+                "todayHighlight": True,
                 }
               ), 
            'supplier_date_from': DatePicker(options={
@@ -409,6 +611,7 @@ class D3_Form(forms.ModelForm):
                 "autoclose": True,
                 "calendarWeeks":True,
                 "weekStart":1,
+                "todayHighlight": True,
                 }
               ), 
            'supplier_date_to': DatePicker(options={
@@ -416,6 +619,7 @@ class D3_Form(forms.ModelForm):
                 "autoclose": True,
                 "calendarWeeks":True,
                 "weekStart":1,
+                "todayHighlight": True,
                 }
               ), 
            'sub_supplier_necessary': forms.RadioSelect,
@@ -424,6 +628,7 @@ class D3_Form(forms.ModelForm):
                 "autoclose": True,
                 "calendarWeeks":True,
                 "weekStart":1,
+                "todayHighlight": True,
                 }
               ), 
            'sub_supplier_NOK_date': DatePicker(options={
@@ -431,6 +636,7 @@ class D3_Form(forms.ModelForm):
                 "autoclose": True,
                 "calendarWeeks":True,
                 "weekStart":1,
+                "todayHighlight": True,
                 }
               ), 
            'sub_supplier_date_from': DatePicker(options={
@@ -438,6 +644,7 @@ class D3_Form(forms.ModelForm):
                 "autoclose": True,
                 "calendarWeeks":True,
                 "weekStart":1,
+                "todayHighlight": True,
                 }
               ), 
            'sub_supplier_date_to': DatePicker(options={
@@ -445,6 +652,7 @@ class D3_Form(forms.ModelForm):
                 "autoclose": True,
                 "calendarWeeks":True,
                 "weekStart":1,
+                "todayHighlight": True,
                 }
               ),
            'fst_OK_parts_del_date': DatePicker(options={
@@ -452,6 +660,7 @@ class D3_Form(forms.ModelForm):
                 "autoclose": True,
                 "calendarWeeks":True,
                 "weekStart":1,
+                "todayHighlight": True,
                 }
               ),
         }
@@ -678,6 +887,7 @@ class Claim_Form(forms.ModelForm):
                 "autoclose": True,
                 "calendarWeeks":True,
                 "weekStart":1,
+                "todayHighlight": True,
                 }
               ),
           'due_date_D4': DatePicker(options={
@@ -685,6 +895,7 @@ class Claim_Form(forms.ModelForm):
                 "autoclose": True,
                 "calendarWeeks":True,
                 "weekStart":1,
+                "todayHighlight": True,
                 }
               ),
           'due_date_D5': DatePicker(options={
@@ -692,6 +903,23 @@ class Claim_Form(forms.ModelForm):
                 "autoclose": True,
                 "calendarWeeks":True,
                 "weekStart":1,
+                "todayHighlight": True,
+                }
+              ),
+          'due_date_D6': DatePicker(options={
+                "format": "yyyy-mm-dd",
+                "autoclose": True,
+                "calendarWeeks":True,
+                "weekStart":1,
+                "todayHighlight": True,
+                }
+              ),
+          'due_date_D8': DatePicker(options={
+                "format": "yyyy-mm-dd",
+                "autoclose": True,
+                "calendarWeeks":True,
+                "weekStart":1,
+                "todayHighlight": True,
                 }
               ),
               }
@@ -699,6 +927,8 @@ class Claim_Form(forms.ModelForm):
         'due_date_D3',
         'due_date_D4',
         'due_date_D5',
+        'due_date_D6',
+        'due_date_D8',
         ]
     
 class Claim_New_Form(forms.ModelForm):

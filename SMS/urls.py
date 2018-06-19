@@ -21,6 +21,7 @@ urlpatterns = [
     path('D5/<int:claim>/', views.D1D8, name='D5'),
     path('D6/<int:claim>/', views.D1D8, name='D6'),
     path('D7/<int:claim>/', views.D1D8, name='D7'),
+    path('D8/<int:claim>/', views.D1D8, name='D8'),
     path('new_claim/<int:company_id>/', views.new_claim, name='new_claim'),
     path('vendor_new/', views.vendor_new, name='vendor_new'),
     path('vendor_edit/<int:vendor>', views.vendor_edit, name='vendor_edit'),

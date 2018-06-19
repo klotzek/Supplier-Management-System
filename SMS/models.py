@@ -80,12 +80,47 @@ class Claim(models.Model):
        
   
     @property
+    def next_due_date(self):
+#         if ('Opened' in self.status.status or 'D3 rejected' in self.status.status):
+        if ('Opened' in self.status.status or 'D3 rejected'  in self.status.status):
+            return self.due_date_D3
+        elif ('D3 accepted' in self.status.status or 'D4 rejected' in self.status.status or 'D3 uploaded' in self.status.status):
+            return self.due_date_D4
+        elif ('D4 accepted' in self.status.status or 'D5 rejected' in self.status.status or 'D4 uploaded' in self.status.status):
+            return self.due_date_D5
+        elif ('D5 accepted' in self.status.status or 'D6 rejected' in self.status.status or 'D5 uploaded' in self.status.status):
+            return self.due_date_D6
+        elif ('D6 accepted' in self.status.status or 'D7 rejected' in self.status.status or 'D6 uploaded' in self.status.status):
+            return self.due_date_D8
+        elif ('D7 accepted' in self.status.status or 'D8 rejected' in self.status.status or 'D7 uploaded' in self.status.status):
+            return self.due_date_D8
+        else:
+            return self.due_date_D8
+            
+    def late(self):
+        if timezone.now() > self.next_due_date:
+            return True
+        else:
+            return False 
+        
     def is_past_D3(self):
         if timezone.now() > self.due_date_D3:
             return True
         return False
     def is_past_D4(self):
         if timezone.now() > self.due_date_D4:
+            return True
+        return False
+    def is_past_D5(self):
+        if timezone.now() > self.due_date_D5:
+            return True
+        return False
+    def is_past_D6(self):
+        if timezone.now() > self.due_date_D6:
+            return True
+        return False
+    def is_past_D8(self):
+        if timezone.now() > self.due_date_D8:
             return True
         return False
         
@@ -384,7 +419,67 @@ class Comment(models.Model):
     def __str__(self):
         return str(self.project) + " " + str(self.subproject) + "  Comment " + str(self.pk)
         
+class D7(models.Model):
+    claim = models.OneToOneField(Claim, on_delete=models.SET_NULL, null=True)
+    DFMEA_done = models.BooleanField(choices=BOOL_CHOICES,default=False)
+    DFMEA_pilot = models.CharField(max_length=25, blank=True, null=True)
+    DFMEA_date= models.DateField(blank=True, null=True)
+    DFMEA_comment=models.CharField(max_length=100, blank=True, null=True)
+    PFMEA_done = models.BooleanField(choices=BOOL_CHOICES,default=False)
+    PFMEA_pilot = models.CharField(max_length=25, blank=True, null=True)
+    PFMEA_date= models.DateField(blank=True, null=True)
+    PFMEA_comment=models.CharField(max_length=100, blank=True, null=True)
+    LFMEA_done = models.BooleanField(choices=BOOL_CHOICES,default=False)
+    LFMEA_pilot = models.CharField(max_length=25, blank=True, null=True)
+    LFMEA_date= models.DateField(blank=True, null=True)
+    LFMEA_comment=models.CharField(max_length=100, blank=True, null=True)
+    controlplan_done = models.BooleanField(choices=BOOL_CHOICES,default=False)
+    controlplan_pilot = models.CharField(max_length=25, blank=True, null=True)
+    controlplan_date= models.DateField(blank=True, null=True)
+    controlplan_comment=models.CharField(max_length=100, blank=True, null=True)
+    WI_done = models.BooleanField(choices=BOOL_CHOICES,default=False)
+    WI_pilot = models.CharField(max_length=25, blank=True, null=True)
+    WI_date= models.DateField(blank=True, null=True)
+    WI_comment=models.CharField(max_length=100, blank=True, null=True)
+    MP_done = models.BooleanField(choices=BOOL_CHOICES,default=False)
+    MP_pilot = models.CharField(max_length=25, blank=True, null=True)
+    MP_date= models.DateField(blank=True, null=True)
+    MP_comment=models.CharField(max_length=100, blank=True, null=True)
+    Dstand_done = models.BooleanField(choices=BOOL_CHOICES,default=False)
+    Dstand_pilot = models.CharField(max_length=25, blank=True, null=True)
+    Dstand_date= models.DateField(blank=True, null=True)
+    Dstand_comment=models.CharField(max_length=100, blank=True, null=True)
+    toolDstand_done = models.BooleanField(choices=BOOL_CHOICES,default=False)
+    toolDstand_pilot = models.CharField(max_length=25, blank=True, null=True)
+    toolDstand_date= models.DateField(blank=True, null=True)
+    toolDstand_comment=models.CharField(max_length=100, blank=True, null=True)
+    LLcard_done = models.BooleanField(choices=BOOL_CHOICES,default=False)
+    LLcard_pilot = models.CharField(max_length=25, blank=True, null=True)
+    LLcard_date= models.DateField(blank=True, null=True)
+    LLcard_comment=models.CharField(max_length=100, blank=True, null=True)
+    Gstand_done = models.BooleanField(choices=BOOL_CHOICES,default=False)
+    Gstand_pilot = models.CharField(max_length=25, blank=True, null=True)
+    Gstand_date= models.DateField(blank=True, null=True)
+    Gstand_comment=models.CharField(max_length=100, blank=True, null=True)
+    Tstand_done = models.BooleanField(choices=BOOL_CHOICES,default=False)
+    Tstand_pilot = models.CharField(max_length=25, blank=True, null=True)
+    Tstand_date= models.DateField(blank=True, null=True)
+    Tstand_comment=models.CharField(max_length=100, blank=True, null=True)
+    procedure_done = models.BooleanField(choices=BOOL_CHOICES,default=False)
+    procedure_pilot = models.CharField(max_length=25, blank=True, null=True)
+    procedure_date= models.DateField(blank=True, null=True)
+    procedure_comment=models.CharField(max_length=100, blank=True, null=True)
+    spec_done = models.BooleanField(choices=BOOL_CHOICES,default=False)
+    spec_pilot = models.CharField(max_length=25, blank=True, null=True)
+    spec_date= models.DateField(blank=True, null=True)
+    spec_comment=models.CharField(max_length=100, blank=True, null=True)
+    other_done = models.BooleanField(choices=BOOL_CHOICES,default=False)
+    other_pilot = models.CharField(max_length=25, blank=True, null=True)
+    other_date= models.DateField(blank=True, null=True)
+    other_comment=models.CharField(max_length=100, blank=True, null=True)
     
+    def __str__(self):
+        return str(self.claim)    
     
     
                            

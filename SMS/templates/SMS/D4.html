@@ -51,8 +51,10 @@
       {% bootstrap_field form_due.due_date_D3 layout='inline'  form_group_class="hidden" %}
       {% bootstrap_field form_due.due_date_D4 layout='inline' %}
       {% bootstrap_field form_due.due_date_D5 layout='inline'  form_group_class="hidden" %}
+      {% bootstrap_field form_due.due_date_D6 layout='inline'  form_group_class="hidden" %}
+      {% bootstrap_field form_due.due_date_D8 layout='inline'  form_group_class="hidden" %}
       {% buttons %}
-       <button type="submit" class="btn btn-primary" name="Button_due_date">New due date D4</button> (00:00 o'clock)   
+      {% bootstrap_button "New due date D4" name="Button_due_date" button_type="submit" button_class="btn-primary"  icon="glyphicon glyphicon-calendar" %} (00:00 o'clock) 
       {% endbuttons %}
       </form> 
 {% endif %}              
@@ -514,10 +516,10 @@
     <br>
       <form method="POST" class="form-inline">    {% csrf_token %}       
       {% buttons %}
-      {% bootstrap_button "Submit D4" name="SubmitD4" button_type="submit" button_class="btn-primary" %} 
+      {% bootstrap_button "Submit D4" name="SubmitD4" button_type="submit" button_class="btn-primary"  icon="glyphicon glyphicon-send" %} 
   {% if user_profile.isStaff == True %}
-      {% bootstrap_button "Accept D4" name="AcceptD4" button_type="submit" button_class="btn-success" %} 
-      {% bootstrap_button "Reject D4" name="RejectD4" button_type="submit" button_class="btn-danger" %} 
+      {% bootstrap_button "Accept D4" name="AcceptD4" button_type="submit" button_class="btn-success" icon="glyphicon glyphicon-ok" %} 
+      {% bootstrap_button "Reject D4" name="RejectD4" button_type="submit" button_class="btn-danger" icon="glyphicon glyphicon-minus-sign" %} 
   {% endif %}              
       {% endbuttons %}        
       </form>

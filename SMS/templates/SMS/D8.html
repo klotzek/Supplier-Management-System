@@ -1,0 +1,111 @@
+{% extends 'SMS/base.html' %}
+
+{% block content %}
+{% load fontawesome %}
+
+{% load staticfiles %}
+
+
+{% load bootstrap3 %} {# Load the tag library #} 
+{% bootstrap_css %} {# Load CSS and JavaScript #} 
+{% bootstrap_javascript %} {# Embeds Bootstrap JS #}
+{% bootstrap_messages %} {# Display django.contrib.messages as Bootstrap alerts #}
+ 
+
+{% block extrahead %}   {# Extra Resources Start #}
+{% endblock %}          {# Extra Resources End #}
+
+{{ form_due.media }}        {# Form required JS and CSS #}
+{{ form.media }}        {# Form required JS and CSS #}
+
+
+{% include 'SMS/D8_header.html' %} 
+
+  {% if messages %}
+<ul class="messages">
+    {% for message in messages %}
+    <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>
+        {% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}Important: {% endif %}
+        {{ message }}
+    </li>
+    {% endfor %}
+</ul>
+{% endif %}
+      
+
+
+<div class="container-fluid">      
+  <div class="row">    
+    <div class= "col-md-3">      <h4>      D8 - Acknowledge the team's success        </h4>    
+    </div>    
+    <div class= "col-md-2">    {% if claim.is_past_D8 %}       
+      <h5 class="text-danger">      {% else %}       <h5>      {% endif %}       due date: {{ claim.due_date_D8 }}                  </h5>    
+    </div>    
+
+{% if user_profile.isStaff == True %}
+
+  <form method="POST" class="form-inline">    
+    {% csrf_token %}       
+    
+      {% bootstrap_form_errors form_due %}       
+      {% bootstrap_field form_due.due_date_D3 layout='inline'  form_group_class="hidden" %}
+      {% bootstrap_field form_due.due_date_D4 layout='inline'  form_group_class="hidden" %}
+      {% bootstrap_field form_due.due_date_D5 layout='inline'  form_group_class="hidden" %}
+      {% bootstrap_field form_due.due_date_D6 layout='inline'  form_group_class="hidden" %}
+      {% bootstrap_field form_due.due_date_D8 layout='inline' %}
+      {% buttons %}
+      {% bootstrap_button "New due date 8D" name="Button_due_date" button_type="submit" button_class="btn-primary"  icon="glyphicon glyphicon-calendar" %} (00:00 o'clock) 
+      {% endbuttons %}
+      </form> 
+{% endif %}              
+
+  </div>         
+
+  <div class="row">      
+    <div class="col-md-5">Claim uploaded by NMB-member: {{ creator.firstname }} {{ creator.lastname }}, 
+      <a href="mailto:{{ creator.email }}?subject=Question to claim No.: {{ claim.pk}}">{{ creator.email }}</a>        
+    </div>   
+  </div>
+  <hr />
+<br>
+<br>
+<br>
+<br>
+<br>
+  <div class="row">
+    <div class="col-md-8">
+     This page is only for closing the 8D by administrator.
+      <form method="POST" class="form-inline">    
+    {% csrf_token %}       
+
+      {% buttons %}
+{% if user_profile.isStaff == True %}
+      {% bootstrap_button "Accept 8D" name="Accept8D" button_type="submit" button_class="btn-success" icon="glyphicon glyphicon-ok" %} 
+      {% bootstrap_button "Reopen 8D" name="Reopen8D" button_type="submit" button_class="btn-danger" icon="glyphicon glyphicon-minus-sign" %} 
+{% endif %}              
+      {% endbuttons %}
+      </form> 
+      
+    </div>
+  </div>
+    <br>
+
+
+</div>  
+
+<script>
+$(document).ready(function(){
+    $('[data-toggle="tooltip"]').tooltip(); 
+});
+</script>
+
+<script>
+$(document).ready(function(){
+    $('[data-toggle="popover"]').popover({
+     trigger: "hover",
+     html: true,
+     container: 'body',
+     }); 
+});
+</script>
+{% endblock %}

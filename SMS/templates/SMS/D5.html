@@ -36,7 +36,7 @@
 
 <div class="container-fluid">      
   <div class="row">    
-    <div class= "col-md-3">      <h4>      D5 - choose and verify permanent corrections        </h4>    
+    <div class= "col-md-3">      <h4>      D5 - Planned corrective measures       </h4>    
     </div>    
     <div class= "col-md-2">    {% if claim.is_past_D5 %}       
       <h5 class="text-danger">      {% else %}       <h5>      {% endif %}       due date: {{ claim.due_date_D5 }}                  </h5>    
@@ -51,8 +51,10 @@
       {% bootstrap_field form_due.due_date_D3 layout='inline'  form_group_class="hidden" %}
       {% bootstrap_field form_due.due_date_D4 layout='inline'  form_group_class="hidden" %}
       {% bootstrap_field form_due.due_date_D5 layout='inline' %}
+      {% bootstrap_field form_due.due_date_D6 layout='inline'  form_group_class="hidden" %}
+      {% bootstrap_field form_due.due_date_D8 layout='inline'  form_group_class="hidden" %}
       {% buttons %}
-       <button type="submit" class="btn btn-primary" name="Button_due_date">New due date D5</button> (00:00 o'clock)   
+      {% bootstrap_button "New due date D5" name="Button_due_date" button_type="submit" button_class="btn-primary"  icon="glyphicon glyphicon-calendar" %} (00:00 o'clock) 
       {% endbuttons %}
       </form> 
 {% endif %}              
@@ -88,6 +90,7 @@
        <a target="_blank" href="{% url 'task_tracker' 'due_date' claim 'D5 Occurance' 9999 %}"><span class="glyphicon glyphicon-tasks green"></span> Add new task for D5 Occurance <span class="glyphicon glyphicon-tasks green"></span></a>    
     {% endif %}
     <br>
+    <br>
     </div>
  
     <div class="col-md-6  bg-info">
@@ -98,6 +101,8 @@
     {% else %}
        <a target="_blank" href="{% url 'task_tracker' 'due_date' claim 'D5 Detection' 9999 %}"><span class="glyphicon glyphicon-tasks green"></span> Add new task for D5 non-Detection <span class="glyphicon glyphicon-tasks green"></span></a>    
     {% endif %}
+    <br>
+    <br>
     </div>
   </div>
 
@@ -111,10 +116,10 @@
     <br>
       <form method="POST" class="form-inline">    {% csrf_token %}       
       {% buttons %}
-      {% bootstrap_button "Submit D5" name="SubmitD5" button_type="submit" button_class="btn-primary" %} 
+      {% bootstrap_button "Submit D5" name="SubmitD5" button_type="submit" button_class="btn-primary" icon="glyphicon glyphicon-send" %} 
   {% if user_profile.isStaff == True %}
-      {% bootstrap_button "Accept D5" name="AcceptD5" button_type="submit" button_class="btn-success" %} 
-      {% bootstrap_button "Reject D5" name="RejectD5" button_type="submit" button_class="btn-danger" %} 
+      {% bootstrap_button "Accept D5" name="AcceptD5" button_type="submit" button_class="btn-success" icon="glyphicon glyphicon-ok" %} 
+      {% bootstrap_button "Reject D5" name="RejectD5" button_type="submit" button_class="btn-danger" icon="glyphicon glyphicon-minus-sign" %} 
   {% endif %}              
       {% endbuttons %}        
       </form>

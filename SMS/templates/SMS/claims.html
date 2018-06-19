@@ -11,7 +11,7 @@
           </th>        
           <th>creation date
           </th>        
-          <th>due date
+          <th>next due date
           </th>        
           <th>part number
           </th>        
@@ -30,13 +30,52 @@
           <th>
           </th>{% endif %}              
         </thead>    
-        <tbody>    {% for claim in claims %}     {% if claim.is_past_D3 %}
-          <tr class="danger">    {% else %}
-            <tr>    {% endif %}         <td>
-                <a href="{% url 'claim_Data' claim.pk %}">{{ claim.pk | stringformat:"07d"}}</a></td>        <td>{{ claim.status }}</td>        <td>{{ claim.created_date|date:'d.m.Y' }}</td>        <td>{{ claim.due_date_D3|date:'d.m.Y; H:i' }}</td>        <td>{{ claim.part_number }}</td>        <td>{{ claim.speaking_name }}</td>        <td>{{ claim.plant }}</td>        <td>{{ claim.responsible_in_plant }}</td>        <td>{{ claim.classification }}</td>        <td>{{ claim.RMA }}</td>{% if user_profile.isStaff == True %}         <td>          
-                <a href="{% url 'claim_remove' claim.pk %}" title="Delete this claim" onclick="return confirm('Are you sure?')"><span class="glyphicon glyphicon-minus red"></span> Delete this claim</a>        </td>             <td>          
-                <a href="{% url 'claim_edit' claim.pk %}" title="Edit this claim" ><span class="glyphicon glyphicon-pencil orange"></span> Edit this claim</a>        </td>     {% endif %}              
-            </tr>    {% endfor %}     
+        <tbody>    
+        {% for claim in claims %}     
+          {% if claim.late %}
+            <tr class="danger">    
+            {% else %}
+            <tr>    
+            {% endif %}     
+                <td><a href="{% url 'claim_Data' claim.pk %}">{{ claim.pk | stringformat:"07d"}}</a></td>        
+                <td>{{ claim.status }}</td>        
+                <td>{{ claim.created_date|date:'d.m.Y' }}</td>        
+                <td>{{ claim.next_due_date|date:'d.m.Y; H:i' }}</td>        
+                <td>{{ claim.part_number }}</td>        
+                <td>{{ claim.speaking_name }}</td>        
+                <td>{{ claim.plant }}</td>        
+                <td>{{ claim.responsible_in_plant }}</td>        
+                <td>{{ claim.classification }}</td>        
+                <td>{{ claim.RMA }}</td>
+                {% if user_profile.isStaff == True %}         
+                  <td><a href="{% url 'claim_remove' claim.pk %}" title="Delete this claim" onclick="return confirm('Are you sure?')"><span class="glyphicon glyphicon-minus red"></span> Delete this claim</a></td>             
+                  <td><a href="{% url 'claim_edit' claim.pk %}" title="Edit this claim" ><span class="glyphicon glyphicon-pencil orange"></span> Edit this claim</a></td>     
+                {% endif %}              
+            
+            </tr>    
+            {% endfor %}     
+
+
+
+        {% for claim in claims_closed %}     
+            <tr>    
+                <td><a href="{% url 'claim_Data' claim.pk %}">{{ claim.pk | stringformat:"07d"}}</a></td>        
+                <td><del>{{ claim.status }}</del></td>        
+                <td><del>{{ claim.created_date|date:'d.m.Y' }}</del></td>        
+                <td><del>{{ claim.next_due_date|date:'d.m.Y; H:i' }}</del></td>        
+                <td><del>{{ claim.part_number }}</del></td>        
+                <td><del>{{ claim.speaking_name }}</del></td>        
+                <td><del>{{ claim.plant }}</del></td>        
+                <td><del>{{ claim.responsible_in_plant }}</del></td>        
+                <td><del>{{ claim.classification }}</del></td>        
+                <td><del>{{ claim.RMA }}</del></td>
+                {% if user_profile.isStaff == True %}         
+                  <td><a href="{% url 'claim_remove' claim.pk %}" title="Delete this claim" onclick="return confirm('Are you sure?')"><span class="glyphicon glyphicon-minus red"></span> Delete this claim</a></td>             
+                  <td><a href="{% url 'claim_edit' claim.pk %}" title="Edit this claim" ><span class="glyphicon glyphicon-pencil orange"></span> Edit this claim</a></td>     
+                {% endif %}              
+            
+            </tr>    
+            {% endfor %}     
         </tbody>
       </table>
     </div>
