@@ -155,7 +155,7 @@
                   <button type="button" class="btn btn-success btn-xs">in time</button> 
                   {% endif %}
               </td>        
-              <td>{{ task.comment|truncatechars:30 }}</td>        
+              <td>{{ task.task_comment|truncatechars:30 }}</td>        
               <td>
               {% if task.file %}
                   <a href="../../../../media/{{ task.file }}" target="_blank"><span class="glyphicon glyphicon-cloud-download"></span></a>
@@ -237,7 +237,7 @@
               <td><del>{{ task.pilot }}</del></td>        
               <td><del>{{ task.date_issued }}</del></td>        
               <td><del>{{ task.closed_date }}</del></td>        
-              <td><del>{{ task.comment|truncatechars:30 }}</del></td>        
+              <td><del>{{ task.task_comment|truncatechars:30 }}</del></td>        
               <td>
               {% if task.file %}
                   <a href="../../../../media/{{ task.file }}" target="_blank"><span class="glyphicon glyphicon-cloud-download"></span></a>

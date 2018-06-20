@@ -12,11 +12,11 @@ https://docs.djangoproject.com/en/2.0/ref/settings/
 
 import os
 
-# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend' 
-# EMAIL_HOST = 10.176.250.100
-# EMAIL_PORT = 25
-# EMAIL_HOST_USER = 'juergen.klotzek@nmb-minebea.com'
-# EMAIL_USE_TLS = False
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend' 
+EMAIL_HOST = '10.176.250.100'
+EMAIL_PORT = 25
+EMAIL_HOST_USER = 'juergen.klotzek@nmb-minebea.com'
+EMAIL_USE_TLS = False
 
 # EMAIL_HOST_PASSWORD = 'Hoytv10%Lp'
 
@@ -31,7 +31,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = '#p=7dv9rrdbr1w*k#)kpwk4$i(-u4k)g=df8wck((179!r_6_d'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-# DEBUG = True
+DEBUG = True
 
 ALLOWED_HOSTS = ['192.168.160.8', 'sms.pmdm.de']
 

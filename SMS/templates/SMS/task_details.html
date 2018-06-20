@@ -48,7 +48,7 @@
   
   <div class="row">    
     <div class= "col-md-12"> 
-      <form method="POST" class="form-inline"  {% if form.is_multipart %}enctype="multipart/form-data"{% endif %}>    
+      <form method="POST" class="form-inline"  enctype="multipart/form-data">    
       {% csrf_token %}       
     
       {% bootstrap_form_errors form %}       
@@ -56,23 +56,22 @@
       {% buttons %}
       {% bootstrap_button "Save & back" name="edit_task" button_type="submit" button_class="btn-default" icon="glyphicon glyphicon-floppy-saved" %} 
        {% endbuttons %}
-      </form> 
     </div>
   </div>
   
   <hr />
   
   <div class="row">    
-    <div class= "col-md-12">
+    <div class= "col-md-7">
       {% if comments %}
 
       {% endif %} 
        
-      <form method="POST" class="form-inline"  {% if form2.is_multipart %}enctype="multipart/form-data"{% endif %}> 
-      {% csrf_token %}       
     
       {% bootstrap_form_errors form2 %}       
       {% bootstrap_form form2 layout='inline' %}
+    </div>
+    <div class="col-md-3">
       {% buttons %}
        <button type="submit" class="btn btn-success" name="new_comment">New comment</button> 
        {% endbuttons %}
@@ -85,7 +84,7 @@
     {% for comment in comments %}
         <div class="row">
           <div class="col-md-4">
-          {{ comment.author }} wrote on {{ comment.date_issued}}{% if comment.file %}&nbsp;(and he left a file to download here: <a href="../../../../media/{{ comment.file }}" target="_blank"><span class="glyphicon glyphicon-cloud-download"></span></a>){% endif %}:
+          {{ comment.author.user }} wrote on {{ comment.date_issued}}{% if comment.file %}&nbsp;(and he left a file to download here: <a href="../../../../media/{{ comment.file }}" target="_blank"><span class="glyphicon glyphicon-cloud-download"></span></a>){% endif %}:
           </div>
         </div>
         <div class="row">
