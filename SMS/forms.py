@@ -274,7 +274,7 @@ class CommentForm(forms.ModelForm):
     class Meta:
         model=Comment
         widgets={
-          'comment':forms.Textarea(attrs={'rows':1, 'cols':120}),
+          'comment':forms.Textarea(attrs={'rows':2, 'cols':120}),
         }
         fields=[
           'comment', 
@@ -314,36 +314,36 @@ class TaskForm(forms.ModelForm):
             raise forms.ValidationError("Do not choose `Importance`!")
         return imp
 
-# class TaskFormBig(forms.ModelForm):
-#     class Meta:
-#         model=Task
-#         widgets={
-#           'task':forms.Textarea(attrs={'rows':3, 'cols':40}),
+class TaskFormEdit(forms.ModelForm):
+    class Meta:
+        model=Task
+        widgets={
+          'task':forms.Textarea(attrs={'rows':1, 'cols':40}),
 #           'task_comment':forms.Textarea(attrs={'rows':3, 'cols':40}),
-#           'due_date': DatePicker(options={
-#                 "format": "yyyy-mm-dd",
-#                 "autoclose": True,
-#                 "calendarWeeks":True,
-#                 "weekStart":1,
-#                 "todayHighlight": True,
-#           })
-#         }
-#         fields=[
-#           'action', 
-#           'task', 
-#           'pilot',
-#           'due_date',
+          'due_date': DatePicker(options={
+                "format": "yyyy-mm-dd",
+                "autoclose": True,
+                "calendarWeeks":True,
+                "weekStart":1,
+                "todayHighlight": True,
+          })
+        }
+        fields=[
+          'action', 
+          'task', 
+          'pilot',
+          'due_date',
 #           'task_comment',
-#           'importance',
+          'importance',
 #           'file',
-#         ]
-#     def clean_importance(self):
-#         imp =  self.cleaned_data.get('importance', '')
-# #         pdb.set_trace()
-#         if 'IMP' in imp:
-# #             pdb.set_trace()
-#             raise forms.ValidationError("Do not choose `Importance`!")
-#         return imp
+        ]
+    def clean_importance(self):
+        imp =  self.cleaned_data.get('importance', '')
+#         pdb.set_trace()
+        if 'IMP' in imp:
+#             pdb.set_trace()
+            raise forms.ValidationError("Do not choose `Importance`!")
+        return imp
 
 class W5_Occ_Form(forms.ModelForm):
     class Meta:

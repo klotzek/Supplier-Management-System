@@ -71,7 +71,7 @@
   <div class="row">
     <div class="col-md-6 text-center bg-success no_padding_right">
     <hr style="width:1px; height:28px; margin:0px;  border-right:1px solid; float:right; border-color:grey;">
-      <h4>Occurance</h4>
+      <h4>Occurence</h4>
     </div>
 
     <div class="col-md-6 text-center bg-info">
@@ -82,12 +82,12 @@
   <div class="row row-eq-height">
     <div class="col-md-6 bg-success no_padding_right">
     <hr style="width:1px; height:28px; margin:0px;  border-right:1px solid; float:right; border-color:grey;">
-    Please plan your corrective actions for occurance here. Don't forget to also have tasks for effectiveness tests.
+    Please plan your corrective actions for occurence here. Don't forget to also have tasks for effectiveness tests.
     <br>
     {% if tasks_D6 %}
-     You have {{ tasks_D6|length }} open tasks in your Task list.  <a target="_blank" href="{% url 'task_tracker' 'due_date' claim 'D6 Occurance' 9999 %}"><span class="glyphicon glyphicon-tasks orange"></span> Open tasks for D6 Occurance <span class="glyphicon glyphicon-tasks orange"></span></a> 
+     You have {{ tasks_D6|length }} open tasks in your Task list.  <a target="_blank" href="{% url 'task_tracker' 'due_date' claim 'D6 Occurence' 9999 %}"><span class="glyphicon glyphicon-tasks orange"></span> Open tasks for D6 Occurence <span class="glyphicon glyphicon-tasks orange"></span></a> 
     {% else %}
-       <a target="_blank" href="{% url 'task_tracker' 'due_date' claim 'D6 Occurance' 9999 %}"><span class="glyphicon glyphicon-tasks green"></span> Add new task for D6 Occurance <span class="glyphicon glyphicon-tasks green"></span></a>    
+       <a target="_blank" href="{% url 'task_tracker' 'due_date' claim 'D6 Occurence' 9999 %}"><span class="glyphicon glyphicon-tasks green"></span> Add new task for D6 Occurence <span class="glyphicon glyphicon-tasks green"></span></a>    
     {% endif %}
     <br>
     <br>

@@ -106,12 +106,8 @@
           </th>        
           <th>timely status
           </th>        
-          <th>comment
+          <th>last comment
           </th>        
-          <th>file
-             <a href="{% url 'task_tracker' 'file' tasks.0.project tasks.0.subproject 9999 %}"><span class="glyphicon glyphicon-menu-down"></span></a>
-             <a href="{% url 'task_tracker' '-file' tasks.0.project tasks.0.subproject 9999 %}"><span class="glyphicon glyphicon-menu-up"></span></a>
-          </th>         
           <th>edit</th>
           <th>close
           </th>        
@@ -157,11 +153,6 @@
               </td>        
               <td>{{ task.task_comment|truncatechars:30 }}</td>        
               <td>
-              {% if task.file %}
-                  <a href="../../../../media/{{ task.file }}" target="_blank"><span class="glyphicon glyphicon-cloud-download"></span></a>
-              {% endif %}
-              </td>
-              <td>
                   <a href="{% url 'task_details' task_data.3 task.project task.subproject task.pk %}"><span class="glyphicon glyphicon-pencil orange"></span></a>
               </td>
               <td>
@@ -205,9 +196,7 @@
           </th>        
           <th>closed
           </th>        
-          <th>comment
-          </th>        
-          <th>file
+          <th>last comment
           </th>        
           <th>
           </th>         
@@ -238,11 +227,6 @@
               <td><del>{{ task.date_issued }}</del></td>        
               <td><del>{{ task.closed_date }}</del></td>        
               <td><del>{{ task.task_comment|truncatechars:30 }}</del></td>        
-              <td>
-              {% if task.file %}
-                  <a href="../../../../media/{{ task.file }}" target="_blank"><span class="glyphicon glyphicon-cloud-download"></span></a>
-              {% endif %}
-              </td>
               <td>        
                   <form action="{{ task.pk }}" method="POST" class="form-inline">
                   {% csrf_token %}       
