@@ -32,11 +32,13 @@
 
 
 <div class="bg-img">
-  <div class="row">
-  <div class="col-md-12">
-  <p class="h_2 add_margin"> Tasks of {{ task_data.0 }} {{ task_data.1 }} 
-  </p>   
-  </div>
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-md-12">
+      <p class="h_2 add_margin"> Tasks of {{ task_data.0 }} {{ task_data.1 }} 
+      </p>   
+      </div>
+    </div>
   </div>
 </div>
 
@@ -138,7 +140,7 @@
               <td>{{ task.status }}</td>        
               <td>{{ task.action }}</td>        
               <td>{{ task.task|truncatechars:30  }}</td>        
-              <td>{{ task.pilot }}</td>        
+              <td>{{ task.pilot.user }}</td>        
               <td>{{ task.date_issued }}</td>        
               <td>{{ task.original_due_date }}</td>        
               <td>{{ task.due_date }}</td>        
@@ -223,7 +225,7 @@
               <td><del>{{ task.status }}</del></td>        
               <td><del>{{ task.action }}</del></td>        
               <td><del>{{ task.task|truncatechars:30 }}</del></td>        
-              <td><del>{{ task.pilot }}</del></td>        
+              <td><del>{{ task.pilot.user }}</del></td>        
               <td><del>{{ task.date_issued }}</del></td>        
               <td><del>{{ task.closed_date }}</del></td>        
               <td><del>{{ task.task_comment|truncatechars:30 }}</del></td>        

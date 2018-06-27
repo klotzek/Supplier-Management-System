@@ -882,7 +882,7 @@ def task_details(request, order, project, subproject, id):
                 new_comment.file.field.upload_to = path
                 new_comment.save()
 #                 pdb.set_trace()
-                send_mail(subject, mail_text, 'juergen@klotzek.de', ('juergen.klotzek@nmb-minebea.com', 'juergen@klotzek.de'))
+                send_mail(subject, mail_text, 'juergen.klotzek@nmb-minebea.com', [task_to_edit.pilot.email], fail_silently=False,)
             if 'new_comment' in request.POST:
                 return redirect('task_details', order, project, subproject, id)
             return redirect('task_tracker', order, project, subproject, 9999)

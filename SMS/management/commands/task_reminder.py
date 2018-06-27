@@ -27,7 +27,7 @@ class Command(BaseCommand):
             tasks = Task.objects.filter(closed=False, pilot=pilot)
             for task in tasks:
                 if 'Overdue' in task.timely_status:
-                    mail_text += 'Dear ' + task.pilot + ','
+                    mail_text += 'Dear ' + task.pilot.firstname + ' '+ task.pilot.lastname + ','
                     mail_text += '\r\n'
                     mail_text += 'Task "' + task.task + '" overdue. Due date was: ' + str(task.due_date)
                     mail_text += '\r\n'
@@ -36,7 +36,7 @@ class Command(BaseCommand):
                     mail_text += ''
                     mail_text += '\r\n'
             subject = 'There are delayed tasks (' + str(Task.objects.filter(closed=False, pilot=pilot).count()) + ' pcs.)'
-            send_mail(subject, mail_text, 'juergen.klotzek@nmb-minebea.com', (pilot, 'juergen.klotzek@nmb-minebea.com'))
+            send_mail(subject, mail_text, 'juergen.klotzek@nmb-minebea.com', [task.pilot.email, 'juergen.klotzek@nmb-minebea.com'])
 
 #         print (pilots)
 #         subject = pilots

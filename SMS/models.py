@@ -148,7 +148,9 @@ class UserProfile(models.Model):
     isStaff = models.BooleanField(default=False)
     activation_key = models.CharField(max_length=40, default='1234')
 #     key_expires = models.DateTimeField(default=timezone.now() + timezone.timedelta(days=9999))
-    
+    class Meta:
+        ordering = ('user__username',)
+        
     def __str__(self):
         return str(self.user)
         
@@ -380,16 +382,20 @@ class Task(models.Model):
     subproject = models.CharField(max_length=25)
     action = models.CharField(max_length = 25)
     task = models.CharField(max_length = 250)
-    pilot = models.EmailField(max_length=45, verbose_name='(mail of) Pilot')
+    pilot = models.ForeignKey(UserProfile, on_delete=models.SET_NULL, null = True, default=15) #default, damit im pulldown "pilot" angezeigt wird"
+#     pilot_mail = models.EmailField(max_length=45, verbose_name='(mail of) Pilot')  #kann gelöscht werden
     date_issued = models.DateField(auto_now_add=True)
     original_due_date = models.DateField()
     due_date = models.DateField()
-    task_comment = models.CharField(max_length = 500, blank=True, null=True)
+    task_comment = models.CharField(max_length = 1500, blank=True, null=True)
     closed_date = models.DateField(blank=True, null=True)
     closed = models.BooleanField(default = False)
     importance = models.CharField(max_length=10, choices=IMPORTANCE_CHOICES, default='IMP')
     file = models.FileField(blank=True, null=True, upload_to='uploads/')
     status = models.CharField(max_length=15, choices=STATUS_CHOICES, default = 'INTERNAL')
+#     class Meta:
+#         ordering = ('pilot__user__username',)
+
     @property
     def timely_status(self):
         if datetime.date(timezone.now()) > self.due_date:

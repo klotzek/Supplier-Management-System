@@ -313,6 +313,12 @@ class TaskForm(forms.ModelForm):
 #             pdb.set_trace()
             raise forms.ValidationError("Do not choose `Importance`!")
         return imp
+    def clean_pilot(self):
+        pilot=self.cleaned_data.get('pilot', '')
+#         pdb.set_trace()
+        if 'pilot' in pilot.user.username:
+            raise forms.ValidationError("Do not choose `Pilot`!")
+        return pilot    
 
 class TaskFormEdit(forms.ModelForm):
     class Meta:
@@ -344,6 +350,13 @@ class TaskFormEdit(forms.ModelForm):
 #             pdb.set_trace()
             raise forms.ValidationError("Do not choose `Importance`!")
         return imp
+    def clean_pilot(self):
+        pilot=self.cleaned_data.get('pilot', '')
+#         pdb.set_trace()
+        if 'pilot' in pilot.user.username:
+            raise forms.ValidationError("Do not choose `Pilot`!")
+        return pilot    
+
 
 class W5_Occ_Form(forms.ModelForm):
     class Meta:
