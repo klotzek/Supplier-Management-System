@@ -35,7 +35,7 @@
   <div class="container-fluid">
     <div class="row">
       <div class="col-md-12">
-      <p class="h_2 add_margin"> Tasks of {{ task_data.0 }} {{ task_data.1 }} 
+      <p class="h_2 add_margin"> Tasks of {{ task_data.0 }} {{ task_data.1 }} (related to {{ task_data.4}}) 
       </p>   
       </div>
     </div>
@@ -50,7 +50,7 @@
   
   <div class="row">    
     <div class= "col-md-12"> 
-      <form method="POST" class="form-inline"  {% if form.is_multipart %}enctype="multipart/form-data"{% endif %}>    
+      <form method="POST" class="form-inline">    
       {% csrf_token %}       
     
       {% bootstrap_form_errors form %}       

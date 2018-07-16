@@ -304,8 +304,20 @@ class TaskForm(forms.ModelForm):
           'task_comment',
           'status',
           'importance',
-#           'file',
         ]
+    def __init__(self, *args, **kwargs):
+        company = kwargs.pop('company', None)
+        hereIwork = kwargs.pop('hereIwork', None)
+        super(TaskForm, self).__init__(*args, **kwargs)
+        if company:
+            hereIwork = hereIwork.name
+            if 'PMDM' in hereIwork:    #falls Du zu PMDM gehörst, darfst Du auch Kollegen von PMDM in die Taskliste einfügen.
+                self.fields['pilot'].queryset = UserProfile.objects.filter(company=company).distinct() | UserProfile.objects.filter(company__name='PMDM').distinct()
+            else:
+                self.fields['pilot'].queryset = UserProfile.objects.filter(company=company).distinct()
+                
+#             self.fields['pilot'].queryset = UserProfile.objects.filter(pilot_of_task__project=project).distinct()
+            
     def clean_importance(self):
         imp =  self.cleaned_data.get('importance', '')
 #         pdb.set_trace()
@@ -319,6 +331,53 @@ class TaskForm(forms.ModelForm):
         if 'pilot' in pilot.user.username:
             raise forms.ValidationError("Do not choose `Pilot`!")
         return pilot    
+# class TaskForm(forms.ModelForm):
+#     class Meta:
+#         model=Task
+#         widgets={
+#           'task':forms.Textarea(attrs={'rows':1, 'cols':35}),
+#           'task_comment':forms.Textarea(attrs={'rows':1, 'cols':40}),
+#           'due_date': DatePicker(options={
+#                 "format": "yyyy-mm-dd",
+#                 "autoclose": True,
+#                 "calendarWeeks":True,
+#                 "weekStart":1,
+#                 "todayHighlight": True,
+#           })
+#         }
+#         fields=[
+#           'action', 
+#           'task', 
+#           'pilot',
+#           'due_date',
+#           'task_comment',
+#           'status',
+#           'importance',
+#         ]
+#     def __init__(self, company=None, hereIwork=None, **kwargs):
+#         super(TaskForm, self).__init__(**kwargs)
+#         if company:
+#             hereIwork = hereIwork.name
+#             if 'PMDM' in hereIwork:    #falls Du zu PMDM gehörst, darfst Du auch Kollegen von PMDM in die Taskliste einfügen.
+#                 self.fields['pilot'].queryset = UserProfile.objects.filter(company=company).distinct() | UserProfile.objects.filter(company__name='PMDM').distinct()
+#             else:
+#                 self.fields['pilot'].queryset = UserProfile.objects.filter(company=company).distinct()
+#                 
+# #             self.fields['pilot'].queryset = UserProfile.objects.filter(pilot_of_task__project=project).distinct()
+#             
+#     def clean_importance(self):
+#         imp =  self.cleaned_data.get('importance', '')
+# #         pdb.set_trace()
+#         if 'IMP' in imp:
+# #             pdb.set_trace()
+#             raise forms.ValidationError("Do not choose `Importance`!")
+#         return imp
+#     def clean_pilot(self):
+#         pilot=self.cleaned_data.get('pilot', '')
+# #         pdb.set_trace()
+#         if 'pilot' in pilot.user.username:
+#             raise forms.ValidationError("Do not choose `Pilot`!")
+#         return pilot    
 
 class TaskFormEdit(forms.ModelForm):
     class Meta:
@@ -343,6 +402,19 @@ class TaskFormEdit(forms.ModelForm):
           'importance',
 #           'file',
         ]
+    def __init__(self, *args, **kwargs):
+#     def __init__(self, *args, **kwargs):
+#         pdb.set_trace()
+        company = kwargs.pop('firma', None)
+        hereIwork = kwargs.pop('hereIwork', None)
+        super(TaskFormEdit, self).__init__(*args, **kwargs)
+        if company:
+            hereIwork = hereIwork.name
+            if 'PMDM' in hereIwork:    #falls Du zu PMDM gehörst, darfst Du auch Kollegen von PMDM in die Taskliste einfügen.
+                self.fields['pilot'].queryset = UserProfile.objects.filter(company=company).distinct() | UserProfile.objects.filter(company__name='PMDM').distinct()
+            else:
+                self.fields['pilot'].queryset = UserProfile.objects.filter(company=company).distinct()
+                
     def clean_importance(self):
         imp =  self.cleaned_data.get('importance', '')
 #         pdb.set_trace()
@@ -971,6 +1043,22 @@ class CompanyForm(forms.ModelForm):
         fields = ['name', 'DUNS', 'adress1', 'adress2', 'postcode', 'town', 'country']
         
 
+class PasswordForm(forms.Form):
+    password1 = forms.CharField(label="",max_length=50,min_length=6,
+                                widget=forms.PasswordInput(attrs={'placeholder': 'password','class':'form-control input-perso'}))
+    password2 = forms.CharField(label="",max_length=50,min_length=6,
+                                widget=forms.PasswordInput(attrs={'placeholder': 'confirm password','class':'form-control input-perso'}))
+
+    def clean(self):
+        password1 = self.cleaned_data.get('password1')
+        password2 = self.cleaned_data.get('password2')
+
+        if password1 and password1 != password2:
+            self._errors['password2'] = "The passwords are not identical."
+
+        return self.cleaned_data
+        
+        
 class UserForm(forms.ModelForm):
     class Meta:
         model = User

@@ -8,10 +8,11 @@ from django.contrib import messages
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth.models import User
-from .forms import Claim_New_Form, CompanyForm, UserForm, UserProfileForm, Team_Form, Data_Form, D2_CV_Form, D2_SV_Form, Claim_Form, D3_Form, Ishi_Occ_Form , Ishi_Det_Form, TaskForm, TaskFormEdit,  W5_Occ_Form , W5_Det_Form, D4Form, D4Form_reproduction, FileForm, CommentForm, D7Form 
+from .forms import Claim_New_Form, CompanyForm, UserForm, UserProfileForm, Team_Form, Data_Form, D2_CV_Form, D2_SV_Form, Claim_Form, D3_Form, Ishi_Occ_Form , Ishi_Det_Form, TaskForm, TaskFormEdit,  W5_Occ_Form , W5_Det_Form, D4Form, D4Form_reproduction, FileForm, CommentForm, D7Form, PasswordForm 
 from datetime import datetime, timedelta
 from django.utils import timezone
 from django.core.mail import send_mail
+from django.template import loader
 
 # from django.core.files.storage import FileSystemStorage
 
@@ -23,10 +24,13 @@ def index(request):
     if request.method == 'POST':
         user_profile.company_id = request.POST.get("vendor_choice")
     company = Company.objects.get(pk=user_profile.company_id)
-    show_company = Company.objects.get(pk=user_profile.company_id).id
+#     show_company = Company.objects.get(pk=user_profile.company_id).id
+    companyusers = UserProfile.objects.filter(company=company.pk)
+#     hereIwork = UserProfile.objects.get(user=request.user)
+#     pdb.set_trace()
 
     vendors=[(vendor.pk, vendor.name) for vendor in Company.objects.all()]
-    return render(request, 'SMS/index.html',{'user_profile':user_profile, 'company':company, 'show_company':show_company, 'vendors':vendors, 'request':request})
+    return render(request, 'SMS/index.html',{'user_profile':user_profile, 'companyusers':companyusers, 'company':company, 'vendors':vendors, 'request':request})
 
 @login_required
 def vendor_new(request):
@@ -47,6 +51,28 @@ def vendor_new(request):
         return render(request, 'SMS/form.html',{'user_profile':user_profile, 'company':company, 'show_company':show_company, 'vendors':vendors,  'form': form})
 #         return render(request, 'SMS/vendor_edit.html',{'user_profile':user_profile, 'company':company, 'show_company':show_company, 'vendors':vendors,  'form': form})
 
+def user_activate(request, user_Nb):
+    user_profile = UserProfile.objects.get(user_id=user_Nb)
+    user = User.objects.get(id=user_Nb)
+    form = PasswordForm()
+    if request.method == "POST":
+        form = PasswordForm(request.POST)
+        if form.is_valid():
+            user = User.objects.get(pk = user_Nb)
+            user.is_active = True
+            user.set_password(request.POST.get("password1"))
+            update_session_auth_hash(request, user_Nb)  # Important!
+            messages.success(request, 'Your password was successfully updated!')
+            user.save()
+            return redirect('login')
+        else:
+            messages.error(request, 'Your input is not correct.')
+            
+            
+
+    return render(request, 'SMS/user_activate.html',{'user_profile':user_profile, 'form': form})
+    
+
 @login_required
 def user_new(request, company_id):
     actual_user_id = request.user
@@ -61,11 +87,23 @@ def user_new(request, company_id):
         form2 = UserProfileForm(request.POST)
         if form1.is_valid() and form2.is_valid():
             new_user = User.objects.create_user(**form1.cleaned_data)
+            new_user.is_active = False
+            new_user.save()
             new_user_profile = form2.save(commit=False)
             user = User.objects.get(username = request.POST.get("username"))
             new_user_profile.user_id =  user.pk
             new_user_profile.company_id=show_company 
             new_user_profile.save()
+            html_message = loader.render_to_string(
+            'SMS/activation_mail.html',
+            {
+                'user_name': new_user_profile.firstname + ' ' + new_user_profile.lastname,
+                'subject':  'Please activate your account by clicking this link: http://localhost:8000/SMS/user_activate/' + str(user.pk),
+#                 //...  
+            }
+        )            
+            mail_text=''
+            send_mail('Welcome to PMDM SupplierManagementSystem', mail_text, 'juergen.klotzek@nmb-minebea.com', [new_user_profile.email], fail_silently=False, html_message=html_message)
             return redirect('index')
     else:
         form1 = UserForm()
@@ -785,24 +823,25 @@ def task_tracker(request, order, project, subproject, id):
     actual_user_id = request.user
     user_profile = UserProfile.objects.get(user_id=actual_user_id)
 
-    company = Claim.objects.get(pk=project).related_to.name
-    path = 'uploads/' + company + '/Claim_' + str(project)
-#     pdb.set_trace()
+#     company = Claim.objects.get(pk=project).related_to.name
+    company = Claim.objects.get(pk=project).related_to
+    path = 'uploads/' + company.name + '/Claim_' + str(project)
     tasks = Task.objects.filter(project=project, subproject=subproject, closed=False).order_by(order)
     tasks_done = Task.objects.filter(project=project, subproject=subproject, closed = True)
     task_to_edit = None
+#     pdb.set_trace()
     if id < 9000:
         task_to_edit = Task.objects.get(project=project, subproject=subproject, pk=id)
 
     proj = 'Claim Nb. ' + str(project)
     subproj = ', Division ' + subproject
-    task_data = [proj, subproj, id, order]
+    task_data = [proj, subproj, id, order, company]
     
-    
-    form = TaskForm()
+    hereIwork = UserProfile.objects.get(user=request.user).company
+    form = TaskForm(company=company, hereIwork=hereIwork)
     if request.method == "POST":
         if 'new_task' in request.POST:
-            form=TaskForm(request.POST)
+            form=TaskForm(request.POST, company=company, hereIwork=hereIwork)
             if form.is_valid():
                 new_task=form.save(commit=False)
                 new_task.project = project
@@ -837,30 +876,23 @@ def task_details(request, order, project, subproject, id):
     actual_user_id = request.user
     user_profile = UserProfile.objects.get(user_id=actual_user_id)
 
-    company = Claim.objects.get(pk=project).related_to.name
-    path = 'uploads/' + company + '/Claim_' + str(project) + '/Task_' + str(id)
-#     pdb.set_trace()
-#     tasks = Task.objects.filter(project=project, subproject=subproject, closed=False).order_by(order)
-#     tasks_done = Task.objects.filter(project=project, subproject=subproject, closed = True)
-#     task_to_edit = None
-#     if id < 9000:
+    company = Claim.objects.get(pk=project).related_to
+    path = 'uploads/' + company.name + '/Claim_' + str(project) + '/Task_' + str(id)
     task_to_edit = Task.objects.get(project=project, subproject=subproject, pk=id)
     try:
         comments = Comment.objects.filter(project=project, subproject=subproject, task=id).order_by('-pk')
-#         pdb.set_trace()
     except:
         comments = None
-#         pdb.set_trace()
 
     proj = 'Claim Nb. ' + str(project)
     subproj = ', Division ' + subproject
-    task_data = [proj, subproj, id, order]
+    task_data = [proj, subproj, id, order, company]
+    hereIwork = UserProfile.objects.get(user=request.user).company
     
-    
-    form = TaskFormEdit(instance = task_to_edit)
+    form = TaskFormEdit(instance = task_to_edit, firma=company, hereIwork=hereIwork)
     form2 = CommentForm()
     if request.method == "POST":
-        form=TaskFormEdit(request.POST, request.FILES, instance = task_to_edit)
+        form=TaskFormEdit(request.POST, instance = task_to_edit, firma=company, hereIwork=hereIwork)
         form2=CommentForm(request.POST, request.FILES)
         if form.is_valid():
             new_task=form.save(commit=False)
@@ -881,12 +913,14 @@ def task_details(request, order, project, subproject, id):
                 new_comment.author=user_profile
                 new_comment.file.field.upload_to = path
                 new_comment.save()
-#                 pdb.set_trace()
                 send_mail(subject, mail_text, 'juergen.klotzek@nmb-minebea.com', [task_to_edit.pilot.email], fail_silently=False,)
             if 'new_comment' in request.POST:
                 return redirect('task_details', order, project, subproject, id)
             return redirect('task_tracker', order, project, subproject, 9999)
                 
+#         return render(request, 'SMS/task_details.html', {'user_profile':user_profile, 'task_data':task_data, 'form':form, 'form2':form2, 
+#                                                       'comments':comments, 
+#                                                       })        
     return render(request, 'SMS/task_details.html', {'user_profile':user_profile, 'task_data':task_data, 'form':form, 'form2':form2, 
                                                       'comments':comments, 
                                                       })        

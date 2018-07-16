@@ -382,8 +382,7 @@ class Task(models.Model):
     subproject = models.CharField(max_length=25)
     action = models.CharField(max_length = 25)
     task = models.CharField(max_length = 250)
-    pilot = models.ForeignKey(UserProfile, on_delete=models.SET_NULL, null = True, default=15) #default, damit im pulldown "pilot" angezeigt wird"
-#     pilot_mail = models.EmailField(max_length=45, verbose_name='(mail of) Pilot')  #kann gelöscht werden
+    pilot = models.ForeignKey(UserProfile, related_name='pilot_of_task', on_delete=models.SET_NULL, null = True, default=15) #default, damit im pulldown "pilot" angezeigt wird"
     date_issued = models.DateField(auto_now_add=True)
     original_due_date = models.DateField()
     due_date = models.DateField()

@@ -10,6 +10,7 @@ from . import views
 # app_name = 'SMS'
 urlpatterns = [
     path('', views.index, name='index'),
+    path('user_activate/<int:user_Nb>/', views.user_activate, name='user_activate'),
     path('claims/<int:company_id>/', views.claims, name='claims'),
     path('claim_remove/<int:claim>/', views.claim_remove, name='claim_remove'),
     path('claim_edit/<int:claim>/', views.claim_edit, name='claim_edit'),
