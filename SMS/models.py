@@ -7,7 +7,9 @@ from datetime import datetime
 # Create your models here.
 
 class Company(models.Model):
-   name =  models.CharField(max_length=200, unique=True, verbose_name='Vendor name')
+   name =  models.CharField(max_length=200, unique=True, verbose_name='Company name')
+   NMB_company = models.BooleanField(default=False)
+   customer = models.BooleanField(default = False)
    DUNS = models.CharField(max_length=10, unique=True)
    adress1 = models.CharField(max_length=200)
    adress2 = models.CharField(max_length=200, blank=True)
@@ -164,15 +166,15 @@ class Team(models.Model):
     function_1=models.CharField(max_length=25, blank=True, null=True, 
 #     help_text="Only required if 'teammember 1' is selected.",
     )
-    mail_1=models.EmailField(max_length=25, blank=True, null=True)
+    mail_1=models.EmailField(max_length=50, blank=True, null=True)
     phone_1 = models.CharField(max_length=25, blank = True, null = True)
     teammember_2= models.CharField(max_length=25, blank=True, null=True)
     function_2=models.CharField(max_length=25, blank=True, null=True)
-    mail_2=models.EmailField(max_length=25, blank=True, null=True)
+    mail_2=models.EmailField(max_length=50, blank=True, null=True)
     phone_2 = models.CharField(max_length=25, blank = True, null = True)
     teammember_3= models.CharField(max_length=25, blank=True, null=True)
-    function_3=models.CharField(max_length=25, blank=True, null=True)
-    mail_3=models.EmailField(max_length=25, blank=True, null=True)
+    function_3=models.CharField(max_length=50, blank=True, null=True)
+    mail_3=models.EmailField(max_length=50, blank=True, null=True)
     phone_3 = models.CharField(max_length=25, blank = True, null = True)
     
     def __str__(self):

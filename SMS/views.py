@@ -166,6 +166,11 @@ def claims(request, company_id):
     company = Company.objects.get(pk=company_id)
     vendors=[(vendor.pk, vendor.name) for vendor in Company.objects.all()]
     show_company = company_id
+    if not user_profile.isStaff:                  #der eingloggte User gehört NICHT zu PMDM
+        if not company == user_profile.company:   #der eingloggte User ruft Daten einer anderen Firma auf!
+            messages.add_message(request, messages.ERROR, 'You are not allowed to see other companies items!')
+            return render(request, 'SMS/error.html', {'vendors':vendors, 'user_profile':user_profile, 'show_company':show_company, 'company':company,}) 
+         
     claims = Claim.objects.filter(related_to = company_id, valid = 'True').exclude(status__status = 'Closed')
     claims_closed = Claim.objects.filter(related_to = company_id, valid = 'True', status__status = 'Closed')
 #     claims = Claim.objects.filter(related_to = company_id, valid = 'True', status__status = 'Closed')
@@ -822,14 +827,15 @@ def D1D8(request, claim):
 def task_tracker(request, order, project, subproject, id):
     actual_user_id = request.user
     user_profile = UserProfile.objects.get(user_id=actual_user_id)
-
-#     company = Claim.objects.get(pk=project).related_to.name
     company = Claim.objects.get(pk=project).related_to
+    if not user_profile.isStaff:                  #der eingloggte User gehört NICHT zu PMDM
+        if not company == user_profile.company:   #der eingloggte User ruft Daten einer anderen Firma auf!
+            messages.add_message(request, messages.ERROR, 'You are not allowed to see other companies items!')
+         
     path = 'uploads/' + company.name + '/Claim_' + str(project)
     tasks = Task.objects.filter(project=project, subproject=subproject, closed=False).order_by(order)
     tasks_done = Task.objects.filter(project=project, subproject=subproject, closed = True)
     task_to_edit = None
-#     pdb.set_trace()
     if id < 9000:
         task_to_edit = Task.objects.get(project=project, subproject=subproject, pk=id)
 
@@ -875,8 +881,12 @@ def task_tracker(request, order, project, subproject, id):
 def task_details(request, order, project, subproject, id):
     actual_user_id = request.user
     user_profile = UserProfile.objects.get(user_id=actual_user_id)
-
     company = Claim.objects.get(pk=project).related_to
+    if not user_profile.isStaff:                  #der eingloggte User gehört NICHT zu PMDM
+        if not company == user_profile.company:   #der eingloggte User ruft Daten einer anderen Firma auf!
+            messages.add_message(request, messages.ERROR, 'You are not allowed to see other companies items!')
+            return render(request, 'SMS/error.html', {'user_profile':user_profile, 'company':company,}) 
+         
     path = 'uploads/' + company.name + '/Claim_' + str(project) + '/Task_' + str(id)
     task_to_edit = Task.objects.get(project=project, subproject=subproject, pk=id)
     try:

@@ -3,6 +3,8 @@
 
 {% load bootstrap3 %} {# Load the tag library #} 
 {% bootstrap_css %} {# Load CSS and JavaScript #} 
+{% bootstrap_javascript %} {# Embeds Bootstrap JS #}
+{% bootstrap_messages %} {# Display django.contrib.messages as Bootstrap alerts #}
 
   
 <div class = "container-fluid">
@@ -11,7 +13,7 @@
     <h3>User</h3>
     {% if user_profile.isAdmin == True %}      
       <p>    &nbsp;            
-        <a href="{% url 'user_new' company.pk %}"><span class="glyphicon glyphicon-plus green"></span> Add user for vendor {{company.name}} <span class="glyphicon glyphicon-plus green"></span></a>    
+        <a href="{% url 'user_new' company.pk %}"><span class="glyphicon glyphicon-plus green"></span> Add user for company {{company.name}} <span class="glyphicon glyphicon-plus green"></span></a>    
       </p>     {% endif %}
       <p>
         <a href="{% url 'user_edit' user_profile.user_id %}"><span class="glyphicon glyphicon-pencil orange"></span> Edit user {{user_profile.user}} <span class="glyphicon glyphicon-pencil orange"></span></a>    
@@ -34,10 +36,10 @@
       <p>    
       </p>{% if user_profile.isStaff == True %}      
       <p>           
-        <a href="{% url 'vendor_new' %}"><span class="glyphicon glyphicon-plus green"></span> Add new vendor <span class="glyphicon glyphicon-plus green"></span></a>    
+        <a href="{% url 'vendor_new' %}"><span class="glyphicon glyphicon-plus green"></span> Add new company <span class="glyphicon glyphicon-plus green"></span></a>    
       </p>     {% endif %} {% if user_profile.isAdmin == True or user_profile.isStaff == True %}      
       <p>           
-        <a href="{% url 'vendor_edit' company.pk %}"><span class="glyphicon glyphicon-pencil orange"></span> Edit vendor {{company.name}} <span class="glyphicon glyphicon-pencil orange"></span></a>    
+        <a href="{% url 'vendor_edit' company.pk %}"><span class="glyphicon glyphicon-pencil orange"></span> Edit company {{company.name}} <span class="glyphicon glyphicon-pencil orange"></span></a>    
       </p>     {% endif %}      
       </div>
       <div class="col-md-4">

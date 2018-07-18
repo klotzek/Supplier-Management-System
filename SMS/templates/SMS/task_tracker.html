@@ -19,11 +19,8 @@
 {% load bootstrap3 %} {# Load the tag library #} 
 {% bootstrap_css %} {# Load CSS and JavaScript #} 
 {% bootstrap_javascript %} {# Embeds Bootstrap JS #}
-{% bootstrap_messages %} {# Display django.contrib.messages as Bootstrap alerts #}
 
-{% load fontawesome %}
-{% fontawesome_stylesheet %}
- 
+
 
 {% block extrahead %}   {# Extra Resources Start #}
 {% endblock %}          {# Extra Resources End #}
@@ -35,13 +32,17 @@
   <div class="container-fluid">
     <div class="row">
       <div class="col-md-12">
+{% bootstrap_messages %} {# Display django.contrib.messages as Bootstrap alerts #}
+{% if not messages %}
       <p class="h_2 add_margin"> Tasks of {{ task_data.0 }} {{ task_data.1 }} (related to {{ task_data.4}}) 
-      </p>   
+      </p>
+{% endif %}         
       </div>
     </div>
   </div>
 </div>
 
+{% if not messages %}
 <div class="container-fluid">      
   <div class="row">    
     <div class= "col-md-2">      <h5>Add new task:     </h5>    
@@ -250,6 +251,6 @@
 
 
 
-
+  {% endif %}
   </body>
 </html>    
