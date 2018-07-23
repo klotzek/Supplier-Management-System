@@ -1,5 +1,6 @@
 #!/bin/bash
 
-git add *
-git commit -m "Tagessicherung"
+git add . && \
+git status && \
+git commit -m "Tagessicherung"  && \
 git push
