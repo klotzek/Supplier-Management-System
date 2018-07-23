@@ -3,4 +3,4 @@
 git add . && \
 git status && \
 git commit -m "Tagessicherung"  && \
-git push
+git push origin master
