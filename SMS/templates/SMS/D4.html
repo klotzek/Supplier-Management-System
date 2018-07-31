@@ -14,6 +14,8 @@
 {% block extrahead %}   {# Extra Resources Start #}
 {% endblock %}          {# Extra Resources End #}
 
+{% load fontawesome %}
+{% fontawesome_stylesheet %}
 {{ form_due.media }}        {# Form required JS and CSS #}
 {{ form_D4_occ.media }}        {# Form required JS and CSS #}
 
@@ -41,7 +43,7 @@
       <h5 class="text-danger">      {% else %}       <h5>      {% endif %}       due date: {{ claim.due_date_D4 }}                  </h5>    
     </div>    
 
-{% if user_profile.isStaff == True %}
+{% if user_profile.company.NMB_company == True %}
 
   <form method="POST" class="form-inline">    
     {% csrf_token %}       
@@ -69,8 +71,9 @@
   
   <div class="row">      
     <div class="col-md-10">
-    {% if tasks_D4 %}
+    {% if tasks_D4 %}<h4><strong>
      You have {{ tasks_D4|length }} open tasks in your Task list.  <a target="_blank" href="{% url 'task_tracker' 'due_date' claim 'D4' 9999 %}"><span class="glyphicon glyphicon-tasks orange"></span> Open tasks for D4 <span class="glyphicon glyphicon-tasks orange"></span></a> 
+    </strong></h4>
     {% else %}
        <a target="_blank" href="{% url 'task_tracker' 'due_date' claim 'D4' 9999 %}"><span class="glyphicon glyphicon-tasks green"></span> Add new task for D4 <span class="glyphicon glyphicon-tasks green"></span></a>    
     {% endif %}
@@ -516,7 +519,7 @@
       <form method="POST" class="form-inline">    {% csrf_token %}       
       {% buttons %}
       {% bootstrap_button "Submit D4" name="SubmitD4" button_type="submit" button_class="btn-primary"  icon="glyphicon glyphicon-send" %} 
-  {% if user_profile.isStaff == True %}
+  {% if user_profile.company.NMB_company == True %}
       {% bootstrap_button "Accept D4" name="AcceptD4" button_type="submit" button_class="btn-success" icon="glyphicon glyphicon-ok" %} 
       {% bootstrap_button "Reject D4" name="RejectD4" button_type="submit" button_class="btn-danger" icon="glyphicon glyphicon-minus-sign" %} 
   {% endif %}              

@@ -27,6 +27,7 @@
     <form method="POST" class="form"  {% if form.is_multipart %}enctype="multipart/form-data"{% endif %} {% if layout != 'vertical' %}class="form-{{ layout }}"{% endif %}>
     {% csrf_token %}
 
+        {% bootstrap_form_errors form %}       
         {% bootstrap_form form layout='inline' %}
 
   {% buttons %}

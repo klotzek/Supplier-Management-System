@@ -13,12 +13,14 @@
     <h3>User</h3>
     {% if user_profile.isAdmin == True %}      
       <p>    &nbsp;            
-        <a href="{% url 'user_new' company.pk %}"><span class="glyphicon glyphicon-plus green"></span> Add user for company {{company.name}} <span class="glyphicon glyphicon-plus green"></span></a>    
+        <a href="{% url 'user_new' company.pk %}"><span class="glyphicon glyphicon-plus green"></span> Add user for 
+        {% if company.customer %}customer{% else %}vendor{% endif %}
+         {{company.name}} <span class="glyphicon glyphicon-plus green"></span></a>    
       </p>     {% endif %}
       <p>
         <a href="{% url 'user_edit' user_profile.user_id %}"><span class="glyphicon glyphicon-pencil orange"></span> Edit user {{user_profile.user}} <span class="glyphicon glyphicon-pencil orange"></span></a>    
       </p>      
-      <table class="table table-hover">           
+      <table class="table table-hover table-condensed">           
         <tr>        <td><strong>Name:</strong></td>        <td>{{user_profile.lastname}}</td>           
         </tr>           
         <tr>        <td><strong>Firstname:</strong></td>        <td>{{user_profile.firstname}}</td>           
@@ -26,7 +28,11 @@
         <tr>        <td><strong>Mailadress:</strong></td>        <td>{{user_profile.email}}</td>           
         </tr>            
         <tr>        <td><strong>Admin:</strong></td>        <td>{{user_profile.isAdmin}}</td>           
-        </tr>    
+        </tr>
+        {% if company.NMB_company == True %}
+        <tr>        <td><strong>NMB_Staff:</strong></td>        <td>{{user_profile.isStaff}}</td>           
+        </tr>
+        {% endif %}    
       </table>
       </div>
       </div>
@@ -34,24 +40,32 @@
       <div class="col-md-4">
       <h3>Company</h3>    
       <p>    
-      </p>{% if user_profile.isStaff == True %}      
+      </p>{% if user_profile.company.NMB_company == True %}      
       <p>           
         <a href="{% url 'vendor_new' %}"><span class="glyphicon glyphicon-plus green"></span> Add new company <span class="glyphicon glyphicon-plus green"></span></a>    
-      </p>     {% endif %} {% if user_profile.isAdmin == True or user_profile.isStaff == True %}      
+      </p>     {% endif %} {% if user_profile.isAdmin == True or user_profile.company.NMB_company == True %}      
       <p>           
-        <a href="{% url 'vendor_edit' company.pk %}"><span class="glyphicon glyphicon-pencil orange"></span> Edit company {{company.name}} <span class="glyphicon glyphicon-pencil orange"></span></a>    
+        <a href="{% url 'vendor_edit' company.pk %}"><span class="glyphicon glyphicon-pencil orange"></span> Edit 
+        {% if company.customer %}customer{% else %}vendor{% endif %}
+         {{company.name}} <span class="glyphicon glyphicon-pencil orange"></span></a>    
       </p>     {% endif %}      
       </div>
       <div class="col-md-4">
-      <h3>Users of Company {{company.name}}</h3>
+      <h3>Users of 
+        {% if company.customer %}customer{% else %}vendor{% endif %}
+       {{company.name}}</h3>
       </div>    
       </div>
       <div class="row">
       <div class="col-md-4">
       <div class="col-md-1">
       </div>
-      <table class="table table-hover">           
+      <table class="table table-hover table-condensed">           
         <tr>        <td><strong>Name:</strong></td>        <td>{{company.name}}</td>           
+        </tr>           
+        <tr>        <td><strong>Customer:</strong></td>        <td>{{company.customer}}</td>           
+        </tr>           
+        <tr>        <td><strong>NMB-company:</strong></td>        <td>{{company.NMB_company}}</td>           
         </tr>           
         <tr>        <td><strong>DUNS:</strong></td>        <td>{{company.DUNS}}</td>           
         </tr>           
@@ -67,9 +81,10 @@
       </table>  
     </div>  
       <div class="col-md-4">
-      <table class="table table-hover">
+      <table class="table table-hover table-condensed">
       {% for user in companyusers %}           
-        <tr>        <td><strong>Name:</strong></td>        <td>{{user.firstname}} {{user.lastname}}</td>           
+        <tr>        <td><strong>Name:</strong></td>        <td>{{user.firstname}} {{user.lastname}}</td>
+        <td><strong>login:</strong> {{user.user}}</td>           
         </tr>
        {% endfor %}           
       </table>  

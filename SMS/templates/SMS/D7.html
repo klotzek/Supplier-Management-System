@@ -1,7 +1,6 @@
 {% extends 'SMS/base.html' %}
 
 {% block content %}
-{% load fontawesome %}
 
 {% load staticfiles %}
 
@@ -15,6 +14,8 @@
 {% block extrahead %}   {# Extra Resources Start #}
 {% endblock %}          {# Extra Resources End #}
 
+{% load fontawesome %}
+{% fontawesome_stylesheet %}
 {{ form_due.media }}        {# Form required JS and CSS #}
 {{ form.media }}        {# Form required JS and CSS #}
 
@@ -42,7 +43,7 @@
       <h5 class="text-danger">      {% else %}       <h5>      {% endif %}       due date: {{ claim.due_date_D8 }}                  </h5>    
     </div>    
 
-{% if user_profile.isStaff == True %}
+{% if user_profile.company.NMB_company == True %}
 
   <form method="POST" class="form-inline">    
     {% csrf_token %}       
@@ -135,7 +136,7 @@
       {% buttons %}
       {% bootstrap_button "Save" name="SaveD7" button_type="submit" button_class="btn-default" icon="glyphicon glyphicon-floppy-saved" %} 
       {% bootstrap_button "Save & Submit 8D" name="Submit8D" button_type="submit" button_class="btn-primary" icon="glyphicon glyphicon-send" %} 
-{% if user_profile.isStaff == True %}
+{% if user_profile.company.NMB_company == True %}
       {% bootstrap_button "Accept D7" name="AcceptD7" button_type="submit" button_class="btn-success" icon="glyphicon glyphicon-ok" %} 
       {% bootstrap_button "Reject D7" name="RejectD7" button_type="submit" button_class="btn-danger" icon="glyphicon glyphicon-minus-sign" %} 
 {% endif %}              

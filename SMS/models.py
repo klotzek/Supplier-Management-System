@@ -10,6 +10,8 @@ class Company(models.Model):
    name =  models.CharField(max_length=200, unique=True, verbose_name='Company name')
    NMB_company = models.BooleanField(default=False)
    customer = models.BooleanField(default = False)
+   belongs_to = models.ForeignKey('self', on_delete=models.SET_NULL, null=True)
+   can_be_viewed_by = models.ManyToManyField("self")
    DUNS = models.CharField(max_length=10, unique=True)
    adress1 = models.CharField(max_length=200)
    adress2 = models.CharField(max_length=200, blank=True)
@@ -380,12 +382,14 @@ IMPORTANCE_CHOICES = (('LOW', 'low'),
                       ('HIGH', 'high'),
                       ('IMP', 'Importance'))                     
 class Task(models.Model):
+    number = models.IntegerField(null=True)
     project = models.CharField(max_length=25)
     subproject = models.CharField(max_length=25)
     action = models.CharField(max_length = 25)
     task = models.CharField(max_length = 250)
     pilot = models.ForeignKey(UserProfile, related_name='pilot_of_task', on_delete=models.SET_NULL, null = True, default=15) #default, damit im pulldown "pilot" angezeigt wird"
     date_issued = models.DateField(auto_now_add=True)
+#     datetime_issued = models.DateField(auto_now_add=True)
     original_due_date = models.DateField()
     due_date = models.DateField()
     task_comment = models.CharField(max_length = 1500, blank=True, null=True)

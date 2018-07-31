@@ -16,7 +16,6 @@
 {% endblock %}          {# Extra Resources End #}
 
 {{ form_due.media }}        {# Form required JS and CSS #}
-{{ form_D4_occ.media }}        {# Form required JS and CSS #}
 
 
 {% include 'SMS/D8_header.html' %} 
@@ -42,7 +41,7 @@
       <h5 class="text-danger">      {% else %}       <h5>      {% endif %}       due date: {{ claim.due_date_D6 }}                  </h5>    
     </div>    
 
-{% if user_profile.isStaff == True %}
+{% if user_profile.company.NMB_company == True %}
 
   <form method="POST" class="form-inline">    
     {% csrf_token %}       
@@ -84,8 +83,9 @@
     <hr style="width:1px; height:28px; margin:0px;  border-right:1px solid; float:right; border-color:grey;">
     Please plan your corrective actions for occurence here. Don't forget to also have tasks for effectiveness tests.
     <br>
-    {% if tasks_D6 %}
+    {% if tasks_D6 %}<h4><strong>
      You have {{ tasks_D6|length }} open tasks in your Task list.  <a target="_blank" href="{% url 'task_tracker' 'due_date' claim 'D6 Occurence' 9999 %}"><span class="glyphicon glyphicon-tasks orange"></span> Open tasks for D6 Occurence <span class="glyphicon glyphicon-tasks orange"></span></a> 
+    </strong></h4>
     {% else %}
        <a target="_blank" href="{% url 'task_tracker' 'due_date' claim 'D6 Occurence' 9999 %}"><span class="glyphicon glyphicon-tasks green"></span> Add new task for D6 Occurence <span class="glyphicon glyphicon-tasks green"></span></a>    
     {% endif %}
@@ -96,8 +96,9 @@
     <div class="col-md-6  bg-info">
     Please plan your corrective actions for non-detection here. Don't forget to also have tasks for effectiveness tests.
     <br>
-    {% if tasks_D6_det %}
-     You have {{ tasks_D6_det|length }} open tasks in your Task list.  <a target="_blank" href="{% url 'task_tracker' 'due_date' claim 'D5 Detection' 9999 %}"><span class="glyphicon glyphicon-tasks orange"></span> Open tasks for D6, non-Detection <span class="glyphicon glyphicon-tasks orange"></span></a> 
+    {% if tasks_D6_det %}<h4><strong>
+     You have {{ tasks_D6_det|length }} open tasks in your Task list.  <a target="_blank" href="{% url 'task_tracker' 'due_date' claim 'D6 Detection' 9999 %}"><span class="glyphicon glyphicon-tasks orange"></span> Open tasks for D6, non-Detection <span class="glyphicon glyphicon-tasks orange"></span></a> 
+    </strong></h4>
     {% else %}
        <a target="_blank" href="{% url 'task_tracker' 'due_date' claim 'D6 Detection' 9999 %}"><span class="glyphicon glyphicon-tasks green"></span> Add new task for D6 non-Detection <span class="glyphicon glyphicon-tasks green"></span></a>    
     {% endif %}
@@ -117,7 +118,7 @@
       <form method="POST" class="form-inline">    {% csrf_token %}       
       {% buttons %}
       {% bootstrap_button "Submit D6" name="SubmitD6" button_type="submit" button_class="btn-primary" icon="glyphicon glyphicon-send" %} 
-  {% if user_profile.isStaff == True %}
+  {% if user_profile.company.NMB_company == True %}
       {% bootstrap_button "Accept D6" name="AcceptD6" button_type="submit" button_class="btn-success" icon="glyphicon glyphicon-ok" %} 
       {% bootstrap_button "Reject D6" name="RejectD6" button_type="submit" button_class="btn-danger" icon="glyphicon glyphicon-minus-sign" %} 
   {% endif %}              

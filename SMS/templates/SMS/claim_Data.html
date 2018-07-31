@@ -11,6 +11,8 @@
 {% block extrahead %}   {# Extra Resources Start #}
 {% endblock %}          {# Extra Resources End #}
 
+{% load fontawesome %}
+{% fontawesome_stylesheet %}
 {{ form.media }}        {# Form required JS and CSS #}
 
 
@@ -101,7 +103,7 @@
 
 {% buttons %}     
       {% bootstrap_button "Save" name="save_base_data" button_type="submit" button_class="btn-default" icon="glyphicon glyphicon-floppy-saved" %} 
-    {% if user_profile.isStaff == True and claim.status_id %}
+    {% if user_profile.company.NMB_company == True and claim.status_id %}
       {% bootstrap_button "Accept refusal" name="Refusal" button_type="submit" button_class="btn-success" icon="glyphicon glyphicon-ok" %} 
       {% bootstrap_button "Reject refusal" name="Reject_Refusal" button_type="submit" button_class="btn-danger" icon="glyphicon glyphicon-minus-sign" %} 
     {% endif %}              

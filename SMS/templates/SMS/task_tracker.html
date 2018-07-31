@@ -24,6 +24,7 @@
 {% fontawesome_stylesheet %}
 
 
+
 {% block extrahead %}   {# Extra Resources Start #}
 {% endblock %}          {# Extra Resources End #}
 
@@ -125,7 +126,7 @@
             {% else %}
             <tr>
             {% endif %}           
-              <td>{{ task.pk }}
+              <td>{{ task.number }}
               </td>
               <td>
                   {% if 'LOW' in task.importance %}
@@ -137,7 +138,7 @@
                   {% endif %}
                   
                   {% if 'MID' in task.importance %}
-                  <button type="button" class="btn btn-info btn-xs">mid</button> 
+                  <button type="button" class="btn btn-warning btn-xs">mid</button> 
                   {% endif %}
               </td>
               <td>{{ task.status }}</td>        
@@ -158,13 +159,13 @@
               </td>        
               <td>{{ task.task_comment|truncatechars:30 }}</td>        
               <td>
-                  <a href="{% url 'task_details' task_data.3 task.project task.subproject task.pk %}"><span class="glyphicon glyphicon-pencil orange"></span></a>
+                  <a href="{% url 'task_details' task_data.3 task.project task.subproject task.pk %}"><span class="glyphicon glyphicon-pencil blue"></span></a>
               </td>
               <td>
                   <form class="form-inline" method="POST" action="{{ task.pk }}" >
                   {% csrf_token %}       
    
-                  <button type="submit" name="task_done" class="btn btn-warning btn-xs">close</button>
+                  <button type="submit" name="task_done" class="btn btn-primary btn-xs">close</button>
                   </form> 
               </td>        
             </tr>    
@@ -210,7 +211,7 @@
         <tbody>
         {% for task in tasks_done %}   
             <tr>
-              <td>{{ task.pk }}
+              <td>{{ task.number }}
               </td>
               <td>
                   {% if 'LOW' in task.importance %}
@@ -222,7 +223,7 @@
                   {% endif %}
                   
                   {% if 'MID' in task.importance %}
-                  <button type="button" class="btn btn-info btn-xs">mid</button> 
+                  <button type="button" class="btn btn-warning btn-xs">mid</button> 
                   {% endif %}
               </td>
               <td><del>{{ task.status }}</del></td>        

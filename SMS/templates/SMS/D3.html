@@ -1,9 +1,6 @@
 {% extends 'SMS/base.html' %}
 
 {% block content %}
-{% load fontawesome %}
-{% fontawesome_stylesheet %}
-
 {% load bootstrap3 %} {# Load the tag library #} 
 {% bootstrap_css %} {# Load CSS and JavaScript #} 
 {% bootstrap_javascript %} {# Embeds Bootstrap JS #}
@@ -13,6 +10,8 @@
 {% block extrahead %}   {# Extra Resources Start #}
 {% endblock %}          {# Extra Resources End #}
 
+{% load fontawesome %}
+{% fontawesome_stylesheet %}
 {{ form_due.media }}        {# Form required JS and CSS #}
 {{ form.media }}        {# Form required JS and CSS #}
 
@@ -30,7 +29,7 @@
       <h5>      {% endif %}       due date: {{ claim.due_date_D3 }}                  </h5>    
     </div>    
 
-{% if user_profile.isStaff == True %}
+{% if user_profile.company.NMB_company == True %}
 
   <form method="POST" class="form-inline">    
     {% csrf_token %}       {% bootstrap_form_errors form_due type='non_fields' %}       
@@ -453,7 +452,7 @@
       {% buttons %}
       {% bootstrap_button "Save" name="Save" button_type="submit" button_class="btn-default"  icon="glyphicon glyphicon-floppy-saved" %} 
       {% bootstrap_button "Save & Submit D3" name="Submit" button_type="submit" button_class="btn-primary"  icon="glyphicon glyphicon-send" %} 
-{% if user_profile.isStaff == True %}
+{% if user_profile.company.NMB_company == True %}
       {% bootstrap_button "Accept D3" name="Accept" button_type="submit" button_class="btn-success"  icon="glyphicon glyphicon-ok" %} 
       {% bootstrap_button "Reject D3" name="Reject" button_type="submit" button_class="btn-danger"  icon="glyphicon glyphicon-minus-sign" %} 
 {% endif %}              

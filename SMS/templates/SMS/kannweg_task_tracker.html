@@ -1,12 +1,10 @@
 {% load staticfiles %}
-{% load fontawesome %}
 
 <!DOCTYPE html>
 <html lang="en">
     <head>
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
-        {% fontawesome_stylesheet %}
         <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
         <link rel="stylesheet" href="{% static 'css/SMS.css' %}">
         <script src="https://code.jquery.com/jquery-1.11.2.min.js"></script>
@@ -21,8 +19,11 @@
 {% load bootstrap3 %} {# Load the tag library #} 
 {% bootstrap_css %} {# Load CSS and JavaScript #} 
 {% bootstrap_javascript %} {# Embeds Bootstrap JS #}
-{% bootstrap_messages %} {# Display django.contrib.messages as Bootstrap alerts #}
- 
+
+{% load fontawesome %}
+{% fontawesome_stylesheet %}
+
+
 
 {% block extrahead %}   {# Extra Resources Start #}
 {% endblock %}          {# Extra Resources End #}
@@ -31,14 +32,20 @@
 
 
 <div class="bg-img">
-  <div class="row">
-  <div class="col-md-12">
-  <p class="h_2 add_margin"> Tasks of {{ task_data.0 }} {{ task_data.1 }} 
-  </p>   
-  </div>
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-md-12">
+{% bootstrap_messages %} {# Display django.contrib.messages as Bootstrap alerts #}
+{% if not messages %}
+      <p class="h_2 add_margin"> Tasks of {{ task_data.0 }} {{ task_data.1 }} (related to {{ task_data.4}}) 
+      </p>
+{% endif %}         
+      </div>
+    </div>
   </div>
 </div>
 
+{% if not messages %}
 <div class="container-fluid">      
   <div class="row">    
     <div class= "col-md-2">      <h5>Add new task:     </h5>    
@@ -47,7 +54,7 @@
   
   <div class="row">    
     <div class= "col-md-12"> 
-      <form method="POST" class="form-inline"  {% if form.is_multipart %}enctype="multipart/form-data"{% endif %}>    
+      <form method="POST" class="form-inline">    
       {% csrf_token %}       
     
       {% bootstrap_form_errors form %}       
@@ -62,7 +69,7 @@
   <hr />
   
   <div class="row">    
-    <div class= "col-md-10">
+    <div class= "col-md-12">
       {% if not tasks %}
       There are no tasks yet.
       {% endif %} 
@@ -71,39 +78,42 @@
 
       <table class="table table-condensed table-hover">
         <thead>
+          <th>Nb.
+          </th>
           <th>importance
+             <a href="{% url 'task_tracker' 'importance' tasks.0.project tasks.0.subproject 9999 %}"><span class="glyphicon glyphicon-menu-down"></span></a>
+             <a href="{% url 'task_tracker' '-importance' tasks.0.project tasks.0.subproject 9999 %}"><span class="glyphicon glyphicon-menu-up"></span></a>
+          </th>        
+          <th>status
+             <a href="{% url 'task_tracker' 'status' tasks.0.project tasks.0.subproject 9999 %}"><span class="glyphicon glyphicon-menu-down"></span></a>
+             <a href="{% url 'task_tracker' '-status' tasks.0.project tasks.0.subproject 9999 %}"><span class="glyphicon glyphicon-menu-up"></span></a>
           </th>        
           <th>action
-             <a href="{% url 'task_tracker' 'action' tasks.0.project tasks.0.subproject 9999 %}">{% fontawesome_icon 'angle-down' %}</a>
-             <a href="{% url 'task_tracker' '-action' tasks.0.project tasks.0.subproject 9999 %}">{% fontawesome_icon 'angle-up' %}</a>
-           
+             <a href="{% url 'task_tracker' 'action' tasks.0.project tasks.0.subproject 9999 %}"><span class="glyphicon glyphicon-menu-down"></span></a>
+             <a href="{% url 'task_tracker' '-action' tasks.0.project tasks.0.subproject 9999 %}"><span class="glyphicon glyphicon-menu-up"></span></a>
           </th>        
           <th>task
           </th>        
           <th>pilot
-             <a href="{% url 'task_tracker' 'pilot' tasks.0.project tasks.0.subproject 9999 %}">{% fontawesome_icon 'angle-down' %}</a>
-             <a href="{% url 'task_tracker' '-pilot' tasks.0.project tasks.0.subproject 9999 %}">{% fontawesome_icon 'angle-up' %}</a>
+             <a href="{% url 'task_tracker' 'pilot' tasks.0.project tasks.0.subproject 9999 %}"><span class="glyphicon glyphicon-menu-down"></span></a>
+             <a href="{% url 'task_tracker' '-pilot' tasks.0.project tasks.0.subproject 9999 %}"><span class="glyphicon glyphicon-menu-up"></span></a>
           </th>        
           <th>issued
-             <a href="{% url 'task_tracker' 'date_issued' tasks.0.project tasks.0.subproject 9999 %}">{% fontawesome_icon 'angle-down' %}</a>
-             <a href="{% url 'task_tracker' '-date_issued' tasks.0.project tasks.0.subproject 9999 %}">{% fontawesome_icon 'angle-up' %}</a>
+             <a href="{% url 'task_tracker' 'date_issued' tasks.0.project tasks.0.subproject 9999 %}"><span class="glyphicon glyphicon-menu-down"></span></a>
+             <a href="{% url 'task_tracker' '-date_issued' tasks.0.project tasks.0.subproject 9999 %}"><span class="glyphicon glyphicon-menu-up"></span></a>
           </th>        
           <th>orig. due date
-             <a href="{% url 'task_tracker' 'original_due_date' tasks.0.project tasks.0.subproject 9999 %}">{% fontawesome_icon 'angle-down' %}</a>
-             <a href="{% url 'task_tracker' '-original_due_date' tasks.0.project tasks.0.subproject 9999 %}">{% fontawesome_icon 'angle-up' %}</a>
+             <a href="{% url 'task_tracker' 'original_due_date' tasks.0.project tasks.0.subproject 9999 %}"><span class="glyphicon glyphicon-menu-down"></span></a>
+             <a href="{% url 'task_tracker' '-original_due_date' tasks.0.project tasks.0.subproject 9999 %}"><span class="glyphicon glyphicon-menu-up"></span></a>
           </th>        
           <th>due date
-             <a href="{% url 'task_tracker' 'due_date' tasks.0.project tasks.0.subproject 9999 %}">{% fontawesome_icon 'angle-down' %}</a>
-             <a href="{% url 'task_tracker' '-due_date' tasks.0.project tasks.0.subproject 9999 %}">{% fontawesome_icon 'angle-up' %}</a>
+             <a href="{% url 'task_tracker' 'due_date' tasks.0.project tasks.0.subproject 9999 %}"><span class="glyphicon glyphicon-menu-down"></span></a>
+             <a href="{% url 'task_tracker' '-due_date' tasks.0.project tasks.0.subproject 9999 %}"><span class="glyphicon glyphicon-menu-up"></span></a>
           </th>        
           <th>timely status
           </th>        
-          <th>comment
+          <th>last comment
           </th>        
-          <th>file
-             <a href="{% url 'task_tracker' 'due_date' tasks.0.project tasks.0.subproject 9999 %}">{% fontawesome_icon 'angle-down' %}</a>
-             <a href="{% url 'task_tracker' '-due_date' tasks.0.project tasks.0.subproject 9999 %}">{% fontawesome_icon 'angle-up' %}</a>
-          </th>         
           <th>edit</th>
           <th>close
           </th>        
@@ -116,6 +126,8 @@
             {% else %}
             <tr>
             {% endif %}           
+              <td>{{ task.number }}
+              </td>
               <td>
                   {% if 'LOW' in task.importance %}
                   <button type="button" class="btn btn-success btn-xs">low</button> 
@@ -126,12 +138,13 @@
                   {% endif %}
                   
                   {% if 'MID' in task.importance %}
-                  <button type="button" class="btn btn-info btn-xs">mid</button> 
+                  <button type="button" class="btn btn-warning btn-xs">mid</button> 
                   {% endif %}
               </td>
+              <td>{{ task.status }}</td>        
               <td>{{ task.action }}</td>        
               <td>{{ task.task|truncatechars:30  }}</td>        
-              <td>{{ task.pilot }}</td>        
+              <td>{{ task.pilot.user }}</td>        
               <td>{{ task.date_issued }}</td>        
               <td>{{ task.original_due_date }}</td>        
               <td>{{ task.due_date }}</td>        
@@ -144,20 +157,15 @@
                   <button type="button" class="btn btn-success btn-xs">in time</button> 
                   {% endif %}
               </td>        
-              <td>{{ task.comment|truncatechars:30 }}</td>        
+              <td>{{ task.task_comment|truncatechars:30 }}</td>        
               <td>
-              {% if task.file %}
-                  <a href="../../../../media/{{ task.file }}" target="_blank">{% fontawesome_icon 'download' %}</a>
-              {% endif %}
-              </td>
-              <td>
-                  <a href="{% url 'task_tracker' task_data.3 task.project task.subproject task.pk %}">{% fontawesome_icon 'pencil' color='orange' %}</a>
+                  <a href="{% url 'task_details' task_data.3 task.project task.subproject task.pk %}"><span class="glyphicon glyphicon-pencil blue"></span></a>
               </td>
               <td>
                   <form class="form-inline" method="POST" action="{{ task.pk }}" >
                   {% csrf_token %}       
    
-                  <button type="submit" name="task_done" class="btn btn-warning btn-xs">close</button>
+                  <button type="submit" name="task_done" class="btn btn-primary btn-xs">close</button>
                   </form> 
               </td>        
             </tr>    
@@ -178,7 +186,11 @@
 
       <table class="table table-condensed table-hover">
         <thead>
+          <th>Nb.
+          </th>
           <th>importance
+          </th>        
+          <th>status
           </th>        
           <th>action
           </th>        
@@ -190,9 +202,7 @@
           </th>        
           <th>closed
           </th>        
-          <th>comment
-          </th>        
-          <th>file
+          <th>last comment
           </th>        
           <th>
           </th>         
@@ -201,6 +211,8 @@
         <tbody>
         {% for task in tasks_done %}   
             <tr>
+              <td>{{ task.number }}
+              </td>
               <td>
                   {% if 'LOW' in task.importance %}
                   <button type="button" class="btn btn-success btn-xs">low</button> 
@@ -211,24 +223,20 @@
                   {% endif %}
                   
                   {% if 'MID' in task.importance %}
-                  <button type="button" class="btn btn-info btn-xs">mid</button> 
+                  <button type="button" class="btn btn-warning btn-xs">mid</button> 
                   {% endif %}
               </td>
+              <td><del>{{ task.status }}</del></td>        
               <td><del>{{ task.action }}</del></td>        
               <td><del>{{ task.task|truncatechars:30 }}</del></td>        
-              <td><del>{{ task.pilot }}</del></td>        
+              <td><del>{{ task.pilot.user }}</del></td>        
               <td><del>{{ task.date_issued }}</del></td>        
               <td><del>{{ task.closed_date }}</del></td>        
-              <td><del>{{ task.comment|truncatechars:30 }}</del></td>        
-              <td>
-              {% if task.file %}
-                  <a href="../../../../media/{{ task.file }}" target="_blank">{% fontawesome_icon 'download' %}</a>
-              {% endif %}
-              </td>
+              <td><del>{{ task.task_comment|truncatechars:30 }}</del></td>        
               <td>        
                   <form action="{{ task.pk }}" method="POST" class="form-inline">
                   {% csrf_token %}       
-                  <a href="{% url 'task_tracker' task_data.3 task.project task.subproject task.pk %}">{% fontawesome_icon 'pencil' color='orange' %}</a>
+                  <a href="{% url 'task_details' task_data.3 task.project task.subproject task.pk %}"><span class="glyphicon glyphicon-pencil orange"></span></a>
                   &nbsp;
                   <button type="submit" class="btn btn-warning btn-xs" name= "reopen">reopen</button>
                   </form> 
@@ -246,26 +254,6 @@
 
 
 
-
-
-    
-    <div class= "col-md-2">
-    {% if task_data.2 < 9000 %}
-     
-      <form method="POST"  {% if form.is_multipart %}enctype="multipart/form-data"{% endif %}>    
-      {% csrf_token %}       
-      {{ form_edit.media }}        {# Form required JS and CSS #}
-    
-      {% bootstrap_form_errors form_edit %}       
-      {% bootstrap_form form_edit  %}
-      {% buttons %}
-       <button type="submit" class="btn btn-default" name="edit_task">Save changes</button> 
-       {% endbuttons %}
-      </form> 
-    {% endif %}
-    </div>
-  </div>
-
-  
+  {% endif %}
   </body>
 </html>    

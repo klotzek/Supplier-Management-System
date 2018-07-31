@@ -19,37 +19,44 @@ from django.template import loader
 # Create your views here.
 @login_required
 def index(request):
-    actual_user_id = request.user
-    user_profile = UserProfile.objects.get(user_id=actual_user_id)
-    if request.method == 'POST':
-        user_profile.company_id = request.POST.get("vendor_choice")
+    user_profile = UserProfile.objects.get(user_id=request.user)
+    if request.method == 'POST':                                                #Der Benutzer ist NMB und hat eine Firma zur Ansicht gewaehlt (nur dann ist ein POST moeglich)
+        company = request.POST.get("vendor_choice")                             #Das ist die vom NMB-Benutzer gewaehlte Firma
+        return redirect('base_data', company)                                   #Gehe zu bas_data und zeige die Daten dieser Firma an.
+                                                                                
     company = Company.objects.get(pk=user_profile.company_id)
-#     show_company = Company.objects.get(pk=user_profile.company_id).id
     companyusers = UserProfile.objects.filter(company=company.pk)
 #     hereIwork = UserProfile.objects.get(user=request.user)
-#     pdb.set_trace()
+    vendors=[(vendor.pk, vendor.name) for vendor in Company.objects.filter(can_be_viewed_by__name__startswith=user_profile.company).order_by('name')]
+    return render(request, 'SMS/index.html',{'user_profile':user_profile, 'companyusers':companyusers, 'company':company, 'vendors':vendors, 'request':request})
 
-    vendors=[(vendor.pk, vendor.name) for vendor in Company.objects.all()]
+@login_required
+def base_data(request, company_id):
+    user_profile = UserProfile.objects.get(user_id=request.user)
+    company = Company.objects.get(pk=company_id)
+    companyusers = UserProfile.objects.filter(company=company.pk)
+    vendors=[(vendor.pk, vendor.name) for vendor in Company.objects.filter(can_be_viewed_by__name__startswith=user_profile.company).order_by('name')]
+#     vendors=[(vendor.pk, vendor.name) for vendor in Company.objects.filter(can_be_viewed_by__name__startswith="PMDM")]
     return render(request, 'SMS/index.html',{'user_profile':user_profile, 'companyusers':companyusers, 'company':company, 'vendors':vendors, 'request':request})
 
 @login_required
 def vendor_new(request):
-    actual_user_id = request.user
-    user_profile = UserProfile.objects.get(user_id=actual_user_id)
-    company = Company.objects.get(pk=user_profile.company_id)
-    show_company = Company.objects.get(pk=user_profile.company_id).id
-    vendors=[(vendor.pk, vendor.name) for vendor in Company.objects.all()]
+    user_profile = UserProfile.objects.get(user_id=request.user)
+    company = Company.objects.get(pk=user_profile.company_id)                   #Hier: Die NMB-company
+    vendors=[(vendor.pk, vendor.name) for vendor in Company.objects.filter(can_be_viewed_by__name__startswith=user_profile.company).order_by('name')]
 
+    form = CompanyForm()
     if request.method == "POST":
         form = CompanyForm(request.POST)
         if form.is_valid():
             vendor = form.save(commit=False)
+            vendor.belongs_to = company                                         #company ist in dem Fall die NMB-company
             vendor.save()
-            return redirect('index')
-    else:
-        form = CompanyForm()
-        return render(request, 'SMS/form.html',{'user_profile':user_profile, 'company':company, 'show_company':show_company, 'vendors':vendors,  'form': form})
-#         return render(request, 'SMS/vendor_edit.html',{'user_profile':user_profile, 'company':company, 'show_company':show_company, 'vendors':vendors,  'form': form})
+            vendor.can_be_viewed_by.add(company)                                #company ist in dem Fall die NMB-company
+            vendor.save()
+            company = Company.objects.get(DUNS=vendor.DUNS)
+            return redirect('base_data', company.pk)
+    return render(request, 'SMS/form.html',{'user_profile':user_profile, 'company':company, 'vendors':vendors,  'form': form})
 
 def user_activate(request, user_Nb):
     user_profile = UserProfile.objects.get(user_id=user_Nb)
@@ -75,13 +82,12 @@ def user_activate(request, user_Nb):
 
 @login_required
 def user_new(request, company_id):
-    actual_user_id = request.user
-    user_profile = UserProfile.objects.get(user_id=actual_user_id)
-    user_profile.company_id = company_id
-    company = Company.objects.get(pk=user_profile.company_id)
-    show_company = company_id
-    vendors=[(vendor.pk, vendor.name) for vendor in Company.objects.all()]
+    user_profile = UserProfile.objects.get(user_id=request.user)
+    company = Company.objects.get(pk=company_id)
+    vendors=[(vendor.pk, vendor.name) for vendor in Company.objects.filter(can_be_viewed_by__name__startswith=user_profile.company).order_by('name')]
 
+    form1 = UserForm()
+    form2 = UserProfileForm()
     if request.method == "POST":
         form1 = UserForm(request.POST)
         form2 = UserProfileForm(request.POST)
@@ -92,7 +98,7 @@ def user_new(request, company_id):
             new_user_profile = form2.save(commit=False)
             user = User.objects.get(username = request.POST.get("username"))
             new_user_profile.user_id =  user.pk
-            new_user_profile.company_id=show_company 
+            new_user_profile.company_id=company_id 
             new_user_profile.save()
             html_message = loader.render_to_string(
             'SMS/activation_mail.html',
@@ -104,21 +110,20 @@ def user_new(request, company_id):
         )            
             mail_text=''
             send_mail('Welcome to PMDM SupplierManagementSystem', mail_text, 'juergen.klotzek@nmb-minebea.com', [new_user_profile.email], fail_silently=False, html_message=html_message)
-            return redirect('index')
-    else:
-        form1 = UserForm()
-        form2 = UserProfileForm()
-    return render(request, 'SMS/two_forms.html',{'user_profile':user_profile, 'company':company, 'show_company':show_company, 'vendors':vendors,  'form1': form1, 'form2':form2})
+            return redirect('base_data', company_id)
+    return render(request, 'SMS/two_forms.html',{'user_profile':user_profile, 'company':company, 'vendors':vendors,  'form1': form1, 'form2':form2})
 
 
 @login_required
 def user_edit(request, user):
-    actual_user_id = user
-    user_profile = UserProfile.objects.get(user_id=actual_user_id)
-    user = User.objects.get(id=actual_user_id)
+#     actual_user_id = user
+    user_profile = UserProfile.objects.get(user_id=user)
+#     user_profile = UserProfile.objects.get(user_id=actual_user_id)
+    user = User.objects.get(id=user)
     company = Company.objects.get(pk=user_profile.company_id)
-    show_company = company.pk
-    vendors=[(vendor.pk, vendor.name) for vendor in Company.objects.all()]
+#     show_company = company.pk
+#     vendors=[(vendor.pk, vendor.name) for vendor in Company.objects.all()]
+    vendors=[(vendor.pk, vendor.name) for vendor in Company.objects.filter(can_be_viewed_by__name__startswith=user_profile.company).order_by('name')]
 
     if request.method == "POST":
         form1 = PasswordChangeForm(request.user, request.POST)
@@ -136,47 +141,41 @@ def user_edit(request, user):
     else:
         form1 = PasswordChangeForm(request.user)
         form2 = UserProfileForm(instance=user_profile)
-    return render(request, 'SMS/user_edit.html',{'user_profile':user_profile, 'company':company, 'show_company':show_company, 'vendors':vendors,  'form1': form1, 'form2':form2})
+    return render(request, 'SMS/user_edit.html',{'user_profile':user_profile, 'company':company, 'vendors':vendors,  'form1': form1, 'form2':form2})
+#     return render(request, 'SMS/user_edit.html',{'user_profile':user_profile, 'company':company, 'show_company':show_company, 'vendors':vendors,  'form1': form1, 'form2':form2})
 
 
 @login_required
 def vendor_edit(request, vendor):
-    actual_user_id = request.user
-    user_profile = UserProfile.objects.get(user_id=actual_user_id)
+    user_profile = UserProfile.objects.get(user_id=request.user)
     company = Company.objects.get(pk=vendor)
-    show_company = vendor
-    vendors=[(vendor.pk, vendor.name) for vendor in Company.objects.all()]
+    vendors=[(vendor.pk, vendor.name) for vendor in Company.objects.filter(can_be_viewed_by__name__startswith=user_profile.company).order_by('name')]
 
+    form = CompanyForm(instance=company)
     if request.method == "POST":
         form = CompanyForm(request.POST, instance=company)
         if form.is_valid():
             company = form.save(commit = False)
             company.save()
-            return redirect('index')
-    else:
-        form = CompanyForm(instance=company)
-        return render(request, 'SMS/form.html',{'user_profile':user_profile, 'company':company, 'show_company':show_company, 'vendors':vendors,  'form': form})
-#         return render(request, 'SMS/vendor_edit.html',{'user_profile':user_profile, 'company':company, 'show_company':show_company, 'vendors':vendors,  'form': form})
+            return redirect('base_data', vendor)
+    return render(request, 'SMS/form.html',{'user_profile':user_profile, 'company':company, 'vendors':vendors,  'form': form})
 
     
 @login_required
 def claims(request, company_id):
-    actual_user_id = request.user
-    user_profile = UserProfile.objects.get(user_id=actual_user_id)
+    user_profile = UserProfile.objects.get(user_id=request.user)
     company = Company.objects.get(pk=company_id)
-    vendors=[(vendor.pk, vendor.name) for vendor in Company.objects.all()]
-    show_company = company_id
-    if not user_profile.isStaff:                  #der eingloggte User gehört NICHT zu PMDM
+    vendors=[(vendor.pk, vendor.name) for vendor in Company.objects.filter(can_be_viewed_by__name__startswith=user_profile.company).order_by('name')]
+#     pdb.set_trace()
+    if not user_profile.company.NMB_company:                   #der eingloggte User gehoert NICHT zu PMDM
         if not company == user_profile.company:   #der eingloggte User ruft Daten einer anderen Firma auf!
             messages.add_message(request, messages.ERROR, 'You are not allowed to see other companies items!')
-            return render(request, 'SMS/error.html', {'vendors':vendors, 'user_profile':user_profile, 'show_company':show_company, 'company':company,}) 
+            return render(request, 'SMS/error.html', {'vendors':vendors, 'user_profile':user_profile, 'company':company,}) 
          
     claims = Claim.objects.filter(related_to = company_id, valid = 'True').exclude(status__status = 'Closed')
     claims_closed = Claim.objects.filter(related_to = company_id, valid = 'True', status__status = 'Closed')
-#     claims = Claim.objects.filter(related_to = company_id, valid = 'True', status__status = 'Closed')
-#     pdb.set_trace()
      
-    return render(request, 'SMS/claims.html', {'vendors':vendors, 'user_profile':user_profile, 'claims_closed':claims_closed, 'claims':claims, 'show_company':show_company, 'company':company,}) 
+    return render(request, 'SMS/claims.html', {'vendors':vendors, 'user_profile':user_profile, 'claims_closed':claims_closed, 'claims':claims, 'company':company,}) 
     
 @login_required
 def claim_edit(request, claim):
@@ -185,12 +184,19 @@ def claim_edit(request, claim):
         d2 = D2_CV.objects.get(claim_id=claim.pk) #vielleicht gibt es den Eintrag noch gar nicht
     except:
         d2=None
-    vendors=[(vendor.pk, vendor.name) for vendor in Company.objects.all()]
+#     vendors=[(vendor.pk, vendor.name) for vendor in Company.objects.all()]
     user_profile = UserProfile.objects.get(user_id=request.user)
-    company_id = claim.related_to_id
-    show_company = company_id
-    company = Company.objects.get(pk=company_id)
+#     company_id = claim.related_to_id
+    company = Company.objects.get(pk=claim.related_to_id)
+    vendors=[(vendor.pk, vendor.name) for vendor in Company.objects.filter(can_be_viewed_by__name__startswith=user_profile.company).order_by('name')]
+    if not user_profile.company.NMB_company:                   #der eingloggte User gehoert NICHT zu PMDM
+        if not company == user_profile.company:   #der eingloggte User ruft Daten einer anderen Firma auf!
+            messages.add_message(request, messages.ERROR, 'You are not allowed to see other companies items!')
+            return render(request, 'SMS/error.html', {'vendors':vendors, 'user_profile':user_profile, 'company':company,}) 
+         
 
+    form = Claim_New_Form(instance=claim)
+    form2 = D2_CV_Form(instance=d2)
     if request.method=="POST":
         form = Claim_New_Form(request.POST, request.FILES, instance=claim)
         form2 = D2_CV_Form(request.POST, instance=d2)
@@ -203,21 +209,18 @@ def claim_edit(request, claim):
             claim_edit.NOK_picture.field.upload_to = path
             claim_edit.save()
             d2_edit.save()
-            return redirect('claims', company_id)
-
-    else:
-        form = Claim_New_Form(instance=claim)
-        form2 = D2_CV_Form(instance=d2)
-    return render(request, 'SMS/form_claim_base_data.html', {'vendors':vendors, 'user_profile':user_profile, 'show_company':show_company, 'company':company, 'form': form, 'form2': form2, 'claim':claim })
+            return redirect('claims', claim.related_to_id)
+    return render(request, 'SMS/form_claim_base_data.html', {'vendors':vendors, 'user_profile':user_profile, 'company':company, 'form': form, 'form2': form2, 'claim':claim })
             
 
 @login_required
 def new_claim(request, company_id):
 #     pdb.set_trace()
-    vendors=[(vendor.pk, vendor.name) for vendor in Company.objects.all()]
     user_profile = UserProfile.objects.get(user_id=request.user)
-    show_company = company_id
+#     show_company = company_id
     company = Company.objects.get(pk=company_id)
+    vendors=[(vendor.pk, vendor.name) for vendor in Company.objects.filter(can_be_viewed_by__name__startswith=user_profile.company).order_by('name')]
+#     vendors=[(vendor.pk, vendor.name) for vendor in Company.objects.all()]
     no_label = True
     time_for_D3 = PenaltyPeriods.objects.get(penaltyModel="Standard").duration_D3
     time_for_D4 = PenaltyPeriods.objects.get(penaltyModel="Standard").duration_D4
@@ -280,15 +283,12 @@ def new_claim(request, company_id):
             d2.save()
             claim.save() 
             return redirect('claims', company_id)
-#         else:
-#             return render(request, 'SMS/form_claim_base_data.html', {'vendors':vendors, 'user_profile':user_profile, 'show_company':show_company, 'company':company, 'form': form, 'form2': form2, 'no_label': no_label})
-        
-        
+
     else:
         no_label = True
         form = Claim_New_Form()
         form2 = D2_CV_Form()
-    return render(request, 'SMS/form_claim_base_data.html', {'vendors':vendors, 'user_profile':user_profile, 'show_company':show_company, 'company':company, 'form': form, 'form2': form2, 'no_label': no_label})
+    return render(request, 'SMS/form_claim_base_data.html', {'vendors':vendors, 'user_profile':user_profile, 'company':company, 'form': form, 'form2': form2, 'no_label': no_label})
 
   
 @login_required
@@ -302,6 +302,17 @@ def claim_remove(request, claim):
 
 @login_required
 def D1D8(request, claim):
+
+    claim = get_object_or_404(Claim, pk=claim)
+    company_id = claim.related_to_id
+    user_profile = UserProfile.objects.get(user_id=request.user)
+    company = Company.objects.get(pk=company_id)
+    creator = UserProfile.objects.get(user_id=claim.created_by)
+    vendors=[(vendor.pk, vendor.name) for vendor in Company.objects.filter(can_be_viewed_by__name__startswith=user_profile.company).order_by('name')]
+    if not user_profile.company.NMB_company:                   #der eingloggte User gehoert NICHT zu PMDM
+        if not company == user_profile.company:   #der eingloggte User ruft Daten einer anderen Firma auf!
+            messages.add_message(request, messages.ERROR, 'You are not allowed to see other companies items!')
+            return render(request, 'SMS/error.html', {'vendors':vendors, 'user_profile':user_profile, 'company':company,}) 
 
     team = Team.objects.filter(claim_id=claim).first()
     d2_cv = D2_CV.objects.filter(claim_id=claim).first()
@@ -394,17 +405,6 @@ def D1D8(request, claim):
         sorting_data[5]=total_customer_ppm
             
         
-    claim = get_object_or_404(Claim, pk=claim)
-    company_id = claim.related_to_id
-    vendors=[(vendor.pk, vendor.name) for vendor in Company.objects.all()]
-    user_profile = UserProfile.objects.get(user_id=request.user)
-    company_id = claim.related_to_id
-    show_company = company_id
-    company = Company.objects.get(pk=company_id)
-    creator = UserProfile.objects.get(user_id=claim.created_by)
-
-#     pdb.set_trace()
-    
     if request.method == "POST":
 #         pdb.set_trace()
         if 'Button_due_date' in request.POST:
@@ -431,7 +431,8 @@ def D1D8(request, claim):
                 claim.save()
                 return redirect('claim_Data', claim)
             else:
-                return render(request, 'SMS/claim_Data.html', {'vendors':vendors, 'user_profile':user_profile, 'show_company':show_company, 'company':company, 'form': form, 'claim':claim, 'creator':creator })
+                return render(request, 'SMS/claim_Data.html', {'vendors':vendors, 'user_profile':user_profile, 'company':company, 'form': form, 'claim':claim, 'creator':creator })
+#                 return render(request, 'SMS/claim_Data.html', {'vendors':vendors, 'user_profile':user_profile, 'show_company':show_company, 'company':company, 'form': form, 'claim':claim, 'creator':creator })
         
         if '/SMS/D1/' in request.path:
             form=Team_Form(request.POST, instance=team)
@@ -440,7 +441,8 @@ def D1D8(request, claim):
                 team_form.save()
                 return redirect('D1', claim)
             else:
-                return render(request, 'SMS/D1.html', {'vendors':vendors, 'user_profile':user_profile, 'show_company':show_company, 'company':company, 'form': form, 'claim':claim, 'creator':creator })
+                return render(request, 'SMS/D1.html', {'vendors':vendors, 'user_profile':user_profile, 'company':company, 'form': form, 'claim':claim, 'creator':creator })
+#                 return render(request, 'SMS/D1.html', {'vendors':vendors, 'user_profile':user_profile, 'show_company':show_company, 'company':company, 'form': form, 'claim':claim, 'creator':creator })
 
         if '/SMS/D2/' in request.path:
             form=D2_SV_Form(request.POST, instance=d2_sv)
@@ -450,7 +452,8 @@ def D1D8(request, claim):
                 d2_form.save()
                 return redirect('D2', claim)
             else:
-                return render(request, 'SMS/D2.html', {'vendors':vendors, 'user_profile':user_profile, 'show_company':show_company, 'company':company, 'form': form, 'claim':claim, 'creator':creator , 'd2_cv':d2_cv })
+                return render(request, 'SMS/D2.html', {'vendors':vendors, 'user_profile':user_profile, 'company':company, 'form': form, 'claim':claim, 'creator':creator , 'd2_cv':d2_cv })
+#                 return render(request, 'SMS/D2.html', {'vendors':vendors, 'user_profile':user_profile, 'show_company':show_company, 'company':company, 'form': form, 'claim':claim, 'creator':creator , 'd2_cv':d2_cv })
         
         if '/SMS/D3/' in request.path:
             tasks_D3 = Task.objects.filter(project=claim, subproject='D3', closed=False).order_by('due_date')
@@ -472,8 +475,10 @@ def D1D8(request, claim):
                 d3_data.claim_id=claim.pk
                 d3_data.save()
                 return redirect('D3', claim)    
-            return render(request, 'SMS/D3.html', {'vendors':vendors, 'user_profile':user_profile, 'show_company':show_company, 'company':company,
+            return render(request, 'SMS/D3.html', {'vendors':vendors, 'user_profile':user_profile, 'company':company,
                                                    'form': form, 'form_due': form_due, 'claim':claim, 'creator':creator, 'd2_cv':d2_cv, 'sorting_data':sorting_data, 'tasks_D3':tasks_D3  })
+#             return render(request, 'SMS/D3.html', {'vendors':vendors, 'user_profile':user_profile, 'show_company':show_company, 'company':company,
+#                                                    'form': form, 'form_due': form_due, 'claim':claim, 'creator':creator, 'd2_cv':d2_cv, 'sorting_data':sorting_data, 'tasks_D3':tasks_D3  })
 
         if '/SMS/D4/' in request.path:
             tasks_D4 = Task.objects.filter(project=claim, subproject='D4', closed=False).order_by('due_date')
@@ -500,10 +505,8 @@ def D1D8(request, claim):
                     edit_ishi_occ.claim_id=claim.pk
                     edit_ishi_occ.save()
                     return redirect('D4', claim)
-                return render(request, 'SMS/D4.html', {'vendors':vendors, 'user_profile':user_profile, 'show_company':show_company, 'company':company, 'form': form, 'form_ishi_occ': form_ishi_occ, 'form_ishi_det': form_ishi_det, 'form_due': form_due, 'claim':claim, 'creator':creator, 'form_W5_occ': form_W5_occ, 'form_W5_det': form_W5_det, 'tasks_D4':tasks_D4, 'form_D4_occ':form_D4_occ, 'files_occ':files_occ, 'files_det':files_det, 'form_files_occ':form_files_occ, 'form_files_det':form_files_det })
-#                 return render(request, 'SMS/D4.html', {'vendors':vendors, 'user_profile':user_profile, 'show_company':show_company, 'company':company,
-#                                                    'form': form, 'form_ishi_occ': form_ishi_occ, 'form_ishi_det': form_ishi_det, 'form_due': form_due, 'claim':claim, 'creator':creator 
-#                                                    , 'form_W5_occ': form_W5_occ, 'form_W5_det': form_W5_det, 'tasks_D4':tasks_D4 })
+                return render(request, 'SMS/D4.html', {'vendors':vendors, 'user_profile':user_profile, 'company':company, 'form': form, 'form_ishi_occ': form_ishi_occ, 'form_ishi_det': form_ishi_det, 'form_due': form_due, 'claim':claim, 'creator':creator, 'form_W5_occ': form_W5_occ, 'form_W5_det': form_W5_det, 'tasks_D4':tasks_D4, 'form_D4_occ':form_D4_occ, 'files_occ':files_occ, 'files_det':files_det, 'form_files_occ':form_files_occ, 'form_files_det':form_files_det })
+#                 return render(request, 'SMS/D4.html', {'vendors':vendors, 'user_profile':user_profile, 'show_company':show_company, 'company':company, 'form': form, 'form_ishi_occ': form_ishi_occ, 'form_ishi_det': form_ishi_det, 'form_due': form_due, 'claim':claim, 'creator':creator, 'form_W5_occ': form_W5_occ, 'form_W5_det': form_W5_det, 'tasks_D4':tasks_D4, 'form_D4_occ':form_D4_occ, 'files_occ':files_occ, 'files_det':files_det, 'form_files_occ':form_files_occ, 'form_files_det':form_files_det })
                 
             if 'Save_Ishi_Det' in request.POST:
                 if form_ishi_det.is_valid():
@@ -512,10 +515,8 @@ def D1D8(request, claim):
                     edit_ishi_det.claim_id=claim.pk
                     edit_ishi_det.save()
                     return redirect('D4', claim)
-                return render(request, 'SMS/D4.html', {'vendors':vendors, 'user_profile':user_profile, 'show_company':show_company, 'company':company, 'form': form, 'form_ishi_occ': form_ishi_occ, 'form_ishi_det': form_ishi_det, 'form_due': form_due, 'claim':claim, 'creator':creator, 'form_W5_occ': form_W5_occ, 'form_W5_det': form_W5_det, 'tasks_D4':tasks_D4, 'form_D4_occ':form_D4_occ, 'files_occ':files_occ, 'files_det':files_det, 'form_files_occ':form_files_occ, 'form_files_det':form_files_det })
-#                 return render(request, 'SMS/D4.html', {'vendors':vendors, 'user_profile':user_profile, 'show_company':show_company, 'company':company,
-#                                                    'form': form, 'form_ishi_occ': form_ishi_occ, 'form_ishi_det': form_ishi_det, 'form_due': form_due, 'claim':claim, 'creator':creator 
-#                                                    , 'form_W5_occ': form_W5_occ, 'form_W5_det': form_W5_det, 'tasks_D4':tasks_D4 })
+                return render(request, 'SMS/D4.html', {'vendors':vendors, 'user_profile':user_profile, 'company':company, 'form': form, 'form_ishi_occ': form_ishi_occ, 'form_ishi_det': form_ishi_det, 'form_due': form_due, 'claim':claim, 'creator':creator, 'form_W5_occ': form_W5_occ, 'form_W5_det': form_W5_det, 'tasks_D4':tasks_D4, 'form_D4_occ':form_D4_occ, 'files_occ':files_occ, 'files_det':files_det, 'form_files_occ':form_files_occ, 'form_files_det':form_files_det })
+#                 return render(request, 'SMS/D4.html', {'vendors':vendors, 'user_profile':user_profile, 'show_company':show_company, 'company':company, 'form': form, 'form_ishi_occ': form_ishi_occ, 'form_ishi_det': form_ishi_det, 'form_due': form_due, 'claim':claim, 'creator':creator, 'form_W5_occ': form_W5_occ, 'form_W5_det': form_W5_det, 'tasks_D4':tasks_D4, 'form_D4_occ':form_D4_occ, 'files_occ':files_occ, 'files_det':files_det, 'form_files_occ':form_files_occ, 'form_files_det':form_files_det })
                 
 #             pdb.set_trace()
             if 'Save_W5_occ' in request.POST:
@@ -526,10 +527,8 @@ def D1D8(request, claim):
                     edit_W5_occ.claim_id=claim.pk
                     edit_W5_occ.save()
                     return redirect('D4', claim)
-                return render(request, 'SMS/D4.html', {'vendors':vendors, 'user_profile':user_profile, 'show_company':show_company, 'company':company, 'form': form, 'form_ishi_occ': form_ishi_occ, 'form_ishi_det': form_ishi_det, 'form_due': form_due, 'claim':claim, 'creator':creator, 'form_W5_occ': form_W5_occ, 'form_W5_det': form_W5_det, 'tasks_D4':tasks_D4, 'form_D4_occ':form_D4_occ, 'files_occ':files_occ, 'files_det':files_det, 'form_files_occ':form_files_occ, 'form_files_det':form_files_det })
-#                 return render(request, 'SMS/D4.html', {'vendors':vendors, 'user_profile':user_profile, 'show_company':show_company, 'company':company,
-#                                                    'form': form, 'form_ishi_occ': form_ishi_occ, 'form_ishi_det': form_ishi_det, 'form_due': form_due, 'claim':claim, 'creator':creator 
-#                                                    , 'form_W5_occ': form_W5_occ, 'form_W5_det': form_W5_det, 'tasks_D4':tasks_D4 })
+                return render(request, 'SMS/D4.html', {'vendors':vendors, 'user_profile':user_profile, 'company':company, 'form': form, 'form_ishi_occ': form_ishi_occ, 'form_ishi_det': form_ishi_det, 'form_due': form_due, 'claim':claim, 'creator':creator, 'form_W5_occ': form_W5_occ, 'form_W5_det': form_W5_det, 'tasks_D4':tasks_D4, 'form_D4_occ':form_D4_occ, 'files_occ':files_occ, 'files_det':files_det, 'form_files_occ':form_files_occ, 'form_files_det':form_files_det })
+#                 return render(request, 'SMS/D4.html', {'vendors':vendors, 'user_profile':user_profile, 'show_company':show_company, 'company':company, 'form': form, 'form_ishi_occ': form_ishi_occ, 'form_ishi_det': form_ishi_det, 'form_due': form_due, 'claim':claim, 'creator':creator, 'form_W5_occ': form_W5_occ, 'form_W5_det': form_W5_det, 'tasks_D4':tasks_D4, 'form_D4_occ':form_D4_occ, 'files_occ':files_occ, 'files_det':files_det, 'form_files_occ':form_files_occ, 'form_files_det':form_files_det })
                 
             if 'Save_W5_det' in request.POST:
                 if form_W5_det.is_valid():
@@ -538,10 +537,8 @@ def D1D8(request, claim):
                     edit_W5_det.claim_id=claim.pk
                     edit_W5_det.save()
                     return redirect('D4', claim)
-                return render(request, 'SMS/D4.html', {'vendors':vendors, 'user_profile':user_profile, 'show_company':show_company, 'company':company, 'form': form, 'form_ishi_occ': form_ishi_occ, 'form_ishi_det': form_ishi_det, 'form_due': form_due, 'claim':claim, 'creator':creator, 'form_W5_occ': form_W5_occ, 'form_W5_det': form_W5_det, 'tasks_D4':tasks_D4, 'form_D4_occ':form_D4_occ, 'files_occ':files_occ, 'files_det':files_det, 'form_files_occ':form_files_occ, 'form_files_det':form_files_det })
-#                 return render(request, 'SMS/D4.html', {'vendors':vendors, 'user_profile':user_profile, 'show_company':show_company, 'company':company,
-#                                                    'form': form, 'form_ishi_occ': form_ishi_occ, 'form_ishi_det': form_ishi_det, 'form_due': form_due, 'claim':claim, 'creator':creator, 
-#                                                     'form_W5_occ': form_W5_occ, 'form_W5_det': form_W5_det, 'tasks_D4':tasks_D4 })
+                return render(request, 'SMS/D4.html', {'vendors':vendors, 'user_profile':user_profile, 'company':company, 'form': form, 'form_ishi_occ': form_ishi_occ, 'form_ishi_det': form_ishi_det, 'form_due': form_due, 'claim':claim, 'creator':creator, 'form_W5_occ': form_W5_occ, 'form_W5_det': form_W5_det, 'tasks_D4':tasks_D4, 'form_D4_occ':form_D4_occ, 'files_occ':files_occ, 'files_det':files_det, 'form_files_occ':form_files_occ, 'form_files_det':form_files_det })
+#                 return render(request, 'SMS/D4.html', {'vendors':vendors, 'user_profile':user_profile, 'show_company':show_company, 'company':company, 'form': form, 'form_ishi_occ': form_ishi_occ, 'form_ishi_det': form_ishi_det, 'form_due': form_due, 'claim':claim, 'creator':creator, 'form_W5_occ': form_W5_occ, 'form_W5_det': form_W5_det, 'tasks_D4':tasks_D4, 'form_D4_occ':form_D4_occ, 'files_occ':files_occ, 'files_det':files_det, 'form_files_occ':form_files_occ, 'form_files_det':form_files_det })
 
             if 'save_root_causes' in request.POST:
                 if form.is_valid():
@@ -550,9 +547,8 @@ def D1D8(request, claim):
                     edit.claim_id=claim.pk
                     edit.save()
                     return redirect('D4', claim)
-                return render(request, 'SMS/D4.html', {'vendors':vendors, 'user_profile':user_profile, 'show_company':show_company, 'company':company, 'form': form, 'form_ishi_occ': form_ishi_occ, 'form_ishi_det': form_ishi_det, 'form_due': form_due, 'claim':claim, 'creator':creator, 'form_W5_occ': form_W5_occ, 'form_W5_det': form_W5_det, 'tasks_D4':tasks_D4, 'form_D4_occ':form_D4_occ, 'files_occ':files_occ, 'files_det':files_det, 'form_files_occ':form_files_occ, 'form_files_det':form_files_det })
-#                 return render(request, 'SMS/D4.html', {'vendors':vendors, 'user_profile':user_profile, 'show_company':show_company, 'company':company,
-#                                                    'form': form, 'form_ishi_occ': form_ishi_occ, 'form_ishi_det': form_ishi_det, 'form_due': form_due, 'claim':claim, 'creator':creator, 'form_W5_occ': form_W5_occ, 'form_W5_det': form_W5_det, 'tasks_D4':tasks_D4, 'form_D4_occ':form_D4_occ })
+                return render(request, 'SMS/D4.html', {'vendors':vendors, 'user_profile':user_profile, 'company':company, 'form': form, 'form_ishi_occ': form_ishi_occ, 'form_ishi_det': form_ishi_det, 'form_due': form_due, 'claim':claim, 'creator':creator, 'form_W5_occ': form_W5_occ, 'form_W5_det': form_W5_det, 'tasks_D4':tasks_D4, 'form_D4_occ':form_D4_occ, 'files_occ':files_occ, 'files_det':files_det, 'form_files_occ':form_files_occ, 'form_files_det':form_files_det })
+#                 return render(request, 'SMS/D4.html', {'vendors':vendors, 'user_profile':user_profile, 'show_company':show_company, 'company':company, 'form': form, 'form_ishi_occ': form_ishi_occ, 'form_ishi_det': form_ishi_det, 'form_due': form_due, 'claim':claim, 'creator':creator, 'form_W5_occ': form_W5_occ, 'form_W5_det': form_W5_det, 'tasks_D4':tasks_D4, 'form_D4_occ':form_D4_occ, 'files_occ':files_occ, 'files_det':files_det, 'form_files_occ':form_files_occ, 'form_files_det':form_files_det })
 
             if 'save_reproduction' in request.POST:
                 if form_D4_occ.is_valid():
@@ -561,9 +557,8 @@ def D1D8(request, claim):
                     edit_repro.claim_id=claim.pk
                     edit_repro.save()
                     return redirect('D4', claim)
-                return render(request, 'SMS/D4.html', {'vendors':vendors, 'user_profile':user_profile, 'show_company':show_company, 'company':company, 'form': form, 'form_ishi_occ': form_ishi_occ, 'form_ishi_det': form_ishi_det, 'form_due': form_due, 'claim':claim, 'creator':creator, 'form_W5_occ': form_W5_occ, 'form_W5_det': form_W5_det, 'tasks_D4':tasks_D4, 'form_D4_occ':form_D4_occ, 'files_occ':files_occ, 'files_det':files_det, 'form_files_occ':form_files_occ, 'form_files_det':form_files_det })
-#                 return render(request, 'SMS/D4.html', {'vendors':vendors, 'user_profile':user_profile, 'show_company':show_company, 'company':company,
-#                                                    'form': form, 'form_ishi_occ': form_ishi_occ, 'form_ishi_det': form_ishi_det, 'form_due': form_due, 'claim':claim, 'creator':creator, 'form_W5_occ': form_W5_occ, 'form_W5_det': form_W5_det, 'tasks_D4':tasks_D4, 'form_D4_occ':form_D4_occ })
+                return render(request, 'SMS/D4.html', {'vendors':vendors, 'user_profile':user_profile, 'company':company, 'form': form, 'form_ishi_occ': form_ishi_occ, 'form_ishi_det': form_ishi_det, 'form_due': form_due, 'claim':claim, 'creator':creator, 'form_W5_occ': form_W5_occ, 'form_W5_det': form_W5_det, 'tasks_D4':tasks_D4, 'form_D4_occ':form_D4_occ, 'files_occ':files_occ, 'files_det':files_det, 'form_files_occ':form_files_occ, 'form_files_det':form_files_det })
+#                 return render(request, 'SMS/D4.html', {'vendors':vendors, 'user_profile':user_profile, 'show_company':show_company, 'company':company, 'form': form, 'form_ishi_occ': form_ishi_occ, 'form_ishi_det': form_ishi_det, 'form_due': form_due, 'claim':claim, 'creator':creator, 'form_W5_occ': form_W5_occ, 'form_W5_det': form_W5_det, 'tasks_D4':tasks_D4, 'form_D4_occ':form_D4_occ, 'files_occ':files_occ, 'files_det':files_det, 'form_files_occ':form_files_occ, 'form_files_det':form_files_det })
                 
             if 'new_occ_file' in request.POST:
                 if form_files_occ.is_valid():
@@ -577,10 +572,8 @@ def D1D8(request, claim):
                     new_occ_file.file.field.upload_to = path
                     new_occ_file.save()
                     return redirect('D4', claim)
-                return render(request, 'SMS/D4.html', {'vendors':vendors, 'user_profile':user_profile, 'show_company':show_company, 'company':company, 'form': form, 'form_ishi_occ': form_ishi_occ, 'form_ishi_det': form_ishi_det, 'form_due': form_due, 'claim':claim, 'creator':creator, 'form_W5_occ': form_W5_occ, 'form_W5_det': form_W5_det, 'tasks_D4':tasks_D4, 'form_D4_occ':form_D4_occ, 'files_occ':files_occ, 'files_det':files_det, 'form_files_occ':form_files_occ, 'form_files_det':form_files_det })
-#                 return render(request, 'SMS/D4.html', {'vendors':vendors, 'user_profile':user_profile, 'show_company':show_company, 'company':company,
-#                                                    'form': form, 'form_ishi_occ': form_ishi_occ, 'form_ishi_det': form_ishi_det, 'form_due': form_due, 'claim':claim, 'creator':creator, 'form_W5_occ': form_W5_occ, 'form_W5_det': form_W5_det, 'tasks_D4':tasks_D4, 'form_D4_occ':form_D4_occ, 'files_occ':files_occ, 'files_det':files_det, 'form_files_occ':form_files_occ,
-#                                                    'form_files_det':form_files_det })
+                return render(request, 'SMS/D4.html', {'vendors':vendors, 'user_profile':user_profile, 'company':company, 'form': form, 'form_ishi_occ': form_ishi_occ, 'form_ishi_det': form_ishi_det, 'form_due': form_due, 'claim':claim, 'creator':creator, 'form_W5_occ': form_W5_occ, 'form_W5_det': form_W5_det, 'tasks_D4':tasks_D4, 'form_D4_occ':form_D4_occ, 'files_occ':files_occ, 'files_det':files_det, 'form_files_occ':form_files_occ, 'form_files_det':form_files_det })
+#                 return render(request, 'SMS/D4.html', {'vendors':vendors, 'user_profile':user_profile, 'show_company':show_company, 'company':company, 'form': form, 'form_ishi_occ': form_ishi_occ, 'form_ishi_det': form_ishi_det, 'form_due': form_due, 'claim':claim, 'creator':creator, 'form_W5_occ': form_W5_occ, 'form_W5_det': form_W5_det, 'tasks_D4':tasks_D4, 'form_D4_occ':form_D4_occ, 'files_occ':files_occ, 'files_det':files_det, 'form_files_occ':form_files_occ, 'form_files_det':form_files_det })
                 
             if 'new_det_file' in request.POST:
                 if form_files_det.is_valid():
@@ -594,7 +587,8 @@ def D1D8(request, claim):
                     new_det_file.file.field.upload_to = path
                     new_det_file.save()
                     return redirect('D4', claim)
-                return render(request, 'SMS/D4.html', {'vendors':vendors, 'user_profile':user_profile, 'show_company':show_company, 'company':company, 'form': form, 'form_ishi_occ': form_ishi_occ, 'form_ishi_det': form_ishi_det, 'form_due': form_due, 'claim':claim, 'creator':creator, 'form_W5_occ': form_W5_occ, 'form_W5_det': form_W5_det, 'tasks_D4':tasks_D4, 'form_D4_occ':form_D4_occ, 'files_occ':files_occ, 'files_det':files_det, 'form_files_occ':form_files_occ, 'form_files_det':form_files_det })
+                return render(request, 'SMS/D4.html', {'vendors':vendors, 'user_profile':user_profile, 'company':company, 'form': form, 'form_ishi_occ': form_ishi_occ, 'form_ishi_det': form_ishi_det, 'form_due': form_due, 'claim':claim, 'creator':creator, 'form_W5_occ': form_W5_occ, 'form_W5_det': form_W5_det, 'tasks_D4':tasks_D4, 'form_D4_occ':form_D4_occ, 'files_occ':files_occ, 'files_det':files_det, 'form_files_occ':form_files_occ, 'form_files_det':form_files_det })
+#                 return render(request, 'SMS/D4.html', {'vendors':vendors, 'user_profile':user_profile, 'show_company':show_company, 'company':company, 'form': form, 'form_ishi_occ': form_ishi_occ, 'form_ishi_det': form_ishi_det, 'form_due': form_due, 'claim':claim, 'creator':creator, 'form_W5_occ': form_W5_occ, 'form_W5_det': form_W5_det, 'tasks_D4':tasks_D4, 'form_D4_occ':form_D4_occ, 'files_occ':files_occ, 'files_det':files_det, 'form_files_occ':form_files_occ, 'form_files_det':form_files_det })
                 
             if 'SubmitD4' in request.POST:
                 if tasks_D4:
@@ -628,10 +622,10 @@ def D1D8(request, claim):
 
 
         if '/SMS/D5/' in request.path:
-            tasks_D5_occ = Task.objects.filter(project=claim, subproject='D5 Occurance', closed=False).order_by('due_date')
-            tasks_D5_det = Task.objects.filter(project=claim, subproject='D5 Detection', closed=False).order_by('due_date')
-            tasks_D5_occ_all = Task.objects.filter(project=claim, subproject='D5 Occurance').order_by('due_date')
-            tasks_D5_det_all = Task.objects.filter(project=claim, subproject='D5 Detection').order_by('due_date')
+            tasks_D5_occ = Task.objects.filter(project=claim, subproject='D5_Occurance', closed=False).order_by('due_date')
+            tasks_D5_det = Task.objects.filter(project=claim, subproject='D5_Detection', closed=False).order_by('due_date')
+            tasks_D5_occ_all = Task.objects.filter(project=claim, subproject='D5_Occurance').order_by('due_date')
+            tasks_D5_det_all = Task.objects.filter(project=claim, subproject='D5_Detection').order_by('due_date')
             pdb.set_trace()
             
             if 'SubmitD5' in request.POST:
@@ -669,10 +663,10 @@ def D1D8(request, claim):
                 
 
         if '/SMS/D6/' in request.path:
-            tasks_D6_occ = Task.objects.filter(project=claim, subproject='D6 Occurance', closed=False).order_by('due_date')
-            tasks_D6_det = Task.objects.filter(project=claim, subproject='D6 Detection', closed=False).order_by('due_date')
-            tasks_D6_occ_all = Task.objects.filter(project=claim, subproject='D6 Occurance').order_by('due_date')
-            tasks_D6_det_all = Task.objects.filter(project=claim, subproject='D6 Detection').order_by('due_date')
+            tasks_D6_occ = Task.objects.filter(project=claim, subproject='D6_Occurance', closed=False).order_by('due_date')
+            tasks_D6_det = Task.objects.filter(project=claim, subproject='D6_Detection', closed=False).order_by('due_date')
+            tasks_D6_occ_all = Task.objects.filter(project=claim, subproject='D6_Occurance').order_by('due_date')
+            tasks_D6_det_all = Task.objects.filter(project=claim, subproject='D6_Detection').order_by('due_date')
             pdb.set_trace()
             
             if 'SubmitD6' in request.POST:
@@ -722,9 +716,12 @@ def D1D8(request, claim):
                 d7_data.claim_id=claim.pk
                 d7_data.save()
                 return redirect('D7', claim)    
-            return render(request, 'SMS/D7.html', {'vendors':vendors, 'user_profile':user_profile, 'show_company':show_company, 'company':company, 'claim':claim, 'creator':creator,
+            return render(request, 'SMS/D7.html', {'vendors':vendors, 'show_company':show_company, 'company':company, 'claim':claim, 'creator':creator,
                                                     'form_due':form_due, 'form':form
                                                    })
+#             return render(request, 'SMS/D7.html', {'vendors':vendors, 'user_profile':user_profile, 'show_company':show_company, 'company':company, 'claim':claim, 'creator':creator,
+#                                                     'form_due':form_due, 'form':form
+#                                                    })
         if '/SMS/D8/' in request.path:
             form_due=Claim_Form(request.POST, instance=claim)
             if 'Accept8D' in request.POST:
@@ -745,26 +742,32 @@ def D1D8(request, claim):
                 
 
     else:    
+#         pdb.set_trace()
         if '/SMS/claim_Data/' in request.path:     
             form=Data_Form(instance=claim)
-            return render(request, 'SMS/claim_Data.html', {'vendors':vendors, 'user_profile':user_profile, 'show_company':show_company, 'company':company, 'form': form, 'claim':claim, 'creator':creator })
+            return render(request, 'SMS/claim_Data.html', {'vendors':vendors, 'user_profile':user_profile, 'company':company, 'form': form, 'claim':claim, 'creator':creator })
+#             return render(request, 'SMS/claim_Data.html', {'vendors':vendors, 'user_profile':user_profile, 'show_company':show_company, 'company':company, 'form': form, 'claim':claim, 'creator':creator })
 
         if '/SMS/D1/' in request.path:
                  
             form=Team_Form(instance=team, initial={'pilot': user_profile.firstname + ' ' + user_profile.lastname, 'mail': user_profile.email})
-            return render(request, 'SMS/D1.html', {'vendors':vendors, 'user_profile':user_profile, 'show_company':show_company, 'company':company, 'form': form, 'claim':claim, 'creator':creator })
+            return render(request, 'SMS/D1.html', {'vendors':vendors, 'user_profile':user_profile, 'company':company, 'form': form, 'claim':claim, 'creator':creator })
+#             return render(request, 'SMS/D1.html', {'vendors':vendors, 'user_profile':user_profile, 'show_company':show_company, 'company':company, 'form': form, 'claim':claim, 'creator':creator })
 
         if '/SMS/D2/' in request.path:
             form=D2_SV_Form(instance=d2_sv)
-            return render(request, 'SMS/D2.html', {'vendors':vendors, 'user_profile':user_profile, 'show_company':show_company, 'company':company, 'form': form, 'claim':claim, 'creator':creator, 'd2_cv':d2_cv })
+            return render(request, 'SMS/D2.html', {'vendors':vendors, 'user_profile':user_profile, 'company':company, 'form': form, 'claim':claim, 'creator':creator, 'd2_cv':d2_cv })
+#             return render(request, 'SMS/D2.html', {'vendors':vendors, 'user_profile':user_profile, 'show_company':show_company, 'company':company, 'form': form, 'claim':claim, 'creator':creator, 'd2_cv':d2_cv })
 
         if '/SMS/D3/' in request.path:
             tasks_D3 = Task.objects.filter(project=claim, subproject='D3', closed=False).order_by('due_date')
             form=D3_Form(instance=d3)
             form_due=Claim_Form(instance=claim)
 #             pdb.set_trace()
-            return render(request, 'SMS/D3.html', {'vendors':vendors, 'user_profile':user_profile, 'show_company':show_company, 'company':company,
+            return render(request, 'SMS/D3.html', {'vendors':vendors, 'user_profile':user_profile, 'company':company,
                                                    'form': form, 'form_due': form_due, 'claim':claim, 'creator':creator, 'd2_cv':d2_cv, 'sorting_data':sorting_data, 'tasks_D3':tasks_D3 })
+#             return render(request, 'SMS/D3.html', {'vendors':vendors, 'user_profile':user_profile, 'show_company':show_company, 'company':company,
+#                                                    'form': form, 'form_due': form_due, 'claim':claim, 'creator':creator, 'd2_cv':d2_cv, 'sorting_data':sorting_data, 'tasks_D3':tasks_D3 })
 
         if '/SMS/D4/' in request.path:
             tasks_D4 = Task.objects.filter(project=claim, subproject='D4', closed=False).order_by('due_date')
@@ -782,7 +785,7 @@ def D1D8(request, claim):
             form_files_occ = FileForm()
             form_files_det = FileForm()
 #             pdb.set_trace()
-            return render(request, 'SMS/D4.html', {'vendors':vendors, 'user_profile':user_profile, 'show_company':show_company, 'company':company,
+            return render(request, 'SMS/D4.html', {'vendors':vendors, 'user_profile':user_profile, 'company':company,
                                                    'form': form, 'form_ishi_occ': form_ishi_occ, 'form_W5_occ': form_W5_occ, 'form_W5_det': form_W5_det, 
                                                    'form_ishi_det': form_ishi_det, 'form_due': form_due, 'claim':claim, 'creator':creator, 
                                                    'tasks_D4':tasks_D4, 'form_D4_occ':form_D4_occ, 'files_occ':files_occ, 'files_det':files_det, 'form_files_occ':form_files_occ,
@@ -793,16 +796,16 @@ def D1D8(request, claim):
             tasks_D5 = Task.objects.filter(project=claim, subproject='D5 Occurance', closed=False).order_by('due_date')
             tasks_D5_det = Task.objects.filter(project=claim, subproject='D5 Detection', closed=False).order_by('due_date')
 #             pdb.set_trace()
-            return render(request, 'SMS/D5.html', {'vendors':vendors, 'user_profile':user_profile, 'show_company':show_company, 'company':company, 'claim':claim, 'creator':creator,
+            return render(request, 'SMS/D5.html', {'vendors':vendors, 'user_profile':user_profile, 'company':company, 'claim':claim, 'creator':creator,
                                                     'form_due':form_due, 'tasks_D5':tasks_D5, 'tasks_D5_det':tasks_D5_det
                                                    })
 
         if '/SMS/D6/' in request.path:
             form_due= Claim_Form(instance=claim)
-            tasks_D6 = Task.objects.filter(project=claim, subproject='D6 Occurance', closed=False).order_by('due_date')
+            tasks_D6 = Task.objects.filter(project=claim, subproject='D6 Occurence', closed=False).order_by('due_date')
             tasks_D6_det = Task.objects.filter(project=claim, subproject='D6 Detection', closed=False).order_by('due_date')
 #             pdb.set_trace()
-            return render(request, 'SMS/D6.html', {'vendors':vendors, 'user_profile':user_profile, 'show_company':show_company, 'company':company, 'claim':claim, 'creator':creator,
+            return render(request, 'SMS/D6.html', {'vendors':vendors, 'user_profile':user_profile, 'company':company, 'claim':claim, 'creator':creator,
                                                     'form_due':form_due, 'tasks_D6':tasks_D6, 'tasks_D6_det':tasks_D6_det
                                                    })
 
@@ -810,14 +813,14 @@ def D1D8(request, claim):
             form_due= Claim_Form(instance=claim)
             form=D7Form(instance=D7docu)
 #             pdb.set_trace()
-            return render(request, 'SMS/D7.html', {'vendors':vendors, 'user_profile':user_profile, 'show_company':show_company, 'company':company, 'claim':claim, 'creator':creator,
+            return render(request, 'SMS/D7.html', {'vendors':vendors, 'user_profile':user_profile, 'company':company, 'claim':claim, 'creator':creator,
                                                     'form_due':form_due, 'form':form
                                                    })
 
         if '/SMS/D8/' in request.path:
             form_due= Claim_Form(instance=claim)
 #             pdb.set_trace()
-            return render(request, 'SMS/D8.html', {'vendors':vendors, 'user_profile':user_profile, 'show_company':show_company, 'company':company, 'claim':claim, 'creator':creator,
+            return render(request, 'SMS/D8.html', {'vendors':vendors, 'user_profile':user_profile, 'company':company, 'claim':claim, 'creator':creator,
                                                     'form_due':form_due
                                                    })
 
@@ -825,17 +828,18 @@ def D1D8(request, claim):
 
 @login_required
 def task_tracker(request, order, project, subproject, id):
-    actual_user_id = request.user
-    user_profile = UserProfile.objects.get(user_id=actual_user_id)
+
+    user_profile = UserProfile.objects.get(user_id=request.user)
     company = Claim.objects.get(pk=project).related_to
-    if not user_profile.isStaff:                  #der eingloggte User gehört NICHT zu PMDM
+    if not user_profile.isStaff:                  #der eingloggte User gehoert NICHT zu PMDM
         if not company == user_profile.company:   #der eingloggte User ruft Daten einer anderen Firma auf!
             messages.add_message(request, messages.ERROR, 'You are not allowed to see other companies items!')
          
     path = 'uploads/' + company.name + '/Claim_' + str(project)
     tasks = Task.objects.filter(project=project, subproject=subproject, closed=False).order_by(order)
-    tasks_done = Task.objects.filter(project=project, subproject=subproject, closed = True)
+    tasks_done = Task.objects.filter(project=project, subproject=subproject, closed = True).order_by(order)
     task_to_edit = None
+#     pdb.set_trace()
     if id < 9000:
         task_to_edit = Task.objects.get(project=project, subproject=subproject, pk=id)
 
@@ -853,6 +857,7 @@ def task_tracker(request, order, project, subproject, id):
                 new_task.project = project
                 new_task.subproject = subproject
                 new_task.original_due_date =  form.cleaned_data['due_date']
+                new_task.number = len(tasks) + len(tasks_done) + 1
                 new_task.save()
 
                 first_comment = Comment.objects.create(project=project, subproject=subproject, task=new_task.pk, author=user_profile, comment=form.cleaned_data['task_comment'])
@@ -880,9 +885,9 @@ def task_tracker(request, order, project, subproject, id):
 @login_required
 def task_details(request, order, project, subproject, id):
     actual_user_id = request.user
-    user_profile = UserProfile.objects.get(user_id=actual_user_id)
+    user_profile = UserProfile.objects.get(user_id=request.user)
     company = Claim.objects.get(pk=project).related_to
-    if not user_profile.isStaff:                  #der eingloggte User gehört NICHT zu PMDM
+    if not user_profile.isStaff:                  #der eingloggte User gehoert NICHT zu PMDM
         if not company == user_profile.company:   #der eingloggte User ruft Daten einer anderen Firma auf!
             messages.add_message(request, messages.ERROR, 'You are not allowed to see other companies items!')
             return render(request, 'SMS/error.html', {'user_profile':user_profile, 'company':company,}) 

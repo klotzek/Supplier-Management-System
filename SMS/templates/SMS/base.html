@@ -1,14 +1,10 @@
 {% load staticfiles %}
-{% load fontawesome %}
-
-
 
 <!DOCTYPE html>
 <html lang="en">
     <head>
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
-        {% fontawesome_stylesheet %}
         <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
         <link rel="stylesheet" href="{% static 'css/SMS.css' %}">
         <script src="https://code.jquery.com/jquery-1.11.2.min.js"></script>
@@ -38,11 +34,11 @@
             <div class="row">
                 <div class="col-md-12">
                     <ul class="nav nav-tabs">
-                       <li role="presentation" {% if request.path == '/SMS/' %}class="active"{% endif %}><a href="{% url 'index' %}">base data</a></li>
+                       <li role="presentation" {% if '/SMS/base_data' in request.path %}class="active"{% endif %}><a href="{% url 'base_data'  company.pk %}">base data</a></li>
                        <li role="presentation" {% if '/SMS/certs/'  in request.path %}class="active"{% endif %}><a href="{% url 'index' %}">certificates</a></li>
-                       <li role="presentation" {% if '/SMS/claims/' in request.path %}class="active"{% endif %}><a href="{% url 'claims' company.pk %}">claims</a></li>
+                       <li role="presentation" {% if '/SMS/claim' in request.path or '/SMS/D' in request.path %}class="active"{% endif %}><a href="{% url 'claims' company.pk %}">claims</a></li>
                        <li role="presentation" {% if '/SMS/ppaps/'  in request.path %}class="active"{% endif %}><a href="{% url 'index' %}">PPAP</a></li>
-                   {% if user_profile.isStaff == True %}
+                   {% if user_profile.company.NMB_company == True %}
                    <form class="form-inline" action="{% url 'index' %}" method="post">
                    {% csrf_token %}
                    <select id = "vendor_choice" name = "vendor_choice" class="form-control">
