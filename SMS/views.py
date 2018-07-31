@@ -3,12 +3,12 @@ import os
 from django.shortcuts import render, get_object_or_404, redirect, render_to_response
 from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
-from .models import UserProfile, Company, Claim, ClaimStatus, Team, D2_CV, D2_SV, D3, PenaltyPeriods, Ishikawa_occurance, Ishikawa_detection, Task, W5_occurance, W5_detection, D4, D4_reproduction, File , Comment, D7
+from .models import UserProfile, Company, Claim, ClaimStatus, Team, TraceData, D2_CV, D2_SV, D3, PenaltyPeriods, Ishikawa_occurance, Ishikawa_detection, Task, W5_occurance, W5_detection, D4, D4_reproduction, File , Comment, D7
 from django.contrib import messages
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth.models import User
-from .forms import Claim_New_Form, CompanyForm, UserForm, UserProfileForm, Team_Form, Data_Form, D2_CV_Form, D2_SV_Form, Claim_Form, D3_Form, Ishi_Occ_Form , Ishi_Det_Form, TaskForm, TaskFormEdit,  W5_Occ_Form , W5_Det_Form, D4Form, D4Form_reproduction, FileForm, CommentForm, D7Form, PasswordForm 
+from .forms import Claim_New_Form, CompanyForm, UserForm, UserProfileForm, Team_Form, Data_Form, Acceptance_Form, D2_CV_Form, D2_SV_Form, Claim_Form, D3_Form, Ishi_Occ_Form , Ishi_Det_Form, TaskForm, TaskFormEdit,  W5_Occ_Form , W5_Det_Form, D4Form, D4Form_reproduction, FileForm, CommentForm, D7Form, PasswordForm 
 from datetime import datetime, timedelta
 from django.utils import timezone
 from django.core.mail import send_mail
@@ -314,7 +314,7 @@ def D1D8(request, claim):
             messages.add_message(request, messages.ERROR, 'You are not allowed to see other companies items!')
             return render(request, 'SMS/error.html', {'vendors':vendors, 'user_profile':user_profile, 'company':company,}) 
 
-    team = Team.objects.filter(claim_id=claim).first()
+#     team = Team.objects.filter(claim_id=claim).first()
     d2_cv = D2_CV.objects.filter(claim_id=claim).first()
     d2_sv = D2_SV.objects.filter(claim_id=claim).first()
     d3 = D3.objects.filter(claim_id=claim).first()
@@ -418,31 +418,44 @@ def D1D8(request, claim):
 
     
         if '/SMS/claim_Data/' in request.path:     
-            form = Data_Form(request.POST, instance = claim)
-            if form.is_valid():
-#                 open_reject_id = Claim.objects.get(status__status__contains="rejection opened by vendor").pk 
+            trace_data=TraceData.objects.filter(claim=claim.pk)     
+            form2=Acceptance_Form(request.POST, instance=claim)
+            form = Data_Form(request.POST)
+            if 'save_trace_data' in request.POST:
+                if form.is_valid():
+                    new_trace=form.save(commit=False)
+                    new_trace.claim=claim
+                    new_trace.save()
+                    return redirect('claim_Data', claim)
+                else:
+                    return render(request, 'SMS/claim_Data.html', {'vendors':vendors, 'user_profile':user_profile, 'company':company, 'form': form, 'form2': form2, 'claim':claim, 'creator':creator, 'trace_data':trace_data })
+                
+            if form2.is_valid():
                 open_reject_id = claim.status
 #                 pdb.set_trace()
                 if 'Refusal' in request.POST:
                     claim.status_id = ClaimStatus.objects.get(status='rejection accepted (closed)').pk
                 if 'refused' in request.POST and not 'Refusal' in request.POST:
                     claim.status_id = ClaimStatus.objects.get(status='rejection opened by vendor').pk
-                claim=form.save(commit= False)
+                claim=form2.save(commit= False)
                 claim.save()
                 return redirect('claim_Data', claim)
             else:
-                return render(request, 'SMS/claim_Data.html', {'vendors':vendors, 'user_profile':user_profile, 'company':company, 'form': form, 'claim':claim, 'creator':creator })
-#                 return render(request, 'SMS/claim_Data.html', {'vendors':vendors, 'user_profile':user_profile, 'show_company':show_company, 'company':company, 'form': form, 'claim':claim, 'creator':creator })
+                return render(request, 'SMS/claim_Data.html', {'vendors':vendors, 'user_profile':user_profile, 'company':company, 'form': form, 'form2': form2, 'claim':claim, 'creator':creator })
         
         if '/SMS/D1/' in request.path:
-            form=Team_Form(request.POST, instance=team)
+            team_members = Team.objects.filter(claim=claim.pk)
+            form=Team_Form(request.POST, company=company)    #nur User der company werden angezeigt
+#             form=Team_Form(request.POST, company=company)    #nur User der company werden angezeigt
             if form.is_valid():
                 team_form=form.save(commit=False)
+                if not team_members:  #noch kein Team, der erste Eintrag wird Pilot
+                    team_form.isPilot = True
+                team_form.claim=claim
                 team_form.save()
                 return redirect('D1', claim)
-            else:
-                return render(request, 'SMS/D1.html', {'vendors':vendors, 'user_profile':user_profile, 'company':company, 'form': form, 'claim':claim, 'creator':creator })
-#                 return render(request, 'SMS/D1.html', {'vendors':vendors, 'user_profile':user_profile, 'show_company':show_company, 'company':company, 'form': form, 'claim':claim, 'creator':creator })
+            
+            return render(request, 'SMS/D1.html', {'vendors':vendors, 'user_profile':user_profile, 'company':company, 'form': form, 'claim':claim, 'creator':creator, 'team_members':team_members })
 
         if '/SMS/D2/' in request.path:
             form=D2_SV_Form(request.POST, instance=d2_sv)
@@ -493,7 +506,7 @@ def D1D8(request, claim):
             form_W5_occ = W5_Occ_Form(request.POST, instance=W5_occ)
             form_W5_det = W5_Det_Form(request.POST, instance=W5_det)
             form = D4Form(request.POST, instance = root_causes)
-            form_D4_occ =  D4Form_reproduction(request.POST, instance= occ_D4)
+            form_D4_occ =  D4Form_reproduction(request.POST, instance= occ_D4, company=company)
             form_files_occ = FileForm(request.POST, request.FILES)
             form_files_det = FileForm(request.POST, request.FILES)
 
@@ -552,9 +565,50 @@ def D1D8(request, claim):
 
             if 'save_reproduction' in request.POST:
                 if form_D4_occ.is_valid():
-#                     pdb.set_trace()
                     edit_repro = form_D4_occ.save(commit=False)
                     edit_repro.claim_id=claim.pk
+                    if request.POST.get("reproduction_occ_pilot"):
+                        try:
+                            treffer= Team.objects.get(claim_id=claim, member=request.POST.get("reproduction_occ_pilot"))
+                        except Team.MultipleObjectsReturned:
+                            pass
+                        except Team.DoesNotExist:
+                            instance=UserProfile(pk=request.POST.get("reproduction_occ_pilot"))
+                            new_member = Team(claim=claim, member=instance, isPilot=False)
+                            new_member.save()        
+
+                    if request.POST.get("reproduction_det_pilot"):
+                        try:
+                            treffer= Team.objects.get(claim_id=claim, member=request.POST.get("reproduction_det_pilot"))
+                        except Team.MultipleObjectsReturned:
+                            pass
+                        except Team.DoesNotExist:
+                            instance=UserProfile(pk=request.POST.get("reproduction_det_pilot"))
+                            new_member = Team(claim=claim, member=instance, isPilot=False)
+                            new_member.save()        
+
+                    if request.POST.get("effective_occ_pilot"):
+                        try:
+                            treffer= Team.objects.get(claim_id=claim, member=request.POST.get("effective_occ_pilot"))
+                        except Team.MultipleObjectsReturned:
+                            pass
+                        except Team.DoesNotExist:
+                            instance=UserProfile(pk=request.POST.get("effective_occ_pilot"))
+                            new_member = Team(claim=claim, member=instance, isPilot=False)
+                            new_member.save()        
+
+                    if request.POST.get("effective_det_pilot"):
+                        try:
+                            treffer= Team.objects.get(claim_id=claim, member=request.POST.get("effective_det_pilot"))
+                        except Team.MultipleObjectsReturned:
+                            pass
+                        except Team.DoesNotExist:
+                            instance=UserProfile(pk=request.POST.get("effective_det_pilot"))
+                            new_member = Team(claim=claim, member=instance, isPilot=False)
+                            new_member.save()        
+
+
+#                     pdb.set_trace()
                     edit_repro.save()
                     return redirect('D4', claim)
                 return render(request, 'SMS/D4.html', {'vendors':vendors, 'user_profile':user_profile, 'company':company, 'form': form, 'form_ishi_occ': form_ishi_occ, 'form_ishi_det': form_ishi_det, 'form_due': form_due, 'claim':claim, 'creator':creator, 'form_W5_occ': form_W5_occ, 'form_W5_det': form_W5_det, 'tasks_D4':tasks_D4, 'form_D4_occ':form_D4_occ, 'files_occ':files_occ, 'files_det':files_det, 'form_files_occ':form_files_occ, 'form_files_det':form_files_det })
@@ -697,7 +751,7 @@ def D1D8(request, claim):
                 
 
         if '/SMS/D7/' in request.path:
-            form=D7Form(request.POST, instance=D7docu)
+            form=D7Form(request.POST, instance=D7docu, company=company)
             form_due=Claim_Form(request.POST, instance=claim)
 #             pdb.set_trace()
             if form.is_valid():
@@ -714,6 +768,133 @@ def D1D8(request, claim):
 #                 d7_data=form.save()
                 d7_data=form.save(commit=False)
                 d7_data.claim_id=claim.pk
+                if request.POST.get("DFMEA_pilot"):
+                    try:
+                        treffer= Team.objects.get(claim_id=claim, member=request.POST.get("DFMEA_pilot"))
+                    except Team.MultipleObjectsReturned:
+                        pass
+                    except Team.DoesNotExist:
+                        instance=UserProfile(pk=request.POST.get("DFMEA_pilot"))
+                        new_member = Team(claim=claim, member=instance, isPilot=False)
+                        new_member.save()        
+                if request.POST.get("PFMEA_pilot"):
+                    try:
+                        treffer= Team.objects.get(claim_id=claim, member=request.POST.get("PFMEA_pilot"))
+                    except Team.MultipleObjectsReturned:
+                        pass
+                    except Team.DoesNotExist:
+                        instance=UserProfile(pk=request.POST.get("PFMEA_pilot"))
+                        new_member = Team(claim=claim, member=instance, isPilot=False)
+                        new_member.save()        
+                if request.POST.get("LFMEA_pilot"):
+                    try:
+                        treffer= Team.objects.get(claim_id=claim, member=request.POST.get("LFMEA_pilot"))
+                    except Team.MultipleObjectsReturned:
+                        pass
+                    except Team.DoesNotExist:
+                        instance=UserProfile(pk=request.POST.get("LFMEA_pilot"))
+                        new_member = Team(claim=claim, member=instance, isPilot=False)
+                        new_member.save()        
+                if request.POST.get("controlplan_pilot"):
+                    try:
+                        treffer= Team.objects.get(claim_id=claim, member=request.POST.get("controlplan_pilot"))
+                    except Team.MultipleObjectsReturned:
+                        pass
+                    except Team.DoesNotExist:
+                        instance=UserProfile(pk=request.POST.get("controlplan_pilot"))
+                        new_member = Team(claim=claim, member=instance, isPilot=False)
+                        new_member.save()        
+                if request.POST.get("WI_pilot"):
+                    try:
+                        treffer= Team.objects.get(claim_id=claim, member=request.POST.get("WI_pilot"))
+                    except Team.MultipleObjectsReturned:
+                        pass
+                    except Team.DoesNotExist:
+                        instance=UserProfile(pk=request.POST.get("WI_pilot"))
+                        new_member = Team(claim=claim, member=instance, isPilot=False)
+                        new_member.save()        
+                if request.POST.get("MP_pilot"):
+                    try:
+                        treffer= Team.objects.get(claim_id=claim, member=request.POST.get("MP_pilot"))
+                    except Team.MultipleObjectsReturned:
+                        pass
+                    except Team.DoesNotExist:
+                        instance=UserProfile(pk=request.POST.get("MP_pilot"))
+                        new_member = Team(claim=claim, member=instance, isPilot=False)
+                        new_member.save()        
+                if request.POST.get("Dstand_pilot"):
+                    try:
+                        treffer= Team.objects.get(claim_id=claim, member=request.POST.get("Dstand_pilot"))
+                    except Team.MultipleObjectsReturned:
+                        pass
+                    except Team.DoesNotExist:
+                        instance=UserProfile(pk=request.POST.get("Dstand_pilot"))
+                        new_member = Team(claim=claim, member=instance, isPilot=False)
+                        new_member.save()        
+                if request.POST.get("toolDstand_pilot"):
+                    try:
+                        treffer= Team.objects.get(claim_id=claim, member=request.POST.get("toolDstand_pilot"))
+                    except Team.MultipleObjectsReturned:
+                        pass
+                    except Team.DoesNotExist:
+                        instance=UserProfile(pk=request.POST.get("toolDstand_pilot"))
+                        new_member = Team(claim=claim, member=instance, isPilot=False)
+                        new_member.save()        
+                if request.POST.get("LLcard_pilot"):
+                    try:
+                        treffer= Team.objects.get(claim_id=claim, member=request.POST.get("LLcard_pilot"))
+                    except Team.MultipleObjectsReturned:
+                        pass
+                    except Team.DoesNotExist:
+                        instance=UserProfile(pk=request.POST.get("LLcard_pilot"))
+                        new_member = Team(claim=claim, member=instance, isPilot=False)
+                        new_member.save()        
+                if request.POST.get("Gstand_pilot"):
+                    try:
+                        treffer= Team.objects.get(claim_id=claim, member=request.POST.get("Gstand_pilot"))
+                    except Team.MultipleObjectsReturned:
+                        pass
+                    except Team.DoesNotExist:
+                        instance=UserProfile(pk=request.POST.get("Gstand_pilot"))
+                        new_member = Team(claim=claim, member=instance, isPilot=False)
+                        new_member.save()        
+                if request.POST.get("Tstand_pilot"):
+                    try:
+                        treffer= Team.objects.get(claim_id=claim, member=request.POST.get("Tstand_pilot"))
+                    except Team.MultipleObjectsReturned:
+                        pass
+                    except Team.DoesNotExist:
+                        instance=UserProfile(pk=request.POST.get("Tstand_pilot"))
+                        new_member = Team(claim=claim, member=instance, isPilot=False)
+                        new_member.save()        
+                if request.POST.get("procedure_pilot"):
+                    try:
+                        treffer= Team.objects.get(claim_id=claim, member=request.POST.get("procedure_pilot"))
+                    except Team.MultipleObjectsReturned:
+                        pass
+                    except Team.DoesNotExist:
+                        instance=UserProfile(pk=request.POST.get("procedure_pilot"))
+                        new_member = Team(claim=claim, member=instance, isPilot=False)
+                        new_member.save()        
+                if request.POST.get("spec_pilot"):
+                    try:
+                        treffer= Team.objects.get(claim_id=claim, member=request.POST.get("spec_pilot"))
+                    except Team.MultipleObjectsReturned:
+                        pass
+                    except Team.DoesNotExist:
+                        instance=UserProfile(pk=request.POST.get("spec_pilot"))
+                        new_member = Team(claim=claim, member=instance, isPilot=False)
+                        new_member.save()        
+                if request.POST.get("other_pilot"):
+                    try:
+                        treffer= Team.objects.get(claim_id=claim, member=request.POST.get("other_pilot"))
+                    except Team.MultipleObjectsReturned:
+                        pass
+                    except Team.DoesNotExist:
+                        instance=UserProfile(pk=request.POST.get("other_pilot"))
+                        new_member = Team(claim=claim, member=instance, isPilot=False)
+                        new_member.save()        
+                
                 d7_data.save()
                 return redirect('D7', claim)    
             return render(request, 'SMS/D7.html', {'vendors':vendors, 'show_company':show_company, 'company':company, 'claim':claim, 'creator':creator,
@@ -743,16 +924,17 @@ def D1D8(request, claim):
 
     else:    
 #         pdb.set_trace()
-        if '/SMS/claim_Data/' in request.path:     
-            form=Data_Form(instance=claim)
-            return render(request, 'SMS/claim_Data.html', {'vendors':vendors, 'user_profile':user_profile, 'company':company, 'form': form, 'claim':claim, 'creator':creator })
-#             return render(request, 'SMS/claim_Data.html', {'vendors':vendors, 'user_profile':user_profile, 'show_company':show_company, 'company':company, 'form': form, 'claim':claim, 'creator':creator })
+        if '/SMS/claim_Data/' in request.path:
+            trace_data=TraceData.objects.filter(claim=claim.pk)     
+            form=Data_Form()
+            form2=Acceptance_Form(instance=claim)
+            return render(request, 'SMS/claim_Data.html', {'vendors':vendors, 'user_profile':user_profile, 'company':company, 'form': form, 'form2': form2, 'claim':claim, 'creator':creator, 'trace_data':trace_data })
 
         if '/SMS/D1/' in request.path:
-                 
-            form=Team_Form(instance=team, initial={'pilot': user_profile.firstname + ' ' + user_profile.lastname, 'mail': user_profile.email})
-            return render(request, 'SMS/D1.html', {'vendors':vendors, 'user_profile':user_profile, 'company':company, 'form': form, 'claim':claim, 'creator':creator })
-#             return render(request, 'SMS/D1.html', {'vendors':vendors, 'user_profile':user_profile, 'show_company':show_company, 'company':company, 'form': form, 'claim':claim, 'creator':creator })
+            team_members = Team.objects.filter(claim=claim.pk)
+            form=Team_Form(company=company)    #nur User der company werden angezeigt
+#             pdb.set_trace()
+            return render(request, 'SMS/D1.html', {'vendors':vendors, 'user_profile':user_profile, 'company':company, 'form': form, 'claim':claim, 'creator':creator, 'team_members':team_members })
 
         if '/SMS/D2/' in request.path:
             form=D2_SV_Form(instance=d2_sv)
@@ -781,7 +963,7 @@ def D1D8(request, claim):
             form_ishi_det = Ishi_Det_Form(instance=ishi_det)
             form_W5_occ = W5_Occ_Form(instance=W5_occ)
             form_W5_det = W5_Det_Form(instance=W5_det)
-            form_D4_occ =  D4Form_reproduction(instance= occ_D4)    #deckt auch det ab.
+            form_D4_occ =  D4Form_reproduction(company=company, instance= occ_D4)    #deckt auch det ab.
             form_files_occ = FileForm()
             form_files_det = FileForm()
 #             pdb.set_trace()
@@ -793,7 +975,7 @@ def D1D8(request, claim):
 
         if '/SMS/D5/' in request.path:
             form_due= Claim_Form(instance=claim)
-            tasks_D5 = Task.objects.filter(project=claim, subproject='D5 Occurance', closed=False).order_by('due_date')
+            tasks_D5 = Task.objects.filter(project=claim, subproject='D5 Occurence', closed=False).order_by('due_date')
             tasks_D5_det = Task.objects.filter(project=claim, subproject='D5 Detection', closed=False).order_by('due_date')
 #             pdb.set_trace()
             return render(request, 'SMS/D5.html', {'vendors':vendors, 'user_profile':user_profile, 'company':company, 'claim':claim, 'creator':creator,
@@ -811,7 +993,7 @@ def D1D8(request, claim):
 
         if '/SMS/D7/' in request.path:
             form_due= Claim_Form(instance=claim)
-            form=D7Form(instance=D7docu)
+            form=D7Form(instance=D7docu, company=company)
 #             pdb.set_trace()
             return render(request, 'SMS/D7.html', {'vendors':vendors, 'user_profile':user_profile, 'company':company, 'claim':claim, 'creator':creator,
                                                     'form_due':form_due, 'form':form

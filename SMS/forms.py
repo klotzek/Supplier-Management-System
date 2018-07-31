@@ -1,7 +1,7 @@
 import pdb
 from bootstrap_datepicker.widgets import DatePicker 
 from django import forms
-from .models import Company, Claim, UserProfile, Team, D2_CV, D2_SV, D3, Ishikawa_occurance, Ishikawa_detection, Task, W5_occurance, W5_detection, D4, D4_reproduction, File, Comment, D7
+from .models import Company, Claim, TraceData, UserProfile, Team, D2_CV, D2_SV, D3, Ishikawa_occurance, Ishikawa_detection, Task, W5_occurance, W5_detection, D4, D4_reproduction, File, Comment, D7
 from django.contrib.auth.models import User
 
 
@@ -181,9 +181,24 @@ class D7Form(forms.ModelForm):
           'other_pilot',
           'other_date',
           'other_comment',
-
-        
         ]
+    def __init__(self, *args, **kwargs):
+        company = kwargs.pop('company', None)
+        super(D7Form, self).__init__(*args, **kwargs)
+        self.fields['DFMEA_pilot'].queryset=UserProfile.objects.filter(company=company)    
+        self.fields['PFMEA_pilot'].queryset=UserProfile.objects.filter(company=company)    
+        self.fields['LFMEA_pilot'].queryset=UserProfile.objects.filter(company=company)    
+        self.fields['controlplan_pilot'].queryset=UserProfile.objects.filter(company=company)    
+        self.fields['WI_pilot'].queryset=UserProfile.objects.filter(company=company)    
+        self.fields['MP_pilot'].queryset=UserProfile.objects.filter(company=company)    
+        self.fields['Dstand_pilot'].queryset=UserProfile.objects.filter(company=company)    
+        self.fields['toolDstand_pilot'].queryset=UserProfile.objects.filter(company=company)    
+        self.fields['LLcard_pilot'].queryset=UserProfile.objects.filter(company=company)    
+        self.fields['Gstand_pilot'].queryset=UserProfile.objects.filter(company=company)    
+        self.fields['Tstand_pilot'].queryset=UserProfile.objects.filter(company=company)    
+        self.fields['procedure_pilot'].queryset=UserProfile.objects.filter(company=company)    
+        self.fields['spec_pilot'].queryset=UserProfile.objects.filter(company=company)    
+        self.fields['other_pilot'].queryset=UserProfile.objects.filter(company=company)    
 
 class FileForm(forms.ModelForm):
     class Meta:
@@ -257,6 +272,14 @@ class D4Form_reproduction(forms.ModelForm):
           'effective_det_date',
           'effective_det_reproduced',
         ]
+    def __init__(self, *args, **kwargs):
+        company = kwargs.pop('company', None)
+        super(D4Form_reproduction, self).__init__(*args, **kwargs)
+        self.fields['reproduction_occ_pilot'].queryset=UserProfile.objects.filter(company=company)    
+        self.fields['effective_occ_pilot'].queryset=UserProfile.objects.filter(company=company)    
+        self.fields['reproduction_det_pilot'].queryset=UserProfile.objects.filter(company=company)    
+        self.fields['effective_det_pilot'].queryset=UserProfile.objects.filter(company=company)    
+
 
 class D4Form_det(forms.ModelForm):
     class Meta:
@@ -331,53 +354,6 @@ class TaskForm(forms.ModelForm):
         if 'pilot' in pilot.user.username:
             raise forms.ValidationError("Do not choose `Pilot`!")
         return pilot    
-# class TaskForm(forms.ModelForm):
-#     class Meta:
-#         model=Task
-#         widgets={
-#           'task':forms.Textarea(attrs={'rows':1, 'cols':35}),
-#           'task_comment':forms.Textarea(attrs={'rows':1, 'cols':40}),
-#           'due_date': DatePicker(options={
-#                 "format": "yyyy-mm-dd",
-#                 "autoclose": True,
-#                 "calendarWeeks":True,
-#                 "weekStart":1,
-#                 "todayHighlight": True,
-#           })
-#         }
-#         fields=[
-#           'action', 
-#           'task', 
-#           'pilot',
-#           'due_date',
-#           'task_comment',
-#           'status',
-#           'importance',
-#         ]
-#     def __init__(self, company=None, hereIwork=None, **kwargs):
-#         super(TaskForm, self).__init__(**kwargs)
-#         if company:
-#             hereIwork = hereIwork.name
-#             if 'PMDM' in hereIwork:    #falls Du zu PMDM gehörst, darfst Du auch Kollegen von PMDM in die Taskliste einfügen.
-#                 self.fields['pilot'].queryset = UserProfile.objects.filter(company=company).distinct() | UserProfile.objects.filter(company__name='PMDM').distinct()
-#             else:
-#                 self.fields['pilot'].queryset = UserProfile.objects.filter(company=company).distinct()
-#                 
-# #             self.fields['pilot'].queryset = UserProfile.objects.filter(pilot_of_task__project=project).distinct()
-#             
-#     def clean_importance(self):
-#         imp =  self.cleaned_data.get('importance', '')
-# #         pdb.set_trace()
-#         if 'IMP' in imp:
-# #             pdb.set_trace()
-#             raise forms.ValidationError("Do not choose `Importance`!")
-#         return imp
-#     def clean_pilot(self):
-#         pilot=self.cleaned_data.get('pilot', '')
-# #         pdb.set_trace()
-#         if 'pilot' in pilot.user.username:
-#             raise forms.ValidationError("Do not choose `Pilot`!")
-#         return pilot    
 
 class TaskFormEdit(forms.ModelForm):
     class Meta:
@@ -394,7 +370,6 @@ class TaskFormEdit(forms.ModelForm):
           })
         }
         fields=[
-#           'number',
           'action', 
           'task', 
           'pilot',
@@ -519,30 +494,30 @@ class D3_Form(forms.ModelForm):
                 "todayHighlight": True,
                 }
               ), 
-           'date_1': DatePicker(options={
-                "format": "yyyy-mm-dd",
-                "autoclose": True,
-                "calendarWeeks":True,
-                "weekStart":1,
-                "todayHighlight": True,
-                }
-              ), 
-           'date_2': DatePicker(options={
-                "format": "yyyy-mm-dd",
-                "autoclose": True,
-                "calendarWeeks":True,
-                "weekStart":1,
-                "todayHighlight": True,
-                }
-              ), 
-           'date_2': DatePicker(options={
-                "format": "yyyy-mm-dd",
-                "autoclose": True,
-                "calendarWeeks":True,
-                "weekStart":1,
-                "todayHighlight": True,
-                }
-              ), 
+#            'date_1': DatePicker(options={
+#                 "format": "yyyy-mm-dd",
+#                 "autoclose": True,
+#                 "calendarWeeks":True,
+#                 "weekStart":1,
+#                 "todayHighlight": True,
+#                 }
+#               ), 
+#            'date_2': DatePicker(options={
+#                 "format": "yyyy-mm-dd",
+#                 "autoclose": True,
+#                 "calendarWeeks":True,
+#                 "weekStart":1,
+#                 "todayHighlight": True,
+#                 }
+#               ), 
+#            'date_3': DatePicker(options={
+#                 "format": "yyyy-mm-dd",
+#                 "autoclose": True,
+#                 "calendarWeeks":True,
+#                 "weekStart":1,
+#                 "todayHighlight": True,
+#                 }
+#               ), 
            'FC_necessary': forms.RadioSelect,
            'FC_sorting_date': DatePicker(options={
                 "format": "yyyy-mm-dd",
@@ -754,15 +729,15 @@ class D3_Form(forms.ModelForm):
         'actions_ongoing',
         'actions_necessary',
         'completion_date',
-        'action_1',
-        'pilot_1',
-        'date_1',
-        'action_2',
-        'pilot_2',
-        'date_2',
-        'action_3',
-        'pilot_3',
-        'date_3',
+#         'action_1',
+#         'pilot_1',
+#         'date_1',
+#         'action_2',
+#         'pilot_2',
+#         'date_2',
+#         'action_3',
+#         'pilot_3',
+#         'date_3',
         'FC_necessary',
         'FC_sorting_date',
         'FC_qty',
@@ -823,52 +798,32 @@ class D3_Form(forms.ModelForm):
         'mark_on_labels',
 
         ]
-
-class Data_Form(forms.ModelForm):
+class Acceptance_Form(forms.ModelForm):
     class Meta:
         model = Claim
-        widgets={
-          'production_date_1': DatePicker(options={
-                "format": "yyyy-mm-dd",
-                "autoclose": True,
-                "calendarWeeks":True,
-                "weekStart":1,
-                }
-              ),
-          'production_date_2': DatePicker(options={
-                "format": "yyyy-mm-dd",
-                "autoclose": True,
-                "calendarWeeks":True,
-                "weekStart":1,
-            }
-          ), #datepicker           
-          'production_date_3': DatePicker(options={
-                "format": "yyyy-mm-dd",
-                "autoclose": True,
-                "calendarWeeks":True,
-                "weekStart":1,
-                }
-              ),
-
-
-
-        }
-
         fields=[
         'accepted',
         'refused',
-        'production_date_1',
-        'production_date_2',
-        'production_date_3',
-        'operator_1',
-        'operator_2',
-        'operator_3',
-        'batch_1',
-        'batch_2',
-        'batch_3',
-        'cavity_1',
-        'cavity_2',
-        'cavity_3',
+        ]
+
+class Data_Form(forms.ModelForm):
+    class Meta:
+        model = TraceData
+        widgets={
+          'production_date': DatePicker(options={
+                "format": "yyyy-mm-dd",
+                "autoclose": True,
+                "calendarWeeks":True,
+                "weekStart":1,
+                }
+              ),
+        }
+
+        fields=[
+        'production_date',
+        'operator',
+        'batch',
+        'cavity',
 
         ]
 
@@ -904,63 +859,13 @@ class Team_Form(forms.ModelForm):
     class Meta:
         model = Team
         fields=[
-        'pilot',
-        'mail',
-        'function',
-        'phone',
-        'teammember_1',
-        'function_1',
-        'mail_1',
-        'phone_1',
-        'teammember_2',
-        'function_2',
-        'mail_2',
-        'phone_2',
-        'teammember_3',
-        'function_3',
-        'mail_3',
-        'phone_3',
+        'member',
         ]
-    def clean(self):
-        member1 = self.cleaned_data.get('teammember_1')
-        function1  = self.cleaned_data.get('function_1')
-        mail1  = self.cleaned_data.get('mail_1')
-        member2 = self.cleaned_data.get('teammember_2')
-        function2 = self.cleaned_data.get('function_2')
-        mail2 = self.cleaned_data.get('mail_2')
-        member3 = self.cleaned_data.get('teammember_3')
-        function3 = self.cleaned_data.get('function_3')
-        mail3 = self.cleaned_data.get('mail_3')
-        msg=forms.ValidationError("This field is required")
 
-        if member1:
-            if not function1:
-                self.add_error('function_1', msg)
-            if not mail1:
-                self.add_error('mail_1', msg)
-        else:
-            self.cleaned_data['function_1']=''
-            self.cleaned_data['mail_1']=''
-
-        if member2:
-            if not function2:
-                self.add_error('function_2', msg)
-            if not mail2:
-                self.add_error('mail_2', msg)
-        else:
-            self.cleaned_data['function_2']=''
-            self.cleaned_data['mail_2']=''
-
-        if member3:
-            if not function3:
-                self.add_error('function_3', msg)
-            if not mail3:
-                self.add_error('mail_3', msg)
-        else:
-            self.cleaned_data['function_3']=''
-            self.cleaned_data['mail_3']=''
-
-        return self.cleaned_data    
+    def __init__(self, *args, **kwargs):
+        company = kwargs.pop('company', None)
+        super(Team_Form, self).__init__(*args, **kwargs)
+        self.fields['member'].queryset=UserProfile.objects.filter(company=company)    
     
             
 

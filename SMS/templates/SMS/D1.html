@@ -10,7 +10,7 @@
 {% include 'SMS/D8_header.html' %}
  
 <div class="container-fluid">  
-  <form method="POST" class="form"  {% if form.is_multipart %}enctype="multipart/form-data"{% endif %}>    {% csrf_token %}       {% bootstrap_form_errors form type='non_fields' %}  
+  <form method="POST"  class="form-inline">    {% csrf_token %}       {% bootstrap_form_errors form type='non_fields' %}  
   
    <div class="row">
     <div class= "col-md-3">
@@ -26,21 +26,49 @@
       </div>
    </div>
    <div class = "row">  
-      <div class="col-md-8">    
-        <table class="table table-responsive table-hover table-striped">        
-          <tr>        <td>             {% bootstrap_field form.pilot %}         </td>        <td>          {% bootstrap_field form.function %}          </td>        <td>          {% bootstrap_field form.mail %}         </td><td>{% bootstrap_field form.phone %}</td>      
-          </tr>                        
-          <tr>        <td>             {% bootstrap_field form.teammember_1 %}        </td>        <td>          {% bootstrap_field form.function_1 %}         </td>                <td>          {% bootstrap_field form.mail_1 %}        </td><td>{% bootstrap_field form.phone_1 %}</td>        
-          </tr>      
-          <tr>        <td>             {% bootstrap_field form.teammember_2 %}         </td>        <td>         {% bootstrap_field form.function_2 %}         </td>        <td>          {% bootstrap_field form.mail_2 %}         </td> <td>{% bootstrap_field form.phone_2 %}</td>         
-          </tr>    
-          <tr>        <td>             {% bootstrap_field form.teammember_3 %}         </td>        <td>           {% bootstrap_field form.function_3 %}      </td>        <td>           {% bootstrap_field form.mail_3 %}         </td><td>{% bootstrap_field form.phone_3 %}</td>          
-        </table>  
-      </div>
-    </div>
+      <div class="col-md-5">
+      {% if team_members|length == 0 %}
+      <p class="h4">Choose pilot:</p>
+      {% else %}
+      <p class="h4">Choose additional member:</p>
+      {% endif %}
+      
+      {% bootstrap_form form layout="inline" %}     
       {% buttons %}     
       {% bootstrap_button "Save" name="save_D1" button_type="submit" button_class="btn-default" icon="glyphicon glyphicon-floppy-saved" %} 
       {% endbuttons %}     
-  </form>
+      </form>
+      </div>
+    </div>
+
+
+   <div class = "row">  
+      <div class="col-md-12 col-lg-7">
+      {% if team_members %}
+        <table class="table table-responsive table-hover table-striped">        
+          <thead>
+              <th>user</th>
+              <th>function</th>
+              <th>mail</th>
+              <th>phone</th>
+              <th>pilot</th>
+          </thead>
+          {% for member in team_members %}    
+          <tr>        
+              <td>{{ member.member }}</td>                  
+              <td>{{ member.member.function }}</td>                  
+              <td>{{ member.member.email }}</td>                  
+              <td>{{ member.member.phone }}</td>                  
+              <td>{{ member.isPilot }}</td>                  
+          </tr>
+          
+          {% endfor %}                        
+        </table>
+        {% else %}
+        <br>
+        no Team yet!
+        {% endif %}  
+      </div>
+    </div>
 </div>
 {% endblock %}

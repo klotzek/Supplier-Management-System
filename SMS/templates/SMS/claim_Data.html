@@ -56,29 +56,10 @@
     </div>      
   </div>
   <hr />
-  <form method="POST" class="form"  {% if form.is_multipart %}enctype="multipart/form-data"{% endif %}>    
+  <form method="POST" class="form-inline">    
   {% csrf_token %}       
-  {% bootstrap_form_errors form type='non_fields' %}  
+  {% bootstrap_form_errors form2 type='non_fields' %}  
 
-  <div class="row">
-    <div class="col-md-2">
-      <h4>
-      Traceability Data
-      </h4>
-    </div>
-  </div> 
-   <div class = "row">  
-      <div class="col-md-8">    
-        <table class="table table-responsive table-hover table-sm">        
-          <tr>        <td>             {% bootstrap_field form.production_date_1 %}         </td>        <td>       {% bootstrap_field form.operator_1 %}            </td>        <td>            {% bootstrap_field form.batch_1 %}         </td><td>             {% bootstrap_field form.cavity_1 %}         </td>      
-          </tr>                        
-          <tr>        <td>             {% bootstrap_field form.production_date_2 %}         </td>        <td>          {% bootstrap_field form.operator_2 %}         </td>                <td>        {% bootstrap_field form.batch_2 %}         </td> <td>           {% bootstrap_field form.cavity_2 %}       </td>       
-          </tr>      
-          <tr>        <td>            {% bootstrap_field form.production_date_3 %}        </td>        <td>         {% bootstrap_field form.operator_3 %}         </td>        <td>          {% bootstrap_field form.batch_3 %}         </td><td>           {% bootstrap_field form.cavity_3 %}         </td>        
-          </tr>    
-        </table>  
-      </div>
-    </div>
   <div class="row">
     <div class="col-md-4">
       <h4>
@@ -93,11 +74,11 @@
 
 
         <label>Click if claim is accepted</label>
-        {% bootstrap_field form.accepted %}   
+        {% bootstrap_field form2.accepted %}   
       </div>  
       <div class="col-md-2">      
         <label>Click if claim is refused
-        </label>      {% bootstrap_field form.refused %}   
+        </label>      {% bootstrap_field form2.refused %}   
       </div>
     </div>
 
@@ -110,5 +91,53 @@
 
     {% endbuttons %}     
   </form>
+  <hr>
+  <div class="row">
+    <div class="col-md-2">
+      <h4>
+      Traceability Data
+      </h4>
+    </div>
+  </div> 
+   <div class = "row">  
+      <div class="col-md-12 col-lg-8">    
+      <form method="POST" class="form-inline">    
+      {% csrf_token %}       
+      {% bootstrap_form_errors form type='non_fields' %}  
+
+      {% bootstrap_form form layout="inline" %}
+      {% buttons %}     
+      {% bootstrap_button "Save" name="save_trace_data" button_type="submit" button_class="btn-default" icon="glyphicon glyphicon-floppy-saved" %} 
+      {% endbuttons %}     
+      </form>
+      </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12 col-lg-5 col-xl-5">
+        {% if trace_data %}
+        <table class="table table-responsive table-hover table-striped">        
+          <thead>
+              <th>production date</th>
+              <th>operator</th>
+              <th>batch</th>
+              <th>cavity</th>
+          </thead>
+          {% for data in trace_data %}    
+          <tr>        
+              <td>{{ data.production_date }}</td>                  
+              <td>{{ data.operator }}</td>                  
+              <td>{{ data.batch }}</td>                  
+              <td>{{ data.cavity }}</td>                  
+          </tr>
+          
+          {% endfor %}                        
+        </table>
+        {% else %}
+        <br>
+        no traceability data yet!
+        {% endif %}  
+        
+        </div>
+    </div>
 </div>
 {% endblock %}
