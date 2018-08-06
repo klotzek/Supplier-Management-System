@@ -33,7 +33,7 @@ SECRET_KEY = '#p=7dv9rrdbr1w*k#)kpwk4$i(-u4k)g=df8wck((179!r_6_d'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['192.168.160.8', 'sms.pmdm.de']
+ALLOWED_HOSTS = ['192.168.160.8', 'sms.pmdm.de', 'srvsms']
 
 
 # Application definition

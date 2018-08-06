@@ -184,21 +184,40 @@ class D7Form(forms.ModelForm):
         ]
     def __init__(self, *args, **kwargs):
         company = kwargs.pop('company', None)
+        hereIwork = kwargs.pop('hereIwork', None)
+        hereIwork = hereIwork.name
         super(D7Form, self).__init__(*args, **kwargs)
-        self.fields['DFMEA_pilot'].queryset=UserProfile.objects.filter(company=company)    
-        self.fields['PFMEA_pilot'].queryset=UserProfile.objects.filter(company=company)    
-        self.fields['LFMEA_pilot'].queryset=UserProfile.objects.filter(company=company)    
-        self.fields['controlplan_pilot'].queryset=UserProfile.objects.filter(company=company)    
-        self.fields['WI_pilot'].queryset=UserProfile.objects.filter(company=company)    
-        self.fields['MP_pilot'].queryset=UserProfile.objects.filter(company=company)    
-        self.fields['Dstand_pilot'].queryset=UserProfile.objects.filter(company=company)    
-        self.fields['toolDstand_pilot'].queryset=UserProfile.objects.filter(company=company)    
-        self.fields['LLcard_pilot'].queryset=UserProfile.objects.filter(company=company)    
-        self.fields['Gstand_pilot'].queryset=UserProfile.objects.filter(company=company)    
-        self.fields['Tstand_pilot'].queryset=UserProfile.objects.filter(company=company)    
-        self.fields['procedure_pilot'].queryset=UserProfile.objects.filter(company=company)    
-        self.fields['spec_pilot'].queryset=UserProfile.objects.filter(company=company)    
-        self.fields['other_pilot'].queryset=UserProfile.objects.filter(company=company)    
+        if 'PMDM' in hereIwork:    #falls Du zu PMDM gehoerst, darfst Du auch Kollegen von PMDM in die Taskliste einfuegen.
+            self.fields['DFMEA_pilot'].queryset=(UserProfile.objects.filter(company=company) | UserProfile.objects.filter(company__name='PMDM')).distinct()      
+            self.fields['PFMEA_pilot'].queryset=(UserProfile.objects.filter(company=company) | UserProfile.objects.filter(company__name='PMDM')).distinct()      
+            self.fields['LFMEA_pilot'].queryset=(UserProfile.objects.filter(company=company)| UserProfile.objects.filter(company__name='PMDM')).distinct()       
+            self.fields['controlplan_pilot'].queryset=(UserProfile.objects.filter(company=company)| UserProfile.objects.filter(company__name='PMDM')).distinct()       
+            self.fields['WI_pilot'].queryset=(UserProfile.objects.filter(company=company)| UserProfile.objects.filter(company__name='PMDM')).distinct()       
+            self.fields['MP_pilot'].queryset=(UserProfile.objects.filter(company=company) | UserProfile.objects.filter(company__name='PMDM')).distinct()      
+            self.fields['Dstand_pilot'].queryset=(UserProfile.objects.filter(company=company)| UserProfile.objects.filter(company__name='PMDM')).distinct()       
+            self.fields['toolDstand_pilot'].queryset=(UserProfile.objects.filter(company=company)| UserProfile.objects.filter(company__name='PMDM')).distinct()       
+            self.fields['LLcard_pilot'].queryset=(UserProfile.objects.filter(company=company)| UserProfile.objects.filter(company__name='PMDM')).distinct()       
+            self.fields['Gstand_pilot'].queryset=(UserProfile.objects.filter(company=company)| UserProfile.objects.filter(company__name='PMDM')).distinct()      
+            self.fields['Tstand_pilot'].queryset=(UserProfile.objects.filter(company=company)| UserProfile.objects.filter(company__name='PMDM')).distinct()       
+            self.fields['procedure_pilot'].queryset=(UserProfile.objects.filter(company=company) | UserProfile.objects.filter(company__name='PMDM')).distinct()      
+            self.fields['spec_pilot'].queryset=(UserProfile.objects.filter(company=company)| UserProfile.objects.filter(company__name='PMDM')).distinct()       
+            self.fields['other_pilot'].queryset=(UserProfile.objects.filter(company=company) | UserProfile.objects.filter(company__name='PMDM')).distinct()
+        else:
+            self.fields['DFMEA_pilot'].queryset=UserProfile.objects.filter(company=company)
+            self.fields['PFMEA_pilot'].queryset=UserProfile.objects.filter(company=company)
+            self.fields['LFMEA_pilot'].queryset=UserProfile.objects.filter(company=company)
+            self.fields['controlplan_pilot'].queryset=UserProfile.objects.filter(company=company)  
+            self.fields['WI_pilot'].queryset=UserProfile.objects.filter(company=company)  
+            self.fields['MP_pilot'].queryset=UserProfile.objects.filter(company=company)   
+            self.fields['Dstand_pilot'].queryset=UserProfile.objects.filter(company=company)     
+            self.fields['toolDstand_pilot'].queryset=UserProfile.objects.filter(company=company)  
+            self.fields['LLcard_pilot'].queryset=UserProfile.objects.filter(company=company)  
+            self.fields['Gstand_pilot'].queryset=UserProfile.objects.filter(company=company)    
+            self.fields['Tstand_pilot'].queryset=UserProfile.objects.filter(company=company)    
+            self.fields['procedure_pilot'].queryset=UserProfile.objects.filter(company=company) 
+            self.fields['spec_pilot'].queryset=UserProfile.objects.filter(company=company)
+            self.fields['other_pilot'].queryset=UserProfile.objects.filter(company=company)
+              
 
 class FileForm(forms.ModelForm):
     class Meta:
@@ -274,11 +293,30 @@ class D4Form_reproduction(forms.ModelForm):
         ]
     def __init__(self, *args, **kwargs):
         company = kwargs.pop('company', None)
+        hereIwork = kwargs.pop('hereIwork', None)
+        hereIwork = hereIwork.name
         super(D4Form_reproduction, self).__init__(*args, **kwargs)
-        self.fields['reproduction_occ_pilot'].queryset=UserProfile.objects.filter(company=company)    
-        self.fields['effective_occ_pilot'].queryset=UserProfile.objects.filter(company=company)    
-        self.fields['reproduction_det_pilot'].queryset=UserProfile.objects.filter(company=company)    
-        self.fields['effective_det_pilot'].queryset=UserProfile.objects.filter(company=company)    
+        if 'PMDM' in hereIwork:    #falls Du zu PMDM gehoerst, darfst Du auch Kollegen von PMDM in die Taskliste einfuegen.
+            self.fields['reproduction_occ_pilot'].queryset=(UserProfile.objects.filter(company=company) | UserProfile.objects.filter(company__name='PMDM')).distinct()    
+            self.fields['effective_occ_pilot'].queryset=UserProfile.objects.filter(company=company).distinct() | UserProfile.objects.filter(company__name='PMDM').distinct()    
+            self.fields['reproduction_det_pilot'].queryset=UserProfile.objects.filter(company=company).distinct() | UserProfile.objects.filter(company__name='PMDM').distinct()    
+            self.fields['effective_det_pilot'].queryset=UserProfile.objects.filter(company=company).distinct() | UserProfile.objects.filter(company__name='PMDM').distinct()    
+        else:
+            self.fields['reproduction_occ_pilot'].queryset=UserProfile.objects.filter(company=company).distinct()    
+            self.fields['effective_occ_pilot'].queryset=UserProfile.objects.filter(company=company).distinct()    
+            self.fields['reproduction_det_pilot'].queryset=UserProfile.objects.filter(company=company).distinct()    
+            self.fields['effective_det_pilot'].queryset=UserProfile.objects.filter(company=company).distinct()    
+#     def __init__(self, *args, **kwargs):
+#         company = kwargs.pop('firma', None)
+#         hereIwork = kwargs.pop('hereIwork', None)
+#         super(TaskFormEdit, self).__init__(*args, **kwargs)
+#         if company:
+#             hereIwork = hereIwork.name
+#             if 'PMDM' in hereIwork:    #falls Du zu PMDM gehoerst, darfst Du auch Kollegen von PMDM in die Taskliste einfuegen.
+#                 self.fields['pilot'].queryset = UserProfile.objects.filter(company=company).distinct() | UserProfile.objects.filter(company__name='PMDM').distinct()
+#             else:
+#                 self.fields['pilot'].queryset = UserProfile.objects.filter(company=company).distinct()
+                
 
 
 class D4Form_det(forms.ModelForm):
@@ -334,7 +372,7 @@ class TaskForm(forms.ModelForm):
         super(TaskForm, self).__init__(*args, **kwargs)
         if company:
             hereIwork = hereIwork.name
-            if 'PMDM' in hereIwork:    #falls Du zu PMDM gehörst, darfst Du auch Kollegen von PMDM in die Taskliste einfügen.
+            if 'PMDM' in hereIwork:    #falls Du zu PMDM gehoerst, darfst Du auch Kollegen von PMDM in die Taskliste einfuegen.
                 self.fields['pilot'].queryset = UserProfile.objects.filter(company=company).distinct() | UserProfile.objects.filter(company__name='PMDM').distinct()
             else:
                 self.fields['pilot'].queryset = UserProfile.objects.filter(company=company).distinct()
@@ -379,14 +417,12 @@ class TaskFormEdit(forms.ModelForm):
 #           'file',
         ]
     def __init__(self, *args, **kwargs):
-#     def __init__(self, *args, **kwargs):
-#         pdb.set_trace()
         company = kwargs.pop('firma', None)
         hereIwork = kwargs.pop('hereIwork', None)
         super(TaskFormEdit, self).__init__(*args, **kwargs)
         if company:
             hereIwork = hereIwork.name
-            if 'PMDM' in hereIwork:    #falls Du zu PMDM gehörst, darfst Du auch Kollegen von PMDM in die Taskliste einfügen.
+            if 'PMDM' in hereIwork:    #falls Du zu PMDM gehoerst, darfst Du auch Kollegen von PMDM in die Taskliste einfuegen.
                 self.fields['pilot'].queryset = UserProfile.objects.filter(company=company).distinct() | UserProfile.objects.filter(company__name='PMDM').distinct()
             else:
                 self.fields['pilot'].queryset = UserProfile.objects.filter(company=company).distinct()
@@ -864,11 +900,14 @@ class Team_Form(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         company = kwargs.pop('company', None)
+        hereIwork = kwargs.pop('hereIwork', None)
+        hereIwork = hereIwork.name
         super(Team_Form, self).__init__(*args, **kwargs)
-        self.fields['member'].queryset=UserProfile.objects.filter(company=company)    
-    
+        if 'PMDM' in hereIwork:    #falls Du zu PMDM gehoerst, darfst Du auch Kollegen von PMDM in die Taskliste einfuegen.
+            self.fields['member'].queryset=(UserProfile.objects.filter(company=company) | UserProfile.objects.filter(company__name='PMDM')).distinct()    
+        else:
+            self.fields['member'].queryset=UserProfile.objects.filter(company=company)
             
-
 class Claim_Form(forms.ModelForm):
     class Meta:
         model = Claim

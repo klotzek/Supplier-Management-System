@@ -302,7 +302,7 @@ def claim_remove(request, claim):
 
 @login_required
 def D1D8(request, claim):
-
+    hereIwork = UserProfile.objects.get(user=request.user).company
     claim = get_object_or_404(Claim, pk=claim)
     company_id = claim.related_to_id
     user_profile = UserProfile.objects.get(user_id=request.user)
@@ -445,7 +445,7 @@ def D1D8(request, claim):
         
         if '/SMS/D1/' in request.path:
             team_members = Team.objects.filter(claim=claim.pk)
-            form=Team_Form(request.POST, company=company)    #nur User der company werden angezeigt
+            form=Team_Form(request.POST, company=company, hereIwork=hereIwork)    #nur User der company werden angezeigt
 #             form=Team_Form(request.POST, company=company)    #nur User der company werden angezeigt
             if form.is_valid():
                 team_form=form.save(commit=False)
@@ -519,7 +519,6 @@ def D1D8(request, claim):
                     edit_ishi_occ.save()
                     return redirect('D4', claim)
                 return render(request, 'SMS/D4.html', {'vendors':vendors, 'user_profile':user_profile, 'company':company, 'form': form, 'form_ishi_occ': form_ishi_occ, 'form_ishi_det': form_ishi_det, 'form_due': form_due, 'claim':claim, 'creator':creator, 'form_W5_occ': form_W5_occ, 'form_W5_det': form_W5_det, 'tasks_D4':tasks_D4, 'form_D4_occ':form_D4_occ, 'files_occ':files_occ, 'files_det':files_det, 'form_files_occ':form_files_occ, 'form_files_det':form_files_det })
-#                 return render(request, 'SMS/D4.html', {'vendors':vendors, 'user_profile':user_profile, 'show_company':show_company, 'company':company, 'form': form, 'form_ishi_occ': form_ishi_occ, 'form_ishi_det': form_ishi_det, 'form_due': form_due, 'claim':claim, 'creator':creator, 'form_W5_occ': form_W5_occ, 'form_W5_det': form_W5_det, 'tasks_D4':tasks_D4, 'form_D4_occ':form_D4_occ, 'files_occ':files_occ, 'files_det':files_det, 'form_files_occ':form_files_occ, 'form_files_det':form_files_det })
                 
             if 'Save_Ishi_Det' in request.POST:
                 if form_ishi_det.is_valid():
@@ -529,7 +528,6 @@ def D1D8(request, claim):
                     edit_ishi_det.save()
                     return redirect('D4', claim)
                 return render(request, 'SMS/D4.html', {'vendors':vendors, 'user_profile':user_profile, 'company':company, 'form': form, 'form_ishi_occ': form_ishi_occ, 'form_ishi_det': form_ishi_det, 'form_due': form_due, 'claim':claim, 'creator':creator, 'form_W5_occ': form_W5_occ, 'form_W5_det': form_W5_det, 'tasks_D4':tasks_D4, 'form_D4_occ':form_D4_occ, 'files_occ':files_occ, 'files_det':files_det, 'form_files_occ':form_files_occ, 'form_files_det':form_files_det })
-#                 return render(request, 'SMS/D4.html', {'vendors':vendors, 'user_profile':user_profile, 'show_company':show_company, 'company':company, 'form': form, 'form_ishi_occ': form_ishi_occ, 'form_ishi_det': form_ishi_det, 'form_due': form_due, 'claim':claim, 'creator':creator, 'form_W5_occ': form_W5_occ, 'form_W5_det': form_W5_det, 'tasks_D4':tasks_D4, 'form_D4_occ':form_D4_occ, 'files_occ':files_occ, 'files_det':files_det, 'form_files_occ':form_files_occ, 'form_files_det':form_files_det })
                 
 #             pdb.set_trace()
             if 'Save_W5_occ' in request.POST:
@@ -541,7 +539,6 @@ def D1D8(request, claim):
                     edit_W5_occ.save()
                     return redirect('D4', claim)
                 return render(request, 'SMS/D4.html', {'vendors':vendors, 'user_profile':user_profile, 'company':company, 'form': form, 'form_ishi_occ': form_ishi_occ, 'form_ishi_det': form_ishi_det, 'form_due': form_due, 'claim':claim, 'creator':creator, 'form_W5_occ': form_W5_occ, 'form_W5_det': form_W5_det, 'tasks_D4':tasks_D4, 'form_D4_occ':form_D4_occ, 'files_occ':files_occ, 'files_det':files_det, 'form_files_occ':form_files_occ, 'form_files_det':form_files_det })
-#                 return render(request, 'SMS/D4.html', {'vendors':vendors, 'user_profile':user_profile, 'show_company':show_company, 'company':company, 'form': form, 'form_ishi_occ': form_ishi_occ, 'form_ishi_det': form_ishi_det, 'form_due': form_due, 'claim':claim, 'creator':creator, 'form_W5_occ': form_W5_occ, 'form_W5_det': form_W5_det, 'tasks_D4':tasks_D4, 'form_D4_occ':form_D4_occ, 'files_occ':files_occ, 'files_det':files_det, 'form_files_occ':form_files_occ, 'form_files_det':form_files_det })
                 
             if 'Save_W5_det' in request.POST:
                 if form_W5_det.is_valid():
@@ -551,7 +548,6 @@ def D1D8(request, claim):
                     edit_W5_det.save()
                     return redirect('D4', claim)
                 return render(request, 'SMS/D4.html', {'vendors':vendors, 'user_profile':user_profile, 'company':company, 'form': form, 'form_ishi_occ': form_ishi_occ, 'form_ishi_det': form_ishi_det, 'form_due': form_due, 'claim':claim, 'creator':creator, 'form_W5_occ': form_W5_occ, 'form_W5_det': form_W5_det, 'tasks_D4':tasks_D4, 'form_D4_occ':form_D4_occ, 'files_occ':files_occ, 'files_det':files_det, 'form_files_occ':form_files_occ, 'form_files_det':form_files_det })
-#                 return render(request, 'SMS/D4.html', {'vendors':vendors, 'user_profile':user_profile, 'show_company':show_company, 'company':company, 'form': form, 'form_ishi_occ': form_ishi_occ, 'form_ishi_det': form_ishi_det, 'form_due': form_due, 'claim':claim, 'creator':creator, 'form_W5_occ': form_W5_occ, 'form_W5_det': form_W5_det, 'tasks_D4':tasks_D4, 'form_D4_occ':form_D4_occ, 'files_occ':files_occ, 'files_det':files_det, 'form_files_occ':form_files_occ, 'form_files_det':form_files_det })
 
             if 'save_root_causes' in request.POST:
                 if form.is_valid():
@@ -561,7 +557,6 @@ def D1D8(request, claim):
                     edit.save()
                     return redirect('D4', claim)
                 return render(request, 'SMS/D4.html', {'vendors':vendors, 'user_profile':user_profile, 'company':company, 'form': form, 'form_ishi_occ': form_ishi_occ, 'form_ishi_det': form_ishi_det, 'form_due': form_due, 'claim':claim, 'creator':creator, 'form_W5_occ': form_W5_occ, 'form_W5_det': form_W5_det, 'tasks_D4':tasks_D4, 'form_D4_occ':form_D4_occ, 'files_occ':files_occ, 'files_det':files_det, 'form_files_occ':form_files_occ, 'form_files_det':form_files_det })
-#                 return render(request, 'SMS/D4.html', {'vendors':vendors, 'user_profile':user_profile, 'show_company':show_company, 'company':company, 'form': form, 'form_ishi_occ': form_ishi_occ, 'form_ishi_det': form_ishi_det, 'form_due': form_due, 'claim':claim, 'creator':creator, 'form_W5_occ': form_W5_occ, 'form_W5_det': form_W5_det, 'tasks_D4':tasks_D4, 'form_D4_occ':form_D4_occ, 'files_occ':files_occ, 'files_det':files_det, 'form_files_occ':form_files_occ, 'form_files_det':form_files_det })
 
             if 'save_reproduction' in request.POST:
                 if form_D4_occ.is_valid():
@@ -612,7 +607,6 @@ def D1D8(request, claim):
                     edit_repro.save()
                     return redirect('D4', claim)
                 return render(request, 'SMS/D4.html', {'vendors':vendors, 'user_profile':user_profile, 'company':company, 'form': form, 'form_ishi_occ': form_ishi_occ, 'form_ishi_det': form_ishi_det, 'form_due': form_due, 'claim':claim, 'creator':creator, 'form_W5_occ': form_W5_occ, 'form_W5_det': form_W5_det, 'tasks_D4':tasks_D4, 'form_D4_occ':form_D4_occ, 'files_occ':files_occ, 'files_det':files_det, 'form_files_occ':form_files_occ, 'form_files_det':form_files_det })
-#                 return render(request, 'SMS/D4.html', {'vendors':vendors, 'user_profile':user_profile, 'show_company':show_company, 'company':company, 'form': form, 'form_ishi_occ': form_ishi_occ, 'form_ishi_det': form_ishi_det, 'form_due': form_due, 'claim':claim, 'creator':creator, 'form_W5_occ': form_W5_occ, 'form_W5_det': form_W5_det, 'tasks_D4':tasks_D4, 'form_D4_occ':form_D4_occ, 'files_occ':files_occ, 'files_det':files_det, 'form_files_occ':form_files_occ, 'form_files_det':form_files_det })
                 
             if 'new_occ_file' in request.POST:
                 if form_files_occ.is_valid():
@@ -627,7 +621,6 @@ def D1D8(request, claim):
                     new_occ_file.save()
                     return redirect('D4', claim)
                 return render(request, 'SMS/D4.html', {'vendors':vendors, 'user_profile':user_profile, 'company':company, 'form': form, 'form_ishi_occ': form_ishi_occ, 'form_ishi_det': form_ishi_det, 'form_due': form_due, 'claim':claim, 'creator':creator, 'form_W5_occ': form_W5_occ, 'form_W5_det': form_W5_det, 'tasks_D4':tasks_D4, 'form_D4_occ':form_D4_occ, 'files_occ':files_occ, 'files_det':files_det, 'form_files_occ':form_files_occ, 'form_files_det':form_files_det })
-#                 return render(request, 'SMS/D4.html', {'vendors':vendors, 'user_profile':user_profile, 'show_company':show_company, 'company':company, 'form': form, 'form_ishi_occ': form_ishi_occ, 'form_ishi_det': form_ishi_det, 'form_due': form_due, 'claim':claim, 'creator':creator, 'form_W5_occ': form_W5_occ, 'form_W5_det': form_W5_det, 'tasks_D4':tasks_D4, 'form_D4_occ':form_D4_occ, 'files_occ':files_occ, 'files_det':files_det, 'form_files_occ':form_files_occ, 'form_files_det':form_files_det })
                 
             if 'new_det_file' in request.POST:
                 if form_files_det.is_valid():
@@ -642,7 +635,6 @@ def D1D8(request, claim):
                     new_det_file.save()
                     return redirect('D4', claim)
                 return render(request, 'SMS/D4.html', {'vendors':vendors, 'user_profile':user_profile, 'company':company, 'form': form, 'form_ishi_occ': form_ishi_occ, 'form_ishi_det': form_ishi_det, 'form_due': form_due, 'claim':claim, 'creator':creator, 'form_W5_occ': form_W5_occ, 'form_W5_det': form_W5_det, 'tasks_D4':tasks_D4, 'form_D4_occ':form_D4_occ, 'files_occ':files_occ, 'files_det':files_det, 'form_files_occ':form_files_occ, 'form_files_det':form_files_det })
-#                 return render(request, 'SMS/D4.html', {'vendors':vendors, 'user_profile':user_profile, 'show_company':show_company, 'company':company, 'form': form, 'form_ishi_occ': form_ishi_occ, 'form_ishi_det': form_ishi_det, 'form_due': form_due, 'claim':claim, 'creator':creator, 'form_W5_occ': form_W5_occ, 'form_W5_det': form_W5_det, 'tasks_D4':tasks_D4, 'form_D4_occ':form_D4_occ, 'files_occ':files_occ, 'files_det':files_det, 'form_files_occ':form_files_occ, 'form_files_det':form_files_det })
                 
             if 'SubmitD4' in request.POST:
                 if tasks_D4:
@@ -751,7 +743,7 @@ def D1D8(request, claim):
                 
 
         if '/SMS/D7/' in request.path:
-            form=D7Form(request.POST, instance=D7docu, company=company)
+            form=D7Form(request.POST, instance=D7docu, company=company, hereIwork=hereIwork)
             form_due=Claim_Form(request.POST, instance=claim)
 #             pdb.set_trace()
             if form.is_valid():
@@ -932,7 +924,7 @@ def D1D8(request, claim):
 
         if '/SMS/D1/' in request.path:
             team_members = Team.objects.filter(claim=claim.pk)
-            form=Team_Form(company=company)    #nur User der company werden angezeigt
+            form=Team_Form(company=company, hereIwork=hereIwork)    #nur User der company werden angezeigt
 #             pdb.set_trace()
             return render(request, 'SMS/D1.html', {'vendors':vendors, 'user_profile':user_profile, 'company':company, 'form': form, 'claim':claim, 'creator':creator, 'team_members':team_members })
 
@@ -963,7 +955,7 @@ def D1D8(request, claim):
             form_ishi_det = Ishi_Det_Form(instance=ishi_det)
             form_W5_occ = W5_Occ_Form(instance=W5_occ)
             form_W5_det = W5_Det_Form(instance=W5_det)
-            form_D4_occ =  D4Form_reproduction(company=company, instance= occ_D4)    #deckt auch det ab.
+            form_D4_occ =  D4Form_reproduction(company=company, hereIwork=hereIwork, instance= occ_D4)    #deckt auch det ab.
             form_files_occ = FileForm()
             form_files_det = FileForm()
 #             pdb.set_trace()
@@ -993,7 +985,7 @@ def D1D8(request, claim):
 
         if '/SMS/D7/' in request.path:
             form_due= Claim_Form(instance=claim)
-            form=D7Form(instance=D7docu, company=company)
+            form=D7Form(instance=D7docu, company=company, hereIwork=hereIwork)
 #             pdb.set_trace()
             return render(request, 'SMS/D7.html', {'vendors':vendors, 'user_profile':user_profile, 'company':company, 'claim':claim, 'creator':creator,
                                                     'form_due':form_due, 'form':form
