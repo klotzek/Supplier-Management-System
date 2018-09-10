@@ -33,7 +33,10 @@
           <th>classification
           </th>        
           <th>RMA
-          </th>{% if user_profile.company.NMB_company == True %}         
+          </th>
+          <th>IQC
+          </th>
+          {% if user_profile.company.NMB_company == True %}         
           <th>
           </th>        
           <th>
@@ -56,6 +59,7 @@
                 <td>{{ claim.responsible_in_plant }}</td>        
                 <td>{{ claim.classification }}</td>        
                 <td>{{ claim.RMA }}</td>
+                <td>{{ claim.IQC }}</td>
                 {% if user_profile.company.NMB_company == True %}         
                   <td><a href="{% url 'claim_remove' claim.pk %}" title="Delete this claim" onclick="return confirm('Are you sure?')"><span class="glyphicon glyphicon-minus red"></span> Delete this claim</a></td>             
                   <td><a href="{% url 'claim_edit' claim.pk %}" title="Edit this claim" ><span class="glyphicon glyphicon-pencil orange"></span> Edit this claim</a></td>     
@@ -78,6 +82,7 @@
                 <td><del>{{ claim.responsible_in_plant }}</del></td>        
                 <td><del>{{ claim.classification }}</del></td>        
                 <td><del>{{ claim.RMA }}</del></td>
+                <td><del>{{ claim.IQC }}</del></td>
                 {% if user_profile.company.NMB_company == True %}         
                   <td><a href="{% url 'claim_remove' claim.pk %}" title="Delete this claim" onclick="return confirm('Are you sure?')"><span class="glyphicon glyphicon-minus red"></span> Delete this claim</a></td>             
                   <td><a href="{% url 'claim_edit' claim.pk %}" title="Edit this claim" ><span class="glyphicon glyphicon-pencil orange"></span> Edit this claim</a></td>     

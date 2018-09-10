@@ -1,7 +1,8 @@
 import pdb
 from bootstrap_datepicker.widgets import DatePicker 
 from django import forms
-from .models import Company, Claim, TraceData, UserProfile, Team, D2_CV, D2_SV, D3, Ishikawa_occurance, Ishikawa_detection, Task, W5_occurance, W5_detection, D4, D4_reproduction, File, Comment, D7
+from .models import *
+# from .models import Company, Claim, TraceData, UserProfile, Team, D2_CV, D2_SV, D3, Ishikawa_occurance, Ishikawa_detection, Task, W5_occurance, W5_detection, D4, D4_reproduction, File, Comment, D7
 from django.contrib.auth.models import User
 
 
@@ -358,6 +359,7 @@ class TaskForm(forms.ModelForm):
           })
         }
         fields=[
+          'type',
           'action', 
           'task', 
           'pilot',
@@ -408,6 +410,7 @@ class TaskFormEdit(forms.ModelForm):
           })
         }
         fields=[
+          'type',
           'action', 
           'task', 
           'pilot',
@@ -965,6 +968,8 @@ class Claim_New_Form(forms.ModelForm):
     class Meta:
         model = Claim
         fields = [
+        'RMA',
+        'IQC',
         'OK_picture', 
         'NOK_picture', 
         'File', 

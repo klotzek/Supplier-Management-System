@@ -3,12 +3,14 @@ import os
 from django.shortcuts import render, get_object_or_404, redirect, render_to_response
 from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
-from .models import UserProfile, Company, Claim, ClaimStatus, Team, TraceData, D2_CV, D2_SV, D3, PenaltyPeriods, Ishikawa_occurance, Ishikawa_detection, Task, W5_occurance, W5_detection, D4, D4_reproduction, File , Comment, D7
+from .models import *
+from .forms import *
+# from .models import UserProfile, Company, Claim, ClaimStatus, Team, TraceData, D2_CV, D2_SV, D3, PenaltyPeriods, Ishikawa_occurance, Ishikawa_detection, Task, W5_occurance, W5_detection, D4, D4_reproduction, File , Comment, D7
+# from .forms import Claim_New_Form, CompanyForm, UserForm, UserProfileForm, Team_Form, Data_Form, Acceptance_Form, D2_CV_Form, D2_SV_Form, Claim_Form, D3_Form, Ishi_Occ_Form , Ishi_Det_Form, TaskForm, TaskFormEdit,  W5_Occ_Form , W5_Det_Form, D4Form, D4Form_reproduction, FileForm, CommentForm, D7Form, PasswordForm 
 from django.contrib import messages
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth.models import User
-from .forms import Claim_New_Form, CompanyForm, UserForm, UserProfileForm, Team_Form, Data_Form, Acceptance_Form, D2_CV_Form, D2_SV_Form, Claim_Form, D3_Form, Ishi_Occ_Form , Ishi_Det_Form, TaskForm, TaskFormEdit,  W5_Occ_Form , W5_Det_Form, D4Form, D4Form_reproduction, FileForm, CommentForm, D7Form, PasswordForm 
 from datetime import datetime, timedelta
 from django.utils import timezone
 from django.core.mail import send_mail
@@ -104,7 +106,7 @@ def user_new(request, company_id):
             'SMS/activation_mail.html',
             {
                 'user_name': new_user_profile.firstname + ' ' + new_user_profile.lastname,
-                'subject':  'Please activate your account by clicking this link: http://localhost:8000/SMS/user_activate/' + str(user.pk),
+                'subject':  'Please activate your account by clicking this link: https://sms.pmdm.de/SMS/user_activate/' + str(user.pk),
 #                 //...  
             }
         )            

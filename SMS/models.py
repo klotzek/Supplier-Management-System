@@ -54,6 +54,7 @@ class Claim(models.Model):
     classification = models.ForeignKey(ClaimClassification, on_delete=models.SET_NULL, null=True)
     milage=models.IntegerField(blank=True, null=True)
     RMA = models.IntegerField(blank=True, null=True)
+    IQC = models.IntegerField(blank=True, null=True)
     due_date_D3 = models.DateTimeField(default = datetime.now())
     due_date_D4 = models.DateTimeField(default = datetime.now())
     due_date_D5 = models.DateTimeField(default = datetime.now())
@@ -356,11 +357,18 @@ STATUS_CHOICES = (('INTERNAL', 'internal'),
 IMPORTANCE_CHOICES = (('LOW', 'low'),
                       ('MID', 'mid'),
                       ('HIGH', 'high'),
-                      ('IMP', 'Importance'))                     
+                      ('IMP', 'Importance'))
+TYPE_CHOICES = (('TASK', 'task'),
+                ('INFO', 'info'),
+                ('DEC', 'decision')
+                )                     
 class Task(models.Model):
-    number = models.IntegerField(null=True)
     project = models.CharField(max_length=25)
     subproject = models.CharField(max_length=25)
+    number = models.IntegerField(null=True)
+    importance = models.CharField(max_length=10, choices=IMPORTANCE_CHOICES, default='IMP')
+    type = models.CharField(max_length=10, choices=TYPE_CHOICES, default='TASK') 
+    status = models.CharField(max_length=15, choices=STATUS_CHOICES, default = 'INTERNAL')
     action = models.CharField(max_length = 25)
     task = models.CharField(max_length = 250)
     pilot = models.ForeignKey(UserProfile, related_name='pilot_of_task', on_delete=models.SET_NULL, null = True, default=15) #default, damit im pulldown "pilot" angezeigt wird"
@@ -371,9 +379,7 @@ class Task(models.Model):
     task_comment = models.CharField(max_length = 1500, blank=True, null=True)
     closed_date = models.DateField(blank=True, null=True)
     closed = models.BooleanField(default = False)
-    importance = models.CharField(max_length=10, choices=IMPORTANCE_CHOICES, default='IMP')
     file = models.FileField(blank=True, null=True, upload_to='uploads/')
-    status = models.CharField(max_length=15, choices=STATUS_CHOICES, default = 'INTERNAL')
 #     class Meta:
 #         ordering = ('pilot__user__username',)
 

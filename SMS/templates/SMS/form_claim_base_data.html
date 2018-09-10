@@ -42,16 +42,20 @@
     <div class = "col-md-2 col-xs-3">
     from {{ claim.created_by }}
     </div>
-    <div class = "col-md-2 col-xs-3">
-    NMB Plant: {{ claim.plant }}
-    </div>
 </div>
 </h4>
 <hr />
 {% endif %}
 
 
-
+<div class="row">
+    <div class="col-md-2">
+      {% bootstrap_field form.RMA %}  
+    </div>
+    <div class="col-md-2">  
+      {% bootstrap_field form.IQC %}
+    </div>
+</div>
 <div class = "row">
   <div class="col-md-4">
       {% bootstrap_field form.File %}

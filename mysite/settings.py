@@ -33,7 +33,7 @@ SECRET_KEY = '#p=7dv9rrdbr1w*k#)kpwk4$i(-u4k)g=df8wck((179!r_6_d'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['192.168.160.8', 'sms.pmdm.de', 'srvsms']
+ALLOWED_HOSTS = ['192.168.160.8', 'srvsms', 'sms.pmdm.de']
 
 
 # Application definition
@@ -65,6 +65,11 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'easyaudit.middleware.easyaudit.EasyAuditMiddleware',
 ]
+
+SESSION_ENGINE = 'django.contrib.sessions.backends.signed_cookies'     #wichtig gegen 502 Fehler
+SESSION_COOKIE_DOMAIN = None
+
+
 
 ROOT_URLCONF = 'mysite.urls'
 

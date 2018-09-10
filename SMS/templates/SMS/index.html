@@ -82,9 +82,16 @@
     </div>  
       <div class="col-md-4">
       <table class="table table-hover table-condensed">
+      <tr>
+      <th><strong>Name</strong></th>
+      <th><strong>login</strong> </th>
+      <th><strong>active</strong></th>
+      </tr>
       {% for user in companyusers %}           
-        <tr>        <td><strong>Name:</strong></td>        <td>{{user.firstname}} {{user.lastname}}</td>
-        <td><strong>login:</strong> {{user.user}}</td>           
+        <tr>      
+        <td>{{user.firstname}} {{user.lastname}}</td>
+        <td>{{user.user}}</td>           
+        <td>{{user.user}}</td>           
         </tr>
        {% endfor %}           
       </table>  

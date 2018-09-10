@@ -80,9 +80,13 @@
         <thead>
           <th>Nb.
           </th>
-          <th>importance
+          <th>sign.
              <a href="{% url 'task_tracker' 'importance' tasks.0.project tasks.0.subproject 9999 %}"><span class="glyphicon glyphicon-menu-down"></span></a>
              <a href="{% url 'task_tracker' '-importance' tasks.0.project tasks.0.subproject 9999 %}"><span class="glyphicon glyphicon-menu-up"></span></a>
+          </th>        
+          <th>type
+             <a href="{% url 'task_tracker' 'type' tasks.0.project tasks.0.subproject 9999 %}"><span class="glyphicon glyphicon-menu-down"></span></a>
+             <a href="{% url 'task_tracker' '-type' tasks.0.project tasks.0.subproject 9999 %}"><span class="glyphicon glyphicon-menu-up"></span></a>
           </th>        
           <th>status
              <a href="{% url 'task_tracker' 'status' tasks.0.project tasks.0.subproject 9999 %}"><span class="glyphicon glyphicon-menu-down"></span></a>
@@ -141,6 +145,19 @@
                   <button type="button" class="btn btn-warning btn-xs">mid</button> 
                   {% endif %}
               </td>
+              <td>
+                  {% if 'INFO' in task.type %}
+                  <button type="button" class="btn btn-info btn-xs">info</button> 
+                  {% endif %}
+
+                  {% if 'DEC' in task.type %}
+                  <button type="button" class="btn btn-primary btn-xs">decision</button> 
+                  {% endif %}
+                  
+                  {% if 'TASK' in task.type %}
+                  <button type="button" class="btn btn-success btn-xs">task</button> 
+                  {% endif %}
+              </td>
               <td>{{ task.status }}</td>        
               <td>{{ task.action }}</td>        
               <td>{{ task.task|truncatechars:30  }}</td>        
@@ -188,7 +205,9 @@
         <thead>
           <th>Nb.
           </th>
-          <th>importance
+          <th>sign.
+          </th>        
+          <th>type
           </th>        
           <th>status
           </th>        
@@ -224,6 +243,19 @@
                   
                   {% if 'MID' in task.importance %}
                   <button type="button" class="btn btn-warning btn-xs">mid</button> 
+                  {% endif %}
+              </td>
+              <td>
+                  {% if 'INFO' in task.type %}
+                  <button type="button" class="btn btn-info btn-xs">info</button> 
+                  {% endif %}
+
+                  {% if 'DEC' in task.type %}
+                  <button type="button" class="btn btn-primary btn-xs">decision</button> 
+                  {% endif %}
+                  
+                  {% if 'TASK' in task.type %}
+                  <button type="button" class="btn btn-success btn-xs">task</button> 
                   {% endif %}
               </td>
               <td><del>{{ task.status }}</del></td>        
