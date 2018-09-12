@@ -110,6 +110,7 @@ class pdf_report(TemplateView):
             ppm_supplier = 1000000*total_qty_NOK_supplier/total_qty_supplier
         d4 = D4.objects.filter(claim_id=claim).first()
         d4_reproduction=D4_reproduction.objects.filter(claim_id=claim).first()
+        d6_effectiveness=D6_effectiveness.objects.filter(claim_id=claim).first()
         ishikawa_occurance=Ishikawa_occurance.objects.filter(claim_id=claim).first()
         w5_occurance=W5_occurance.objects.filter(claim_id=claim).first()
         ishikawa_detection=Ishikawa_detection.objects.filter(claim_id=claim).first()
@@ -148,6 +149,7 @@ class pdf_report(TemplateView):
                   'd5_tasks_done_occ':d5_tasks_done_occ,
                   'd5_tasks_det':d5_tasks_det,
                   'd5_tasks_done_det':d5_tasks_done_det,
+                  'd6_effectiveness':d6_effectiveness,
                   'd6_tasks_occ':d6_tasks_occ,
                   'd6_tasks_done_occ':d6_tasks_done_occ,
                   'd6_tasks_det':d6_tasks_det,
@@ -645,7 +647,7 @@ def D1D8(request, claim):
             form_W5_occ = W5_Occ_Form(request.POST, instance=W5_occ)
             form_W5_det = W5_Det_Form(request.POST, instance=W5_det)
             form = D4Form(request.POST, instance = root_causes)
-            form_D4_occ =  D4Form_reproduction(request.POST, instance= occ_D4, company=company)
+            form_D4_occ =  D4Form_reproduction(request.POST, instance= occ_D4, company=company, hereIwork=hereIwork)
             form_files_occ = FileForm(request.POST, request.FILES)
             form_files_det = FileForm(request.POST, request.FILES)
 
@@ -701,45 +703,45 @@ def D1D8(request, claim):
                 if form_D4_occ.is_valid():
                     edit_repro = form_D4_occ.save(commit=False)
                     edit_repro.claim_id=claim.pk
-                    if request.POST.get("reproduction_occ_pilot"):
-                        try:
-                            treffer= Team.objects.get(claim_id=claim, member=request.POST.get("reproduction_occ_pilot"))
-                        except Team.MultipleObjectsReturned:
-                            pass
-                        except Team.DoesNotExist:
-                            instance=UserProfile(pk=request.POST.get("reproduction_occ_pilot"))
-                            new_member = Team(claim=claim, member=instance, isPilot=False)
-                            new_member.save()        
-
-                    if request.POST.get("reproduction_det_pilot"):
-                        try:
-                            treffer= Team.objects.get(claim_id=claim, member=request.POST.get("reproduction_det_pilot"))
-                        except Team.MultipleObjectsReturned:
-                            pass
-                        except Team.DoesNotExist:
-                            instance=UserProfile(pk=request.POST.get("reproduction_det_pilot"))
-                            new_member = Team(claim=claim, member=instance, isPilot=False)
-                            new_member.save()        
-
-                    if request.POST.get("effective_occ_pilot"):
-                        try:
-                            treffer= Team.objects.get(claim_id=claim, member=request.POST.get("effective_occ_pilot"))
-                        except Team.MultipleObjectsReturned:
-                            pass
-                        except Team.DoesNotExist:
-                            instance=UserProfile(pk=request.POST.get("effective_occ_pilot"))
-                            new_member = Team(claim=claim, member=instance, isPilot=False)
-                            new_member.save()        
-
-                    if request.POST.get("effective_det_pilot"):
-                        try:
-                            treffer= Team.objects.get(claim_id=claim, member=request.POST.get("effective_det_pilot"))
-                        except Team.MultipleObjectsReturned:
-                            pass
-                        except Team.DoesNotExist:
-                            instance=UserProfile(pk=request.POST.get("effective_det_pilot"))
-                            new_member = Team(claim=claim, member=instance, isPilot=False)
-                            new_member.save()        
+#                     if request.POST.get("reproduction_occ_pilot"):
+#                         try:
+#                             treffer= Team.objects.get(claim_id=claim, member=request.POST.get("reproduction_occ_pilot"))
+#                         except Team.MultipleObjectsReturned:
+#                             pass
+#                         except Team.DoesNotExist:
+#                             instance=UserProfile(pk=request.POST.get("reproduction_occ_pilot"))
+#                             new_member = Team(claim=claim, member=instance, isPilot=False)
+#                             new_member.save()        
+# 
+#                     if request.POST.get("reproduction_det_pilot"):
+#                         try:
+#                             treffer= Team.objects.get(claim_id=claim, member=request.POST.get("reproduction_det_pilot"))
+#                         except Team.MultipleObjectsReturned:
+#                             pass
+#                         except Team.DoesNotExist:
+#                             instance=UserProfile(pk=request.POST.get("reproduction_det_pilot"))
+#                             new_member = Team(claim=claim, member=instance, isPilot=False)
+#                             new_member.save()        
+# 
+#                     if request.POST.get("effective_occ_pilot"):
+#                         try:
+#                             treffer= Team.objects.get(claim_id=claim, member=request.POST.get("effective_occ_pilot"))
+#                         except Team.MultipleObjectsReturned:
+#                             pass
+#                         except Team.DoesNotExist:
+#                             instance=UserProfile(pk=request.POST.get("effective_occ_pilot"))
+#                             new_member = Team(claim=claim, member=instance, isPilot=False)
+#                             new_member.save()        
+# 
+#                     if request.POST.get("effective_det_pilot"):
+#                         try:
+#                             treffer= Team.objects.get(claim_id=claim, member=request.POST.get("effective_det_pilot"))
+#                         except Team.MultipleObjectsReturned:
+#                             pass
+#                         except Team.DoesNotExist:
+#                             instance=UserProfile(pk=request.POST.get("effective_det_pilot"))
+#                             new_member = Team(claim=claim, member=instance, isPilot=False)
+#                             new_member.save()        
 
 
 #                     pdb.set_trace()
@@ -852,8 +854,41 @@ def D1D8(request, claim):
             tasks_D6_det = Task.objects.filter(project=claim, subproject='D6_Detection', closed=False).order_by('due_date')
             tasks_D6_occ_all = Task.objects.filter(project=claim, subproject='D6_Occurance').order_by('due_date')
             tasks_D6_det_all = Task.objects.filter(project=claim, subproject='D6_Detection').order_by('due_date')
-            pdb.set_trace()
+            eff_D6 = D6_effectiveness.objects.filter(claim_id = claim).first()
+            form_D6_eff =  D6Form_effectiveness(request.POST, instance= eff_D6, company=company, hereIwork=hereIwork)
+#             pdb.set_trac e()
             
+            if 'save_effectiveness' in request.POST:
+                if form_D6_eff.is_valid():
+                    edit_repro = form_D6_eff.save(commit=False)
+                    edit_repro.claim_id=claim.pk
+
+#                     if request.POST.get("effective_occ_pilot"):
+#                         try:
+#                             treffer= Team.objects.get(claim_id=claim, member=request.POST.get("effective_occ_pilot"))
+#                         except Team.MultipleObjectsReturned:
+#                             pass
+#                         except Team.DoesNotExist:
+#                             instance=UserProfile(pk=request.POST.get("effective_occ_pilot"))
+#                             new_member = Team(claim=claim, member=instance, isPilot=False)
+#                             new_member.save()        
+# 
+#                     if request.POST.get("effective_det_pilot"):
+#                         try:
+#                             treffer= Team.objects.get(claim_id=claim, member=request.POST.get("effective_det_pilot"))
+#                         except Team.MultipleObjectsReturned:
+#                             pass
+#                         except Team.DoesNotExist:
+#                             instance=UserProfile(pk=request.POST.get("effective_det_pilot"))
+#                             new_member = Team(claim=claim, member=instance, isPilot=False)
+#                             new_member.save()        
+
+
+#                     pdb.set_trace()
+                    edit_repro.save()
+                    return redirect('D6', claim)
+                return redirect('D6', claim)
+
             if 'SubmitD6' in request.POST:
                 if tasks_D6_occ:
                     messages.add_message(request, messages.ERROR, 'You still have open tasks at occurance.') 
@@ -1118,9 +1153,11 @@ def D1D8(request, claim):
             form_due= Claim_Form(instance=claim)
             tasks_D6 = Task.objects.filter(project=claim, subproject='D6 Occurence', closed=False).order_by('due_date')
             tasks_D6_det = Task.objects.filter(project=claim, subproject='D6 Detection', closed=False).order_by('due_date')
+            eff_D6 = D6_effectiveness.objects.filter(claim_id = claim).first()  
+            form_D6_eff =  D6Form_effectiveness(company=company, hereIwork=hereIwork, instance= eff_D6)    
 #             pdb.set_trace()
             return render(request, 'SMS/D6.html', {'vendors':vendors, 'user_profile':user_profile, 'company':company, 'claim':claim, 'creator':creator,
-                                                    'form_due':form_due, 'tasks_D6':tasks_D6, 'tasks_D6_det':tasks_D6_det
+                                                    'form_due':form_due, 'tasks_D6':tasks_D6, 'tasks_D6_det':tasks_D6_det, 'form_D6_eff':form_D6_eff, 
                                                    })
 
         if '/SMS/D7/' in request.path:

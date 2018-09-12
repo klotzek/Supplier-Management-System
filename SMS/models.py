@@ -282,16 +282,21 @@ class D4(models.Model):
 class D4_reproduction(models.Model):  
     claim = models.OneToOneField(Claim, on_delete=models.SET_NULL, null=True)
     reproduction_occ_pilot = models.ForeignKey(UserProfile, on_delete=models.SET_NULL, null=True, blank = True, verbose_name='pilot', related_name="some_special_name" )
-#     member=models.ForeignKey(UserProfile, on_delete=models.SET_NULL, null=True)
-#     reproduction_occ_pilot = models.CharField(max_length = 50, blank=True, null=True, verbose_name='pilot ' )
     reproduction_occ_date = models.DateField(blank=True, null=True, verbose_name='date' )
     defect_occ_reproduced = models.BooleanField(choices=BOOL_CHOICES, default=False, verbose_name='occurance of defect reproduced?' )
-    effective_occ_pilot = models.ForeignKey(UserProfile, on_delete=models.SET_NULL, null=True, blank = True, verbose_name='pilot', related_name="some_other_special_name"  )
-    effective_occ_date = models.DateField(blank=True, null=True, verbose_name='date' )
-    effective_occ_reproduced = models.BooleanField(choices=BOOL_CHOICES, default=False, verbose_name='action is effective!' )
     reproduction_det_pilot = models.ForeignKey(UserProfile, on_delete=models.SET_NULL, null=True, blank = True, verbose_name='pilot', related_name="third_name"  )
     reproduction_det_date = models.DateField(blank=True, null=True, verbose_name='date')
     defect_det_reproduced = models.BooleanField(choices=BOOL_CHOICES, default=False, verbose_name='non-detection of defect reproduced?')
+    
+    def __str__(self):
+        return str(self.claim)        
+
+
+class D6_effectiveness(models.Model):  
+    claim = models.OneToOneField(Claim, on_delete=models.SET_NULL, null=True)
+    effective_occ_pilot = models.ForeignKey(UserProfile, on_delete=models.SET_NULL, null=True, blank = True, verbose_name='pilot', related_name="some_other_special_name"  )
+    effective_occ_date = models.DateField(blank=True, null=True, verbose_name='date' )
+    effective_occ_reproduced = models.BooleanField(choices=BOOL_CHOICES, default=False, verbose_name='action is effective!' )
     effective_det_pilot = models.ForeignKey(UserProfile, on_delete=models.SET_NULL, null=True, blank = True, verbose_name='pilot', related_name="forth_name"  )
     effective_det_date = models.DateField(blank=True, null=True, verbose_name='date')
     effective_det_reproduced = models.BooleanField(choices=BOOL_CHOICES, default=False, verbose_name='action is effective!')

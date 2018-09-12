@@ -882,23 +882,6 @@
             </td>
           </tr>
         </table>
-        &nbsp;
-        <table class="table">
-          <tr>
-            <td colspan="3"><strong>Trial run (efficiency of corrective actions)</strong></td>
-          </tr>
-          <tr>
-            <td><strong>Pilot</strong><br>
-            {{d4_reproduction.effective_occ_pilot}}
-            </td>
-            <td><strong>Date</strong><br>
-            {{d4_reproduction.effective_occ_date}}
-            </td>
-            <td><strong>Action is effective!</strong><br>
-            {{d4_reproduction.effective_occ_reproduced}}
-            </td>
-          </tr>
-        </table>
               
         &nbsp;
         <table class="table">
@@ -1087,23 +1070,6 @@
             </td>
             <td><strong>non-detection of defect reproduced?</strong><br>
             {{d4_reproduction.defect_det_reproduced}}
-            </td>
-          </tr>
-        </table>
-        &nbsp;
-        <table class="table">
-          <tr>
-            <td colspan="3"><strong>Trial run (efficiency of corrective actions)</strong></td>
-          </tr>
-          <tr>
-            <td><strong>Pilot</strong><br>
-            {{d4_reproduction.effective_det_pilot}}
-            </td>
-            <td><strong>Date</strong><br>
-            {{d4_reproduction.effective_det_date}}
-            </td>
-            <td><strong>Action is effective!</strong><br>
-            {{d4_reproduction.effective_det_reproduced}}
             </td>
           </tr>
         </table>
@@ -1501,6 +1467,23 @@
         </table>
         &nbsp;
         <table class="table">
+          <tr>
+            <td colspan="3"><strong>Trial run (efficiency of corrective actions)</strong></td>
+          </tr>
+          <tr>
+            <td><strong>Pilot</strong><br>
+            {{d6_effectiveness.effective_occ_pilot}}
+            </td>
+            <td><strong>Date</strong><br>
+            {{d6_effectiveness.effective_occ_date}}
+            </td>
+            <td><strong>Action is effective!</strong><br>
+            {{d6_effectiveness.effective_occ_reproduced}}
+            </td>
+          </tr>
+        </table>
+        &nbsp;
+        <table class="table">
         {% if d6_tasks_occ %}
           <tr>
                 <td colspan="7"><strong>open tasks</strong></td>
@@ -1613,6 +1596,23 @@
       <table class="table">
           <tr>
                 <td colspan="7"><h1>D6 - Implemented corrective measures - non-detection of the failure</h1></td>
+          </tr>
+        </table>
+        &nbsp;
+        <table class="table">
+          <tr>
+            <td colspan="3"><strong>Trial run (efficiency of corrective actions)</strong></td>
+          </tr>
+          <tr>
+            <td><strong>Pilot</strong><br>
+            {{d6_effectiveness.effective_det_pilot}}
+            </td>
+            <td><strong>Date</strong><br>
+            {{d6_effectiveness.effective_det_date}}
+            </td>
+            <td><strong>Action is effective!</strong><br>
+            {{d6_effectiveness.effective_det_reproduced}}
+            </td>
           </tr>
         </table>
         &nbsp;

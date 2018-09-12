@@ -252,16 +252,53 @@ class D4Form_reproduction(forms.ModelForm):
                 "weekStart":1,
                 "todayHighlight": True,
           }),
-           'effective_occ_reproduced': forms.RadioSelect, 
-           'effective_occ_date': DatePicker(options={
+           'defect_det_reproduced': forms.RadioSelect, 
+           'reproduction_det_date': DatePicker(options={
                 "format": "yyyy-mm-dd",
                 "autoclose": True,
                 "calendarWeeks":True,
                 "weekStart":1,
                 "todayHighlight": True,
           }),
-           'defect_det_reproduced': forms.RadioSelect, 
-           'reproduction_det_date': DatePicker(options={
+          }
+        fields=[
+          'reproduction_occ_pilot', 
+          'reproduction_occ_date',
+          'defect_occ_reproduced',
+          'reproduction_det_pilot', 
+          'reproduction_det_date',
+          'defect_det_reproduced',
+        ]
+    def __init__(self, *args, **kwargs):
+        company = kwargs.pop('company', None)
+        hereIwork = kwargs.pop('hereIwork', None)
+        hereIwork = hereIwork.name
+        super(D4Form_reproduction, self).__init__(*args, **kwargs)
+        if 'PMDM' in hereIwork:    #falls Du zu PMDM gehoerst, darfst Du auch Kollegen von PMDM in die Taskliste einfuegen.
+            self.fields['reproduction_occ_pilot'].queryset=(UserProfile.objects.filter(company=company) | UserProfile.objects.filter(company__name='PMDM')).distinct()    
+            self.fields['reproduction_det_pilot'].queryset=UserProfile.objects.filter(company=company).distinct() | UserProfile.objects.filter(company__name='PMDM').distinct()    
+        else:
+            self.fields['reproduction_occ_pilot'].queryset=UserProfile.objects.filter(company=company).distinct()    
+            self.fields['reproduction_det_pilot'].queryset=UserProfile.objects.filter(company=company).distinct()    
+#     def __init__(self, *args, **kwargs):
+#         company = kwargs.pop('firma', None)
+#         hereIwork = kwargs.pop('hereIwork', None)
+#         super(TaskFormEdit, self).__init__(*args, **kwargs)
+#         if company:
+#             hereIwork = hereIwork.name
+#             if 'PMDM' in hereIwork:    #falls Du zu PMDM gehoerst, darfst Du auch Kollegen von PMDM in die Taskliste einfuegen.
+#                 self.fields['pilot'].queryset = UserProfile.objects.filter(company=company).distinct() | UserProfile.objects.filter(company__name='PMDM').distinct()
+#             else:
+#                 self.fields['pilot'].queryset = UserProfile.objects.filter(company=company).distinct()
+                
+
+
+class D6Form_effectiveness(forms.ModelForm):
+    class Meta:
+        model=D6_effectiveness
+        widgets={
+           'effective_occ_reproduced': forms.RadioSelect, 
+           'effective_occ_date': DatePicker(options={
                 "format": "yyyy-mm-dd",
                 "autoclose": True,
                 "calendarWeeks":True,
@@ -278,16 +315,9 @@ class D4Form_reproduction(forms.ModelForm):
           }),
           }
         fields=[
-          'reproduction_occ_pilot', 
-          'reproduction_occ_date',
-          'defect_occ_reproduced',
           'effective_occ_pilot',
           'effective_occ_date',
           'effective_occ_reproduced',
-
-          'reproduction_det_pilot', 
-          'reproduction_det_date',
-          'defect_det_reproduced',
           'effective_det_pilot',
           'effective_det_date',
           'effective_det_reproduced',
@@ -296,16 +326,12 @@ class D4Form_reproduction(forms.ModelForm):
         company = kwargs.pop('company', None)
         hereIwork = kwargs.pop('hereIwork', None)
         hereIwork = hereIwork.name
-        super(D4Form_reproduction, self).__init__(*args, **kwargs)
+        super(D6Form_effectiveness, self).__init__(*args, **kwargs)
         if 'PMDM' in hereIwork:    #falls Du zu PMDM gehoerst, darfst Du auch Kollegen von PMDM in die Taskliste einfuegen.
-            self.fields['reproduction_occ_pilot'].queryset=(UserProfile.objects.filter(company=company) | UserProfile.objects.filter(company__name='PMDM')).distinct()    
             self.fields['effective_occ_pilot'].queryset=UserProfile.objects.filter(company=company).distinct() | UserProfile.objects.filter(company__name='PMDM').distinct()    
-            self.fields['reproduction_det_pilot'].queryset=UserProfile.objects.filter(company=company).distinct() | UserProfile.objects.filter(company__name='PMDM').distinct()    
             self.fields['effective_det_pilot'].queryset=UserProfile.objects.filter(company=company).distinct() | UserProfile.objects.filter(company__name='PMDM').distinct()    
         else:
-            self.fields['reproduction_occ_pilot'].queryset=UserProfile.objects.filter(company=company).distinct()    
             self.fields['effective_occ_pilot'].queryset=UserProfile.objects.filter(company=company).distinct()    
-            self.fields['reproduction_det_pilot'].queryset=UserProfile.objects.filter(company=company).distinct()    
             self.fields['effective_det_pilot'].queryset=UserProfile.objects.filter(company=company).distinct()    
 #     def __init__(self, *args, **kwargs):
 #         company = kwargs.pop('firma', None)
@@ -320,17 +346,17 @@ class D4Form_reproduction(forms.ModelForm):
                 
 
 
-class D4Form_det(forms.ModelForm):
-    class Meta:
-        model=D4_reproduction
-        fields=[
-          'reproduction_det_pilot', 
-          'reproduction_det_date',
-          'defect_det_reproduced',
-          'effective_det_pilot',
-          'effective_det_date',
-          'effective_det_reproduced',
-        ]
+# class D4Form_det(forms.ModelForm):
+#     class Meta:
+#         model=D4_reproduction
+#         fields=[
+#           'reproduction_det_pilot', 
+#           'reproduction_det_date',
+#           'defect_det_reproduced',
+#           'effective_det_pilot',
+#           'effective_det_date',
+#           'effective_det_reproduced',
+#         ]
 
 class CommentForm(forms.ModelForm):
     class Meta:
