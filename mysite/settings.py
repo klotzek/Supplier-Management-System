@@ -12,6 +12,28 @@ https://docs.djangoproject.com/en/2.0/ref/settings/
 
 import os
 
+USE_THOUSAND_SEPARATOR = True
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'file': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': 'debug.log',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['file'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+    },
+}
+
+
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend' 
 EMAIL_HOST = '10.176.250.100'
 EMAIL_PORT = 25
@@ -47,12 +69,13 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.humanize',
-    'django_countries',
     'SMS',
     'fontawesome',
-    'bootstrap3',
-    'bootstrap_datepicker',
     'easyaudit',
+    'bootstrap_datepicker',
+    'django_countries',
+    'bootstrap3',
+    'xhtml2pdf',
 ]
 
 MIDDLEWARE = [
@@ -68,8 +91,6 @@ MIDDLEWARE = [
 
 SESSION_ENGINE = 'django.contrib.sessions.backends.signed_cookies'     #wichtig gegen 502 Fehler
 SESSION_COOKIE_DOMAIN = None
-
-
 
 ROOT_URLCONF = 'mysite.urls'
 

@@ -54,9 +54,9 @@
       {% csrf_token %}       
     
       {% bootstrap_form_errors form %}       
-      {% bootstrap_form form layout='inline' %}
+      {% bootstrap_form form layout='inline' size="small" %}
       {% buttons %}
-      {% bootstrap_button "Save & back" name="edit_task" button_type="submit" button_class="btn-default" icon="glyphicon glyphicon-floppy-saved" %} 
+      {% bootstrap_button "Save & back" name="edit_task" button_type="submit" button_class="btn-default" icon="glyphicon glyphicon-floppy-saved" size="small" %} 
        {% endbuttons %}
     </div>
   </div>
@@ -71,11 +71,11 @@
        
     
       {% bootstrap_form_errors form2 %}       
-      {% bootstrap_form form2 layout='inline' %}
+      {% bootstrap_form form2 layout='inline' size="small" %}
     </div>
-    <div class="col-md-3">
+    <div class= "col-md-3">
       {% buttons %}
-       <button type="submit" class="btn btn-success" name="new_comment">New comment</button> 
+      {% bootstrap_button "New comment" name="new_comment" button_type="submit" button_class="btn-success" size="small" %} 
        {% endbuttons %}
       </form>   
     </div>

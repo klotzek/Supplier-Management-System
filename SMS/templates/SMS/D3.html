@@ -56,11 +56,11 @@
   
   <div class="row">      
     <div class="col-md-10">
-    {% if tasks_D3 %}
-     You have {{ tasks_D3|length }} open tasks in your Task list.  <a target="_blank" href="{% url 'task_tracker' 'due_date' claim 'D3' 9999 %}"><span class="glyphicon glyphicon-tasks orange"></span> Open tasks for D3 <span class="glyphicon glyphicon-tasks orange"></span></a> 
+    {% if tasks_D3 or closed_tasks_D3 %}<strong>
+     You have {{ tasks_D3 }} open and {{ closed_tasks_D3 }} closed tasks in your Task list.  <a target="_blank" href="{% url 'task_tracker' 'due_date' claim 'D3' 9999 %}"><span class="glyphicon glyphicon-tasks orange"></span> Open tasks for D3 <span class="glyphicon glyphicon-tasks orange"></span></a> 
     {% else %}
        <a target="_blank" href="{% url 'task_tracker' 'due_date' claim 'D3' 9999 %}"><span class="glyphicon glyphicon-tasks green"></span> Add new task for D3 <span class="glyphicon glyphicon-tasks green"></span></a>    
-    {% endif %}
+    {% endif %}</strong>
     Please plan and comment containment actions with this integrated task-tracker-tool
     </div>   
   </div>

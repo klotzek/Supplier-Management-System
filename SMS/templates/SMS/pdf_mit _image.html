@@ -1,0 +1,344 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>8D report</title>
+    <style type="text/css">
+        @page {
+            size: A4;
+            margin: 1cm;
+
+            @frame footer_frame {           /*Another static Frame*/
+            -pdf-frame-content: footer_content; left: 1cm; width: 512pt; top: 820pt; height: 20pt;
+            }
+        }
+
+
+        .page_break { 
+            page-break-before: always; 
+        }        
+        .table {
+            width: 100%;
+            max-width: 100%;
+        }
+        .table th,
+        .table td {
+            padding-top: 1mm;
+            margin-left: 1mm;
+            border: 1px solid #000;
+            text-align: left;
+        }
+        .list-group {
+            display: block;
+            width: 100%;
+            list-style: none;
+            margin-top: 15px;
+            margin-bottom: 15px;
+        }
+        .list-group p {
+            width: 100%;
+            height: 20px;
+            line-height: 20px;
+            list-style: none;
+            font-size: 1.1em;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="card">
+        <div class="card-header">
+            <h1>8D - report (Claim Nb. {{claim.pk}}, RMA: {{claim.RMA}}, IQC: {{claim.IQC}})</h1>
+        </div>
+
+        <div class="list-group">
+            <p>{{company.name}}<br>
+            {{company.adress1}} {{company.adress2}}<br>
+            {{company.country}} - {{company.postcode}} {{company.town}}<br>
+            DUNS: {{company.DUNS}}</p>
+        </div>
+
+        <table class="table">
+            <tr>
+                <td colspan="2"><strong>Concern / Title</strong><br>
+                {{claim.speaking_name}}</td>
+                <td><strong>Ref. No.</strong><br>
+                {{claim.pk}}</td>
+                <td><strong>Start Date</strong><br>
+                {{claim.created_date}}</td>
+            </tr>
+            <tbody>
+              <tr>
+                <td><strong>Status Date</strong><br>
+                {{pdf_data.0}}</td>
+                <td><strong>8D status</strong><br>
+                {{claim.status}}
+                </td>
+                <td colspan="2"><strong>Part Number / Index</strong><br>
+                {{claim.part_number}}</td>
+              </tr>
+              </table>
+              &nbsp;
+              <table class="table">
+              <tr>
+                <td colspan="4"><strong>Base Data</strong></td>
+              </tr>
+              <tr>
+                <td><strong>Acceptance status<br>
+                {% if claim.accepted %}Claim is accepted{%endif%}
+                {% if claim.refused %}Claim is refused{%endif%}
+                {% if not claim.accepted and not claim.refused %}no status yet{% endif %}
+                </strong></td>
+                <td><strong>Car maker</strong><br>
+                {{claim.car_maker}}</td>
+                <td><strong>Classification</strong><br>
+                {{claim.classification}}</td>
+                <td><strong>milage</strong><br>
+                {{claim.milage}}</td>
+              </tr>
+              <tr>
+                <td><strong>Special Characteristics impact</strong><br>
+                {{claim.special_characteristic_impact}}</td>
+                <td><strong>Reoccurance</strong><br>
+                {{claim.reoccurance}}</td>
+                <td><strong>Project</strong><br>
+                {{claim.project}}</td>
+                <td><strong></strong><br></td>
+              </tr>
+            </tbody>
+        </table>
+        &nbsp;
+        <table class="table">
+          <tr>
+              <td colspan="4"><strong>Traceability data</strong></td>
+          </tr>
+          {% if not trace_data %}
+          <tr>
+            <td colspan = "4">No traceability data</td>
+          </tr>
+          {% endif %}
+          {% if trace_data %}
+            <tr>
+              <td><strong>Producion date</strong></td>
+              <td><strong>Operator</strong></td>
+              <td><strong>Batch</strong></td>
+              <td><strong>Cavity</strong></td>
+            </tr>
+          {% endif %}
+          
+          {% for data in trace_data %}
+            <tr>
+              <td>{{data.production_date}}</td>
+              <td>{{data.operator}}</td>
+              <td>{{data.batch}}</td>
+              <td>{{data.cavity}}</td>
+            </tr>
+          {% endfor %}
+        </table>
+    </div>
+    
+    
+<div id=test><pdf:nextpage /></div>
+    <div class="card">
+        <div class="card-header">
+            <h2>8D - report (Claim Nb. {{claim.pk}}, RMA: {{claim.RMA}}, IQC: {{claim.IQC}})</h2>
+        </div>
+        <table class="table">
+            <tr>
+                <td colspan="2"><strong>Concern / Title</strong><br>
+                {{claim.speaking_name}}</td>
+                <td><strong>Ref. No.</strong><br>
+                {{claim.pk}}</td>
+                <td><strong>Start Date</strong><br>
+                {{claim.created_date}}</td>
+            </tr>
+            <tbody>
+              <tr>
+                <td><strong>Status Date</strong><br>
+                {{pdf_data.0}}</td>
+                <td><strong>8D status</strong><br>
+                {{claim.status}}
+                </td>
+                <td colspan="2"><strong>Part Number / Index</strong><br>
+                {{claim.part_number}}</td>
+              </tr>
+              </table>
+              &nbsp;
+              <table class="table">
+              <tr>
+                <td colspan="4"><h1>D1 - Team </h1></td>
+              </tr>
+              {% if team %}
+              <tr>
+                <td><strong>Team member
+                </strong></td>
+                <td><strong>function</strong></td>
+                <td><strong>mail</strong></td>
+                <td><strong>phone</strong></td>
+              </tr>
+              {% for member in team %}
+              <tr>
+                <td>
+                {{member.member.firstname}} {{member.member.lastname}} </td>
+                <td>
+                {{member.member.function}}</td>
+                <td>
+                {{member.member.email}}</td>
+                <td>{{member.member.phone}}</td>
+              </tr>
+              {% endfor %}
+              {% endif %}
+            </tbody>
+        </table>
+        {% if not team %}<p>No team yet</p>{% endif %}
+        {% if team %}<p>(first member is the champion of this 8D)</p>{% endif %}
+    </div>
+
+
+<div id=test><pdf:nextpage /></div>
+    <div class="card">
+        <div class="card-header">
+            <h2>8D - report (Claim Nb. {{claim.pk}}, RMA: {{claim.RMA}}, IQC: {{claim.IQC}})</h2>
+        </div>
+        <table class="table">
+            <tr>
+                <td colspan="2"><strong>Concern / Title</strong><br>
+                {{claim.speaking_name}}</td>
+                <td><strong>Ref. No.</strong><br>
+                {{claim.pk}}</td>
+                <td><strong>Start Date</strong><br>
+                {{claim.created_date}}</td>
+            </tr>
+            <tbody>
+              <tr>
+                <td><strong>Status Date</strong><br>
+                {{pdf_data.0}}</td>
+                <td><strong>8D status</strong><br>
+                {{claim.status}}
+                </td>
+                <td colspan="2"><strong>Part Number / Index</strong><br>
+                {{claim.part_number}}</td>
+              </tr>
+              </table>
+              &nbsp;
+              <table class="table">
+              <tr>
+                <td colspan="4"><h1>D2 - Problem Description </h1></td>
+              </tr>
+
+
+              <tr>
+                <td colspan="4"><strong>Problem description</strong><br>
+                {{claim.D2_description}}</td>
+
+              <tr>
+                <td colspan="2"><strong>Customer View
+                </strong></td>
+                <td colspan="2"><strong>Supplier View</strong></td>
+              </tr>
+
+              <tr>
+                <td><strong>What happened?</strong></td>
+                <td>
+                {{d2_cv.what_happened}}</td>
+                <td>
+                <strong>What is different between OK and NOK parts?</td>
+                <td>
+                {{d2_sv.difference}}</td>
+              </tr>
+
+              <tr>
+                <td><strong>Why is it a problem?</strong></td>
+                <td>
+                {{d2_cv.why_problem}}</td>
+                <td>
+                <strong>Was the part produced in standard process?</td>
+                <td>
+                {{d2_sv.standard_process}}</td>
+              </tr>
+
+              <tr>
+                <td><strong>When was the problem detected?</strong></td>
+                <td>
+                {{d2_cv.when_detected}}</td>
+                <td>
+                <strong>When was it produced?</td>
+                <td>
+                {{d2_sv.when_produced}}</td>
+              </tr>
+
+              <tr>
+                <td><strong>Who has detected the problem?</strong></td>
+                <td>
+                {{d2_cv.who_detected}}</td>
+                <td>
+                <strong>Who produced?</td>
+                <td>
+                {{d2_sv.who_produced}}</td>
+              </tr>
+
+              <tr>
+                <td><strong>Where was the problem detected?</strong></td>
+                <td>
+                {{d2_cv.where_detected}}</td>
+                <td>
+                <strong>In which other application or process is the product used?</td>
+                <td>
+                {{d2_sv.other_application}}</td>
+              </tr>
+
+              <tr>
+                <td><strong>How was the problem detected?</strong></td>
+                <td>
+                {{d2_cv.how_detected}}</td>
+                <td>
+                <strong>Do we catch the defect when reinjecting NOK part in standard process?</td>
+                <td>
+                {{d2_sv.reinjecting}}</td>
+              </tr>
+
+              <tr>
+                <td><strong>How many NOK parts are there?</strong></td>
+                <td>
+                {{d2_cv.how_many_NOK}}</td>
+                <td>
+                <strong>Did a similar problem happen previously at NMB or internally?</td>
+                <td>
+                {{d2_sv.similar_problem}}</td>
+              </tr>
+            </tbody>
+        </table>
+        &nbsp;
+        <table class="table">
+
+              <tr>
+                <td colspan="2"><strong>NOK part
+                </strong></td>
+                <td colspan="2"><strong>OK part</strong></td>
+              </tr>
+
+              <tr>
+                <td colspan="2"><img src='../../media/'{{claim.NOK_picture}} />
+                </td>
+                <td colspan="2"><strong>Supplier View</strong></td>
+              </tr>
+        </table>
+    </div>
+
+
+
+
+
+
+
+
+
+
+
+</div>
+
+<!-- Content for Static Frame 'footer_frame' -->
+<div id="footer_content">(c) - page <pdf:pagenumber> of <pdf:pagecount> </div>
+</body>
+</html>

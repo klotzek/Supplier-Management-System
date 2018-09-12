@@ -51,6 +51,12 @@
         <li role="presentation" {% if '/D8/'  in request.path %}class="active"{% endif %}>          
           <a href="{% url 'D8' claim.pk %}">D8</a>        
         </li>              
+        <li role="presentation">
+        &nbsp;          
+        </li>              
+        <li>          
+          <a target="_blank"  class="btn btn-xs btn-primary" href="{% url 'pdf_report' claim.pk %}" role="button"><span class='glyphicon glyphicon-print'></span>&nbsp;&nbsp;&nbsp;8D as pdf</a>        
+        </li>  
       </ul>         
     </div>  
   </div>

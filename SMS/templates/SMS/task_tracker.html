@@ -48,7 +48,7 @@
 {% if not messages %}
 <div class="container-fluid">      
   <div class="row">    
-    <div class= "col-md-2">      <h5>Add new task:     </h5>    
+    <div class= "col-md-2">      <h4>Add new task:     </h4>    
     </div>
   </div>
   
@@ -58,9 +58,9 @@
       {% csrf_token %}       
     
       {% bootstrap_form_errors form %}       
-      {% bootstrap_form form layout='inline' %}
+      {% bootstrap_form form layout='inline' size='small' %}
       {% buttons %}
-       <button type="submit" class="btn btn-success" name="new_task">Add new task</button> 
+      {% bootstrap_button "Add new task" button_type="submit" button_class="btn-success" size="small"  name="new_task"  %}
        {% endbuttons %}
       </form> 
     </div>

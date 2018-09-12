@@ -15,10 +15,170 @@ from datetime import datetime, timedelta
 from django.utils import timezone
 from django.core.mail import send_mail
 from django.template import loader
+from django.views.generic import TemplateView
+from .render import Render
 
 # from django.core.files.storage import FileSystemStorage
 
 # Create your views here.
+class pdf_report(TemplateView):
+    def get(self, request, claim):
+        claim = Claim.objects.get(pk=claim)
+        company = Company.objects.get(pk=claim.related_to_id)
+        now=datetime.now()
+        trace_data = TraceData.objects.filter(claim=claim)
+        team = Team.objects.filter(claim=claim)
+        d2_cv=D2_CV.objects.filter(claim_id=claim).first()
+        d2_sv=D2_SV.objects.filter(claim_id=claim).first()
+        d3_tasks = Task.objects.filter(project=claim, subproject='D3', closed=False, status='ALL').order_by('date_issued')
+        d3_tasks_done = Task.objects.filter(project=claim, subproject='D3', closed = True, status='ALL').order_by('date_issued')
+        d4_tasks = Task.objects.filter(project=claim, subproject='D4', closed=False, status='ALL').order_by('date_issued')
+        d4_tasks_done = Task.objects.filter(project=claim, subproject='D4', closed = True, status='ALL').order_by('date_issued')
+        d5_tasks_occ = Task.objects.filter(project=claim, subproject='D5 Occurance', closed=False, status='ALL').order_by('date_issued')
+        d5_tasks_done_occ = Task.objects.filter(project=claim, subproject='D5 Occurance', closed = True, status='ALL').order_by('date_issued')
+        d5_tasks_det = Task.objects.filter(project=claim, subproject='D5 Detection', closed=False, status='ALL').order_by('date_issued')
+        d5_tasks_done_det = Task.objects.filter(project=claim, subproject='D5 Detection', closed = True, status='ALL').order_by('date_issued')
+        d6_tasks_occ = Task.objects.filter(project=claim, subproject='D6 Occurance', closed=False, status='ALL').order_by('date_issued')
+        d6_tasks_done_occ = Task.objects.filter(project=claim, subproject='D6 Occurance', closed = True, status='ALL').order_by('date_issued')
+        d6_tasks_det = Task.objects.filter(project=claim, subproject='D6 Detection', closed=False, status='ALL').order_by('date_issued')
+        d6_tasks_done_det = Task.objects.filter(project=claim, subproject='D6 Detection', closed = True, status='ALL').order_by('date_issued')
+        d3=D3.objects.filter(claim_id=claim).first()
+
+#         pdb.set_trace()
+        
+#         if d3 is None:
+#             FC_qty = 0
+#             FC_transit_qty = 0
+#             NMB_qty = 0
+#             FC_NOK = 0
+#             FC_transit_NOK = 0
+#             NMB_NOK = 0
+            
+            
+            
+            
+            
+#         if not d3.FC_qty:
+        if not d3:
+            FC_qty = 0
+            FC_NOK = 0
+            FC_transit_qty = 0
+            NMB_qty = 0
+            FC_transit_NOK = 0
+            NMB_NOK = 0
+        else:
+            FC_qty = d3.FC_qty   
+            FC_NOK = d3.FC_NOK
+            FC_transit_qty = d3.FC_transit_qty
+            NMB_qty = d3.NMB_qty
+            FC_transit_NOK = d3.FC_transit_NOK
+            NMB_NOK = d3.NMB_NOK
+                        
+            
+        if not FC_qty:
+            FC_qty = 0
+#         pdb.set_trace()
+
+        if not FC_NOK:
+            FC_NOK = 0
+        
+        if not FC_transit_qty:
+            FC_transit_qty = 0
+
+        if not NMB_qty:
+            NMB_qty = 0
+            
+        if not FC_transit_NOK:
+            FC_transit_NOK = 0
+        
+        if not NMB_NOK:
+            NMB_NOK = 0
+
+
+
+        total_qty_customer=FC_qty + FC_transit_qty + NMB_qty
+        total_qty_NOK_customer=FC_NOK + FC_transit_NOK + NMB_NOK
+        if total_qty_customer == 0:
+            ppm_customer = '-'
+        else:
+            ppm_customer = 1000000*total_qty_NOK_customer/total_qty_customer
+        total_qty_supplier=FC_qty + FC_transit_qty + NMB_qty
+        total_qty_NOK_supplier=FC_NOK + FC_transit_NOK + NMB_NOK
+        if total_qty_supplier == 0:
+            ppm_supplier = '-'
+        else:
+            ppm_supplier = 1000000*total_qty_NOK_supplier/total_qty_supplier
+        d4 = D4.objects.filter(claim_id=claim).first()
+        d4_reproduction=D4_reproduction.objects.filter(claim_id=claim).first()
+        ishikawa_occurance=Ishikawa_occurance.objects.filter(claim_id=claim).first()
+        w5_occurance=W5_occurance.objects.filter(claim_id=claim).first()
+        ishikawa_detection=Ishikawa_detection.objects.filter(claim_id=claim).first()
+        w5_detection=W5_detection.objects.filter(claim_id=claim).first()
+        d7=D7.objects.filter(claim_id=claim).first()
+        pdf_data=[
+            now,
+            total_qty_customer,
+            total_qty_NOK_customer,
+            ppm_customer,
+            total_qty_supplier,
+            total_qty_NOK_supplier,
+            ppm_supplier,
+        ]
+        params = {
+                  'request':request,
+                  'company':company,
+                  'claim':claim,
+                  'pdf_data':pdf_data,
+                  'trace_data':trace_data,
+                  'team':team,
+                  'd2_cv':d2_cv,
+                  'd2_sv':d2_sv,
+                  'd3_tasks':d3_tasks,
+                  'd3_tasks_done':d3_tasks_done,
+                  'd3':d3,
+                  'd4_tasks':d4_tasks,
+                  'd4_tasks_done':d4_tasks_done,
+                  'd4':d4,
+                  'd4_reproduction':d4_reproduction,
+                  'ishikawa_occurance':ishikawa_occurance,
+                  'w5_occurance':w5_occurance,
+                  'w5_detection':w5_detection,
+                  'ishikawa_detection':ishikawa_detection,
+                  'd5_tasks_occ':d5_tasks_occ,
+                  'd5_tasks_done_occ':d5_tasks_done_occ,
+                  'd5_tasks_det':d5_tasks_det,
+                  'd5_tasks_done_det':d5_tasks_done_det,
+                  'd6_tasks_occ':d6_tasks_occ,
+                  'd6_tasks_done_occ':d6_tasks_done_occ,
+                  'd6_tasks_det':d6_tasks_det,
+                  'd6_tasks_done_det':d6_tasks_done_det,
+                  'd7':d7,
+                  }
+#         pdb.set_trace()
+        return Render.render('SMS/pdf.html', params)
+    
+
+
+def user_activate(request, user_Nb):
+    user_profile = UserProfile.objects.get(user_id=user_Nb)
+    user = User.objects.get(id=user_Nb)
+    form = PasswordForm()
+    if request.method == "POST":
+        form = PasswordForm(request.POST)
+        if form.is_valid():
+            user = User.objects.get(pk = user_Nb)
+            user.is_active = True
+            user.set_password(request.POST.get("password1"))
+            update_session_auth_hash(request, user_Nb)  # Important!
+            messages.success(request, 'Your password was successfully updated!')
+            user.save()
+            return redirect('login')
+        else:
+            messages.error(request, 'Your input is not correct.')
+    return render(request, 'SMS/user_activate.html',{'user_profile':user_profile, 'form': form})
+    
+
+
 @login_required
 def index(request):
     user_profile = UserProfile.objects.get(user_id=request.user)
@@ -38,7 +198,7 @@ def base_data(request, company_id):
     company = Company.objects.get(pk=company_id)
     companyusers = UserProfile.objects.filter(company=company.pk)
     vendors=[(vendor.pk, vendor.name) for vendor in Company.objects.filter(can_be_viewed_by__name__startswith=user_profile.company).order_by('name')]
-#     vendors=[(vendor.pk, vendor.name) for vendor in Company.objects.filter(can_be_viewed_by__name__startswith="PMDM")]
+#     pdb.set_trace()
     return render(request, 'SMS/index.html',{'user_profile':user_profile, 'companyusers':companyusers, 'company':company, 'vendors':vendors, 'request':request})
 
 @login_required
@@ -60,27 +220,6 @@ def vendor_new(request):
             return redirect('base_data', company.pk)
     return render(request, 'SMS/form.html',{'user_profile':user_profile, 'company':company, 'vendors':vendors,  'form': form})
 
-def user_activate(request, user_Nb):
-    user_profile = UserProfile.objects.get(user_id=user_Nb)
-    user = User.objects.get(id=user_Nb)
-    form = PasswordForm()
-    if request.method == "POST":
-        form = PasswordForm(request.POST)
-        if form.is_valid():
-            user = User.objects.get(pk = user_Nb)
-            user.is_active = True
-            user.set_password(request.POST.get("password1"))
-            update_session_auth_hash(request, user_Nb)  # Important!
-            messages.success(request, 'Your password was successfully updated!')
-            user.save()
-            return redirect('login')
-        else:
-            messages.error(request, 'Your input is not correct.')
-            
-            
-
-    return render(request, 'SMS/user_activate.html',{'user_profile':user_profile, 'form': form})
-    
 
 @login_required
 def user_new(request, company_id):
@@ -468,10 +607,10 @@ def D1D8(request, claim):
                 return redirect('D2', claim)
             else:
                 return render(request, 'SMS/D2.html', {'vendors':vendors, 'user_profile':user_profile, 'company':company, 'form': form, 'claim':claim, 'creator':creator , 'd2_cv':d2_cv })
-#                 return render(request, 'SMS/D2.html', {'vendors':vendors, 'user_profile':user_profile, 'show_company':show_company, 'company':company, 'form': form, 'claim':claim, 'creator':creator , 'd2_cv':d2_cv })
         
         if '/SMS/D3/' in request.path:
-            tasks_D3 = Task.objects.filter(project=claim, subproject='D3', closed=False).order_by('due_date')
+            tasks_D3 = Task.objects.filter(project=claim, subproject='D3', closed=False).count()
+            closed_tasks_D3 = Task.objects.filter(project=claim, subproject='D3', closed=True).count()
             form=D3_Form(request.POST, instance=d3)
             form_due=Claim_Form(request.POST, instance=claim)
 #             pdb.set_trace()
@@ -491,9 +630,7 @@ def D1D8(request, claim):
                 d3_data.save()
                 return redirect('D3', claim)    
             return render(request, 'SMS/D3.html', {'vendors':vendors, 'user_profile':user_profile, 'company':company,
-                                                   'form': form, 'form_due': form_due, 'claim':claim, 'creator':creator, 'd2_cv':d2_cv, 'sorting_data':sorting_data, 'tasks_D3':tasks_D3  })
-#             return render(request, 'SMS/D3.html', {'vendors':vendors, 'user_profile':user_profile, 'show_company':show_company, 'company':company,
-#                                                    'form': form, 'form_due': form_due, 'claim':claim, 'creator':creator, 'd2_cv':d2_cv, 'sorting_data':sorting_data, 'tasks_D3':tasks_D3  })
+                                                   'form': form, 'form_due': form_due, 'claim':claim, 'creator':creator, 'd2_cv':d2_cv, 'sorting_data':sorting_data, 'tasks_D3':tasks_D3, 'closed_tasks_D3':closed_tasks_D3  })
 
         if '/SMS/D4/' in request.path:
             tasks_D4 = Task.objects.filter(project=claim, subproject='D4', closed=False).order_by('due_date')
@@ -936,12 +1073,13 @@ def D1D8(request, claim):
 #             return render(request, 'SMS/D2.html', {'vendors':vendors, 'user_profile':user_profile, 'show_company':show_company, 'company':company, 'form': form, 'claim':claim, 'creator':creator, 'd2_cv':d2_cv })
 
         if '/SMS/D3/' in request.path:
-            tasks_D3 = Task.objects.filter(project=claim, subproject='D3', closed=False).order_by('due_date')
+            tasks_D3 = Task.objects.filter(project=claim, subproject='D3', closed=False).count()
+            closed_tasks_D3 = Task.objects.filter(project=claim, subproject='D3', closed=True).count()
             form=D3_Form(instance=d3)
             form_due=Claim_Form(instance=claim)
 #             pdb.set_trace()
             return render(request, 'SMS/D3.html', {'vendors':vendors, 'user_profile':user_profile, 'company':company,
-                                                   'form': form, 'form_due': form_due, 'claim':claim, 'creator':creator, 'd2_cv':d2_cv, 'sorting_data':sorting_data, 'tasks_D3':tasks_D3 })
+                                                   'form': form, 'form_due': form_due, 'claim':claim, 'creator':creator, 'd2_cv':d2_cv, 'sorting_data':sorting_data, 'tasks_D3':tasks_D3, 'closed_tasks_D3':closed_tasks_D3 })
 #             return render(request, 'SMS/D3.html', {'vendors':vendors, 'user_profile':user_profile, 'show_company':show_company, 'company':company,
 #                                                    'form': form, 'form_due': form_due, 'claim':claim, 'creator':creator, 'd2_cv':d2_cv, 'sorting_data':sorting_data, 'tasks_D3':tasks_D3 })
 

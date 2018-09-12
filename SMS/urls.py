@@ -3,6 +3,7 @@ from django.conf.urls import url
 from django.conf import settings
 # from django.views.static import serve
 from django.conf.urls.static import static
+from SMS.views import pdf_report
 
 
 from . import views
@@ -24,6 +25,8 @@ urlpatterns = [
     path('D6/<int:claim>/', views.D1D8, name='D6'),
     path('D7/<int:claim>/', views.D1D8, name='D7'),
     path('D8/<int:claim>/', views.D1D8, name='D8'),
+    path('pdf_report/<int:claim>/', pdf_report.as_view(), name='pdf_report'),
+#     path('8D_pdf/<int:claim>/', views.pdf_report, name='pdf_report'),
     path('new_claim/<int:company_id>/', views.new_claim, name='new_claim'),
     path('vendor_new/', views.vendor_new, name='vendor_new'),
     path('vendor_edit/<int:vendor>', views.vendor_edit, name='vendor_edit'),

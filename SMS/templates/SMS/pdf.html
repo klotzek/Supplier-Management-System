@@ -1,0 +1,1924 @@
+{% load humanize %}
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>8D report</title>
+    <style type="text/css">
+        @page {
+            size: A4;
+            margin: 1cm;
+
+            @frame footer_frame {           /*Another static Frame*/
+            -pdf-frame-content: footer_content; left: 1cm; width: 512pt; top: 820pt; height: 20pt;
+            }
+        }
+
+
+        .page_break { 
+            page-break-before: always; 
+        }        
+        .table {
+            table-layout: auto;
+            width: 100%;
+            max-width: 100%;
+        }
+        .table th,
+        .table td {
+            width: auto;
+            padding-top: 1mm;
+            margin-left: 1mm;
+            border: 1px solid #000;
+            text-align: left;
+        }
+        .table td.no_border {
+            border:0px solid #999;
+        }
+        .table td.small{
+            width: 5px;
+        }
+        .list-group {
+            display: block;
+            width: 100%;
+            list-style: none;
+            margin-top: 15px;
+            margin-bottom: 15px;
+        }
+        .list-group p {
+            width: 100%;
+            height: 20px;
+            line-height: 20px;
+            list-style: none;
+            font-size: 1.1em;
+        }
+    </style>
+</head>
+<body>
+
+<!--Seite 1-->
+<div class="container">
+    <div class="card">
+        <div class="card-header">
+            <h1>8D - report (Claim Nb. {{claim.pk}}, RMA: {{claim.RMA}}, IQC: {{claim.IQC}})</h1>
+        </div>
+
+        <div class="list-group">
+            <p>{{company.name}}<br>
+            {{company.adress1}} {{company.adress2}}<br>
+            {{company.country}} - {{company.postcode}} {{company.town}}<br>
+            DUNS: {{company.DUNS}}</p>
+        </div>
+
+        <table class="table">
+            <tr>
+                <td colspan="2"><strong>Concern / Title</strong><br>
+                {{claim.speaking_name}}
+                </td>
+                <td><strong>Ref. No.</strong><br>
+                {{claim.pk}}</td>
+                <td><strong>Part Number / Index</strong><br>
+                {{claim.part_number}}</td>
+            </tr>
+            <tbody>
+              <tr>
+                <td><strong>Start Date</strong><br>
+                {{claim.created_date}}</td>
+                <td><strong>Print Date</strong><br>
+                {{pdf_data.0}}</td>
+                <td><strong>8D status</strong><br>
+                {{claim.status}}
+                </td>
+                <td><strong>Due date
+                {% if "Opened" in claim.status.status %} D3</strong><br>{{claim.due_date_D3}}</td>
+                {% elif "D3 rejected" in claim.status.status %} D3</strong><br>{{claim.due_date_D3}}</td>
+                {% elif "D3 uploaded" in claim.status.status %} D4</strong><br>{{claim.due_date_D4}}</td>
+                {% elif "D3 accepted" in claim.status.status %} D4</strong><br>{{claim.due_date_D4}}</td>
+                {% elif "D4 rejected" in claim.status.status %} D4</strong><br>{{claim.due_date_D4}}</td>
+                {% elif "D4 uploaded" in claim.status.status %} D5</strong><br>{{claim.due_date_D5}}</td>
+                {% elif "D4 accepted" in claim.status.status %} D5</strong><br>{{claim.due_date_D5}}</td>
+                {% elif "D5 rejected" in claim.status.status %} D5</strong><br>{{claim.due_date_D5}}</td>
+                {% elif "D5 uploaded" in claim.status.status %} D6</strong><br>{{claim.due_date_D6}}</td>
+                {% elif "D5 accepted" in claim.status.status %} D6</strong><br>{{claim.due_date_D6}}</td>
+                {% elif "D6 rejected" in claim.status.status %} D6</strong><br>{{claim.due_date_D6}}</td>
+                {% elif "D6 uploaded" in claim.status.status %} D6</strong><br>{{claim.due_date_D8}}</td>
+                {% elif "D6 accepted" in claim.status.status %} D6</strong><br>{{claim.due_date_D8}}</td>
+                {% elif "D7 rejected" in claim.status.status %} D6</strong><br>{{claim.due_date_D8}}</td>
+                {% elif "D7 uploaded" in claim.status.status %} D6</strong><br>{{claim.due_date_D8}}</td>
+                {% elif "D7 accepted" in claim.status.status %} D6</strong><br>{{claim.due_date_D8}}</td>
+                {% elif 'rejection' in claim.status.status %}</strong><br>---</td>
+                {% endif %}
+               
+              </tr>
+              </table>
+              &nbsp;
+              <table class="table">
+              <tr>
+                <td colspan="4"><strong>Base Data</strong></td>
+              </tr>
+              <tr>
+                <td><strong>Acceptance status<br>
+                {% if claim.accepted %}Claim is accepted{%endif%}
+                {% if claim.refused %}Claim is refused{%endif%}
+                {% if not claim.accepted and not claim.refused %}no status yet{% endif %}
+                </strong></td>
+                <td><strong>Car maker</strong><br>
+                {{claim.car_maker}}</td>
+                <td><strong>Classification</strong><br>
+                {{claim.classification}}</td>
+                <td><strong>milage</strong><br>
+                {{claim.milage}}</td>
+              </tr>
+              <tr>
+                <td><strong>Special Characteristics impact</strong><br>
+                {{claim.special_characteristic_impact}}</td>
+                <td><strong>Reoccurance</strong><br>
+                {{claim.reoccurance}}</td>
+                <td><strong>Project</strong><br>
+                {{claim.project}}</td>
+                <td><strong></strong><br></td>
+              </tr>
+            </tbody>
+        </table>
+        &nbsp;
+        <table class="table">
+          <tr>
+              <td colspan="4"><strong>Traceability data</strong></td>
+          </tr>
+          {% if not trace_data %}
+          <tr>
+            <td colspan = "4">No traceability data</td>
+          </tr>
+          {% endif %}
+          {% if trace_data %}
+            <tr>
+              <td><strong>Producion date</strong></td>
+              <td><strong>Operator</strong></td>
+              <td><strong>Batch</strong></td>
+              <td><strong>Cavity</strong></td>
+            </tr>
+          {% endif %}
+          
+          {% for data in trace_data %}
+            <tr>
+              <td>{{data.production_date}}</td>
+              <td>{{data.operator}}</td>
+              <td>{{data.batch}}</td>
+              <td>{{data.cavity}}</td>
+            </tr>
+          {% endfor %}
+        </table>
+    </div>
+    
+    
+<div id=test><pdf:nextpage /></div>
+    <div class="card">
+        <div class="card-header">
+            <h2>8D - report (Claim Nb. {{claim.pk}}, RMA: {{claim.RMA}}, IQC: {{claim.IQC}})</h2>
+        </div>
+        <table class="table">
+            <tr>
+                <td colspan="2"><strong>Concern / Title</strong><br>
+                {{claim.speaking_name}}
+                </td>
+                <td><strong>Ref. No.</strong><br>
+                {{claim.pk}}</td>
+                <td><strong>Part Number / Index</strong><br>
+                {{claim.part_number}}</td>
+            </tr>
+            <tbody>
+              <tr>
+                <td><strong>Start Date</strong><br>
+                {{claim.created_date}}</td>
+                <td><strong>Print Date</strong><br>
+                {{pdf_data.0}}</td>
+                <td><strong>8D status</strong><br>
+                {{claim.status}}
+                </td>
+                <td><strong>Due date
+                {% if "Opened" in claim.status.status %} D3</strong><br>{{claim.due_date_D3}}</td>
+                {% elif "D3 rejected" in claim.status.status %} D3</strong><br>{{claim.due_date_D3}}</td>
+                {% elif "D3 uploaded" in claim.status.status %} D4</strong><br>{{claim.due_date_D4}}</td>
+                {% elif "D3 accepted" in claim.status.status %} D4</strong><br>{{claim.due_date_D4}}</td>
+                {% elif "D4 rejected" in claim.status.status %} D4</strong><br>{{claim.due_date_D4}}</td>
+                {% elif "D4 uploaded" in claim.status.status %} D5</strong><br>{{claim.due_date_D5}}</td>
+                {% elif "D4 accepted" in claim.status.status %} D5</strong><br>{{claim.due_date_D5}}</td>
+                {% elif "D5 rejected" in claim.status.status %} D5</strong><br>{{claim.due_date_D5}}</td>
+                {% elif "D5 uploaded" in claim.status.status %} D6</strong><br>{{claim.due_date_D6}}</td>
+                {% elif "D5 accepted" in claim.status.status %} D6</strong><br>{{claim.due_date_D6}}</td>
+                {% elif "D6 rejected" in claim.status.status %} D6</strong><br>{{claim.due_date_D6}}</td>
+                {% elif "D6 uploaded" in claim.status.status %} D6</strong><br>{{claim.due_date_D8}}</td>
+                {% elif "D6 accepted" in claim.status.status %} D6</strong><br>{{claim.due_date_D8}}</td>
+                {% elif "D7 rejected" in claim.status.status %} D6</strong><br>{{claim.due_date_D8}}</td>
+                {% elif "D7 uploaded" in claim.status.status %} D6</strong><br>{{claim.due_date_D8}}</td>
+                {% elif "D7 accepted" in claim.status.status %} D6</strong><br>{{claim.due_date_D8}}</td>
+                {% elif 'rejection' in claim.status.status %}</strong><br>---</td>
+                {% endif %}
+               
+              </tr>
+              </table>
+              &nbsp;
+              <table class="table">
+              <tr>
+                <td colspan="4"><h1>D1 - Team </h1></td>
+              </tr>
+              {% if team %}
+              <tr>
+                <td><strong>Team member
+                </strong></td>
+                <td><strong>function</strong></td>
+                <td><strong>mail</strong></td>
+                <td><strong>phone</strong></td>
+              </tr>
+              {% for member in team %}
+              <tr>
+                <td>
+                {{member.member.firstname}} {{member.member.lastname}} </td>
+                <td>
+                {{member.member.function}}</td>
+                <td>
+                {{member.member.email}}</td>
+                <td>{{member.member.phone}}</td>
+              </tr>
+              {% endfor %}
+              {% endif %}
+            </tbody>
+        </table>
+        {% if not team %}<p>No team yet</p>{% endif %}
+        {% if team %}<p>(first member is the champion of this 8D)</p>{% endif %}
+    </div>
+
+
+<div id=test><pdf:nextpage /></div>
+    <div class="card">
+        <div class="card-header">
+            <h2>8D - report (Claim Nb. {{claim.pk}}, RMA: {{claim.RMA}}, IQC: {{claim.IQC}})</h2>
+        </div>
+        <table class="table">
+            <tr>
+                <td colspan="2"><strong>Concern / Title</strong><br>
+                {{claim.speaking_name}}
+                </td>
+                <td><strong>Ref. No.</strong><br>
+                {{claim.pk}}</td>
+                <td><strong>Part Number / Index</strong><br>
+                {{claim.part_number}}</td>
+            </tr>
+            <tbody>
+              <tr>
+                <td><strong>Start Date</strong><br>
+                {{claim.created_date}}</td>
+                <td><strong>Print Date</strong><br>
+                {{pdf_data.0}}</td>
+                <td><strong>8D status</strong><br>
+                {{claim.status}}
+                </td>
+                <td><strong>Due date
+                {% if "Opened" in claim.status.status %} D3</strong><br>{{claim.due_date_D3}}</td>
+                {% elif "D3 rejected" in claim.status.status %} D3</strong><br>{{claim.due_date_D3}}</td>
+                {% elif "D3 uploaded" in claim.status.status %} D4</strong><br>{{claim.due_date_D4}}</td>
+                {% elif "D3 accepted" in claim.status.status %} D4</strong><br>{{claim.due_date_D4}}</td>
+                {% elif "D4 rejected" in claim.status.status %} D4</strong><br>{{claim.due_date_D4}}</td>
+                {% elif "D4 uploaded" in claim.status.status %} D5</strong><br>{{claim.due_date_D5}}</td>
+                {% elif "D4 accepted" in claim.status.status %} D5</strong><br>{{claim.due_date_D5}}</td>
+                {% elif "D5 rejected" in claim.status.status %} D5</strong><br>{{claim.due_date_D5}}</td>
+                {% elif "D5 uploaded" in claim.status.status %} D6</strong><br>{{claim.due_date_D6}}</td>
+                {% elif "D5 accepted" in claim.status.status %} D6</strong><br>{{claim.due_date_D6}}</td>
+                {% elif "D6 rejected" in claim.status.status %} D6</strong><br>{{claim.due_date_D6}}</td>
+                {% elif "D6 uploaded" in claim.status.status %} D6</strong><br>{{claim.due_date_D8}}</td>
+                {% elif "D6 accepted" in claim.status.status %} D6</strong><br>{{claim.due_date_D8}}</td>
+                {% elif "D7 rejected" in claim.status.status %} D6</strong><br>{{claim.due_date_D8}}</td>
+                {% elif "D7 uploaded" in claim.status.status %} D6</strong><br>{{claim.due_date_D8}}</td>
+                {% elif "D7 accepted" in claim.status.status %} D6</strong><br>{{claim.due_date_D8}}</td>
+                {% elif 'rejection' in claim.status.status %}</strong><br>---</td>
+                {% endif %}
+               
+              </tr>
+              </table>
+              &nbsp;
+              <table class="table">
+              <tr>
+                <td colspan="4"><h1>D2 - Problem Description </h1></td>
+              </tr>
+
+
+              <tr>
+                <td colspan="4"><strong>Problem description</strong><br>
+                {{claim.D2_description}}</td>
+
+              <tr>
+                <td colspan="2"><strong>Customer View
+                </strong></td>
+                <td colspan="2"><strong>Supplier View</strong></td>
+              </tr>
+
+              <tr>
+                <td><strong>What happened?</strong></td>
+                <td>
+                {{d2_cv.what_happened}}</td>
+                <td>
+                <strong>What is different between OK and NOK parts?</td>
+                <td>
+                {{d2_sv.difference}}</td>
+              </tr>
+
+              <tr>
+                <td><strong>Why is it a problem?</strong></td>
+                <td>
+                {{d2_cv.why_problem}}</td>
+                <td>
+                <strong>Was the part produced in standard process?</td>
+                <td>
+                {{d2_sv.standard_process}}</td>
+              </tr>
+
+              <tr>
+                <td><strong>When was the problem detected?</strong></td>
+                <td>
+                {{d2_cv.when_detected}}</td>
+                <td>
+                <strong>When was it produced?</td>
+                <td>
+                {{d2_sv.when_produced}}</td>
+              </tr>
+
+              <tr>
+                <td><strong>Who has detected the problem?</strong></td>
+                <td>
+                {{d2_cv.who_detected}}</td>
+                <td>
+                <strong>Who produced?</td>
+                <td>
+                {{d2_sv.who_produced}}</td>
+              </tr>
+
+              <tr>
+                <td><strong>Where was the problem detected?</strong></td>
+                <td>
+                {{d2_cv.where_detected}}</td>
+                <td>
+                <strong>In which other application or process is the product used?</td>
+                <td>
+                {{d2_sv.other_application}}</td>
+              </tr>
+
+              <tr>
+                <td><strong>How was the problem detected?</strong></td>
+                <td>
+                {{d2_cv.how_detected}}</td>
+                <td>
+                <strong>Do we catch the defect when reinjecting NOK part in standard process?</td>
+                <td>
+                {{d2_sv.reinjecting}}</td>
+              </tr>
+
+              <tr>
+                <td><strong>How many NOK parts are there?</strong></td>
+                <td>
+                {{d2_cv.how_many_NOK}}</td>
+                <td>
+                <strong>Did a similar problem happen previously at NMB or internally?</td>
+                <td>
+                {{d2_sv.similar_problem}}</td>
+              </tr>
+            </tbody>
+        </table>
+        &nbsp;
+        
+    {% if claim.File  %}    
+    <div class="row">
+      <div class="col-md-4">
+        This uploaded File describes the problem: <a href="../../media/{{ claim.File }}" target="_blank">{{ claim.File }}</a>
+      </div>  
+    </div>
+    {% endif %}
+        
+        
+<!--         <table class="table">
+
+              <tr>
+                <td colspan="2"><strong>NOK part
+                </strong></td>
+                <td colspan="2"><strong>OK part</strong></td>
+              </tr>
+
+              <tr>
+                <td colspan="2"><img src='../../media/'{{claim.NOK_picture}} />
+                </td>
+                <td colspan="2"><strong>Supplier View</strong></td>
+              </tr>
+        </table>
+    </div>
+-->    
+
+</div>
+
+  <div id=test><pdf:nextpage /></div>
+    <div class="card">
+        <div class="card-header">
+            <h2>8D - report (Claim Nb. {{claim.pk}}, RMA: {{claim.RMA}}, IQC: {{claim.IQC}})</h2>
+        </div>
+        <table class="table">
+            <tr>
+                <td colspan="2"><strong>Concern / Title</strong><br>
+                {{claim.speaking_name}}
+                </td>
+                <td><strong>Ref. No.</strong><br>
+                {{claim.pk}}</td>
+                <td><strong>Part Number / Index</strong><br>
+                {{claim.part_number}}</td>
+            </tr>
+              <tr>
+                <td><strong>Start Date</strong><br>
+                {{claim.created_date}}</td>
+                <td><strong>Print Date</strong><br>
+                {{pdf_data.0}}</td>
+                <td><strong>8D status</strong><br>
+                {{claim.status}}
+                </td>
+                <td><strong>Due date
+                {% if "Opened" in claim.status.status %} D3</strong><br>{{claim.due_date_D3}}</td>
+                {% elif "D3 rejected" in claim.status.status %} D3</strong><br>{{claim.due_date_D3}}</td>
+                {% elif "D3 uploaded" in claim.status.status %} D4</strong><br>{{claim.due_date_D4}}</td>
+                {% elif "D3 accepted" in claim.status.status %} D4</strong><br>{{claim.due_date_D4}}</td>
+                {% elif "D4 rejected" in claim.status.status %} D4</strong><br>{{claim.due_date_D4}}</td>
+                {% elif "D4 uploaded" in claim.status.status %} D5</strong><br>{{claim.due_date_D5}}</td>
+                {% elif "D4 accepted" in claim.status.status %} D5</strong><br>{{claim.due_date_D5}}</td>
+                {% elif "D5 rejected" in claim.status.status %} D5</strong><br>{{claim.due_date_D5}}</td>
+                {% elif "D5 uploaded" in claim.status.status %} D6</strong><br>{{claim.due_date_D6}}</td>
+                {% elif "D5 accepted" in claim.status.status %} D6</strong><br>{{claim.due_date_D6}}</td>
+                {% elif "D6 rejected" in claim.status.status %} D6</strong><br>{{claim.due_date_D6}}</td>
+                {% elif "D6 uploaded" in claim.status.status %} D6</strong><br>{{claim.due_date_D8}}</td>
+                {% elif "D6 accepted" in claim.status.status %} D6</strong><br>{{claim.due_date_D8}}</td>
+                {% elif "D7 rejected" in claim.status.status %} D6</strong><br>{{claim.due_date_D8}}</td>
+                {% elif "D7 uploaded" in claim.status.status %} D6</strong><br>{{claim.due_date_D8}}</td>
+                {% elif "D7 accepted" in claim.status.status %} D6</strong><br>{{claim.due_date_D8}}</td>
+                {% elif 'rejection' in claim.status.status %}</strong><br>---</td>
+                {% endif %}
+               
+              </tr>
+              </table>
+              &nbsp;
+              <table class="table">
+              <tr>
+                <td colspan="7"><h1>D3 - Immediate measures</h1></td>
+              </tr>
+              {% if d3_tasks %}
+              <tr>
+                <td colspan="7"><strong>open tasks</strong></td>
+              </tr>
+              <tr>
+                <td><strong>Nb.</strong></td>
+                <td><strong>importance</strong></td>
+                <td><strong>type</strong></td>
+                <td><strong>action</strong></td>
+                <td><strong>task</strong></td>
+                <td><strong>pilot</strong></td>
+                <td><strong>due date</strong></td>
+              </tr>
+              {% for task in d3_tasks %}
+              <tr>
+                <td>{{task.number}}</td>
+                <td>{{task.importance}}</td>
+                <td>{{task.type}}</td>
+                <td>{{task.action}}</td>
+                <td>{{task.task}}</td>
+                <td>{{task.pilot}}</td>
+                <td>{{task.due_date}}</td>
+              </tr>
+              {% endfor %}
+              {% endif %}
+              {% if d3_tasks_done %}
+              <tr>
+                <td colspan="7"><strong>closed tasks</strong></td>
+              </tr>
+              <tr>
+                <td><strong>Nb.</strong></td>
+                <td><strong>importance</strong></td>
+                <td><strong>type</strong></td>
+                <td><strong>action</strong></td>
+                <td><strong>task</strong></td>
+                <td><strong>pilot</strong></td>
+                <td><strong>close date</strong></td>
+              </tr>
+              {% for task in d3_tasks_done %}
+              <tr>
+                <td>{{task.number}}</td>
+                <td>{{task.importance}}</td>
+                <td>{{task.type}}</td>
+                <td>{{task.action}}</td>
+                <td>{{task.task}}</td>
+                <td>{{task.pilot}}</td>
+                <td>{{task.closed_date}}</td>
+              </tr>
+              {% endfor %}
+              {% endif %}
+              
+        {% if d3_tasks or d3_tasks_done %}
+        {% else %}
+          <tr>
+            <td><strong>No tasks yet!</strong></td>
+          </tr>
+        {% endif %}
+        </table>
+        &nbsp;
+        {% if d3.FC_necessary %}
+        <table class="table">
+          <tr>
+            <td colspan="6"><strong>Sorting at Final Customer</strong></td>
+          </tr>
+          <tr>
+            <td><strong>sorting date</strong></td>
+            <td><strong>Qty sorted</strong></td>
+            <td><strong>Nb. NOK found</strong></td>
+            <td><strong>NOK part production date</strong></td>
+            <td><strong>From prod. date sorted parts</strong></td>
+            <td><strong>To prod. date sorted parts</strong></td>
+          </tr>
+            <td>{{d3.FC_sorting_date}}</td>
+            <td>{{d3.FC_qty}}</td>
+            <td>{{d3.FC_NOK}}</td>
+            <td>{{d3.FC_NOK_date}}</td>
+            <td>{{d3.FC_date_from}}</td>
+            <td>{{d3.FC_date_to}}</td>
+          <tr>
+            <td colspan="6">{{ d3.FC_comment}}
+          </tr>
+        </table>
+        &nbsp;
+        {% endif %}
+              
+        {% if d3.FC_transit_necessary %}
+        <table class="table">
+          <tr>
+            <td colspan="6"><strong>Sorting in transit to Final Customer</strong></td>
+          </tr>
+          <tr>
+            <td><strong>sorting date</strong></td>
+            <td><strong>Qty sorted</strong></td>
+            <td><strong>Nb. NOK found</strong></td>
+            <td><strong>NOK part production date</strong></td>
+            <td><strong>From prod. date sorted parts</strong></td>
+            <td><strong>To prod. date sorted parts</strong></td>
+          </tr>
+            <td>{{d3.FC_transit_sorting_date}}</td>
+            <td>{{d3.FC_transit_qty}}</td>
+            <td>{{d3.FC_transit_NOK}}</td>
+            <td>{{d3.FC_transit_NOK_date}}</td>
+            <td>{{d3.FC_transit_date_from}}</td>
+            <td>{{d3.FC_transit_date_to}}</td>
+          <tr>
+            <td colspan="6">{{ d3.FC_transit_comment}}
+          </tr>
+        </table>
+        &nbsp;
+        {% endif %}
+        
+        {% if d3.NMB_necessary %}
+        <table class="table">
+          <tr>
+            <td colspan="6"><strong>Sorting at NMB</strong></td>
+          </tr>
+          <tr>
+            <td><strong>sorting date</strong></td>
+            <td><strong>Qty sorted</strong></td>
+            <td><strong>Nb. NOK found</strong></td>
+            <td><strong>NOK part production date</strong></td>
+            <td><strong>From prod. date sorted parts</strong></td>
+            <td><strong>To prod. date sorted parts</strong></td>
+          </tr>
+            <td>{{d3.NMB_sorting_date}}</td>
+            <td>{{d3.NMB_qty}}</td>
+            <td>{{d3.NMB_NOK}}</td>
+            <td>{{d3.NMB_NOK_date}}</td>
+            <td>{{d3.NMB_date_from}}</td>
+            <td>{{d3.NMB_date_to}}</td>
+          <tr>
+            <td colspan="6">{{ d3.NMB_comment}}
+          </tr>
+        </table>
+        &nbsp;
+        {% endif %}
+              
+        {% if d3.NMB_transit_necessary %}
+        <table class="table">
+          <tr>
+            <td colspan="6"><strong>Sorting in transit to NMB</strong></td>
+          </tr>
+          <tr>
+            <td><strong>sorting date</strong></td>
+            <td><strong>Qty sorted</strong></td>
+            <td><strong>Nb. NOK found</strong></td>
+            <td><strong>NOK part production date</strong></td>
+            <td><strong>From prod. date sorted parts</strong></td>
+            <td><strong>To prod. date sorted parts</strong></td>
+          </tr>
+            <td>{{d3.NMB_transit_sorting_date}}</td>
+            <td>{{d3.NMB_transit_qty}}</td>
+            <td>{{d3.NMB_transit_NOK}}</td>
+            <td>{{d3.NMB_transit_NOK_date}}</td>
+            <td>{{d3.NMB_transit_date_from}}</td>
+            <td>{{d3.NMB_transit_date_to}}</td>
+          <tr>
+            <td colspan="6">{{ d3.NMB_transit_comment}}
+          </tr>
+        </table>
+        &nbsp;
+        {% endif %}
+              
+        {% if d3.supplier_necessary %}
+        <table class="table">
+          <tr>
+            <td colspan="6"><strong>Sorting at supplier</strong></td>
+          </tr>
+          <tr>
+            <td><strong>sorting date</strong></td>
+            <td><strong>Qty sorted</strong></td>
+            <td><strong>Nb. NOK found</strong></td>
+            <td><strong>NOK part production date</strong></td>
+            <td><strong>From prod. date sorted parts</strong></td>
+            <td><strong>To prod. date sorted parts</strong></td>
+          </tr>
+            <td>{{d3.supplier_sorting_date}}</td>
+            <td>{{d3.supplier_qty}}</td>
+            <td>{{d3.supplier_NOK}}</td>
+            <td>{{d3.supplier_NOK_date}}</td>
+            <td>{{d3.supplier_date_from}}</td>
+            <td>{{d3.supplier_date_to}}</td>
+          <tr>
+            <td colspan="6">{{ d3.supplier_comment}}
+          </tr>
+        </table>
+        &nbsp;
+        {% endif %}
+              
+        {% if d3.sub_supplier_necessary %}
+        <table class="table">
+          <tr>
+            <td colspan="6"><strong>Sorting at sub supplier</strong></td>
+          </tr>
+          <tr>
+            <td><strong>sorting date</strong></td>
+            <td><strong>Qty sorted</strong></td>
+            <td><strong>Nb. NOK found</strong></td>
+            <td><strong>NOK part production date</strong></td>
+            <td><strong>From prod. date sorted parts</strong></td>
+            <td><strong>To prod. date sorted parts</strong></td>
+          </tr>
+            <td>{{d3.sub_supplier_sorting_date}}</td>
+            <td>{{d3.sub_supplier_qty}}</td>
+            <td>{{d3.sub_supplier_NOK}}</td>
+            <td>{{d3.sub_supplier_NOK_date}}</td>
+            <td>{{d3.sub_supplier_date_from}}</td>
+            <td>{{d3.sub_supplier_date_to}}</td>
+          <tr>
+            <td colspan="6">{{ d3.sub_supplier_comment}}
+          </tr>
+        </table>
+        &nbsp;
+        {% endif %}
+              
+        {% if d3.FC_necessary or d3.FC_transit_necessary or d3.NMB_necessary %}
+        <table class = "table">
+          <tr>
+            <td colspan="3"><strong>sorting results customer side</strong></td>
+          </tr>
+          <tr>  
+            <td><strong>Total parts sorted</strong></td>
+            <td><strong>Total parts NOK</strong></td>
+            <td><strong>ppm</strong></td>
+          </tr>
+          <tr>
+            <td>{{pdf_data.1}}</td>
+            <td>{{pdf_data.2}}</td>
+            <td>{{pdf_data.3|floatformat:"-3" }}</td>
+          </tr>
+        </table>
+        &nbsp;
+        {% endif %}
+              
+        {% if d3.NMB_transit_necessary or d3.supplier_necessary or d3.sub_supplier_necessary %}
+        <table class = "table">
+          <tr>
+            <td colspan="3"><strong>sorting results supplier side</strong></td>
+          </tr>
+          <tr>  
+            <td><strong>Total parts sorted</strong></td>
+            <td><strong>Total parts NOK</strong></td>
+            <td><strong>ppm</strong></td>
+          </tr>
+          <tr>
+            <td>{{pdf_data.4}}</td>
+            <td>{{pdf_data.5}}</td>
+            <td>{{pdf_data.6|floatformat:"-3" }}</td>
+          </tr>
+        </table>
+        &nbsp;
+        {% endif %}
+
+        {% if  d3.FC_necessary or d3.FC_transit_necessary or d3.NMB_necessary or d3.NMB_transit_necessary or d3.supplier_necessary or d3.sub_supplier_necessary %}
+        <table class="table">
+          <tr>
+            <td colspan="5"><strong>Lessons Learned from sorting</strong></td>
+          </tr>
+          <tr>  
+            <td colspan="5">{{d3.LL}}</td>
+          </tr>
+        </table>
+        &nbsp;
+        <table class="table">  
+          <tr>
+            <td colspan="5"><strong>Marking on 1st delivery of OK parts</strong></td>
+          </tr>
+          <tr>  <td><strong>Quantity</strong></td>
+            <td><strong>Delivery Note nb.</strong></td>
+            <td><strong>Delivery date incoming</strong></td>
+            <td><strong>Identification on parts</strong></td>
+            <td><strong>Identification on labels</strong></td>
+          </tr>
+          <tr>
+            <td>{{ d3.fst_OK_parts_qty }}</td>
+            <td>{{ d3.fst_OK_parts_del_note }}</td>
+            <td>{{ d3.fst_OK_parts_del_date }}</td>
+            <td>{{ d3.mark_on_parts }}</td>
+            <td>{{ d3.mark_on_labels }}</td>
+          </tr>
+        </table>
+        {% endif %}      
+              
+    </div>
+      
+  <div id=test><pdf:nextpage /></div>
+    <div class="card">
+        <div class="card-header">
+            <h2>8D - report (Claim Nb. {{claim.pk}}, RMA: {{claim.RMA}}, IQC: {{claim.IQC}})</h2>
+        </div>
+        <table class="table">
+          <tr>
+                <td colspan="2"><strong>Concern / Title</strong><br>
+                {{claim.speaking_name}}
+                </td>
+                <td><strong>Ref. No.</strong><br>
+                {{claim.pk}}</td>
+                <td><strong>Part Number / Index</strong><br>
+                {{claim.part_number}}</td>
+          </tr>
+          <tr>
+                <td><strong>Start Date</strong><br>
+                {{claim.created_date}}</td>
+                <td><strong>Print Date</strong><br>
+                {{pdf_data.0}}</td>
+                <td><strong>8D status</strong><br>
+                {{claim.status}}
+                </td>
+                <td><strong>Due date
+                {% if "Opened" in claim.status.status %} D3</strong><br>{{claim.due_date_D3}}</td>
+                {% elif "D3 rejected" in claim.status.status %} D3</strong><br>{{claim.due_date_D3}}</td>
+                {% elif "D3 uploaded" in claim.status.status %} D4</strong><br>{{claim.due_date_D4}}</td>
+                {% elif "D3 accepted" in claim.status.status %} D4</strong><br>{{claim.due_date_D4}}</td>
+                {% elif "D4 rejected" in claim.status.status %} D4</strong><br>{{claim.due_date_D4}}</td>
+                {% elif "D4 uploaded" in claim.status.status %} D5</strong><br>{{claim.due_date_D5}}</td>
+                {% elif "D4 accepted" in claim.status.status %} D5</strong><br>{{claim.due_date_D5}}</td>
+                {% elif "D5 rejected" in claim.status.status %} D5</strong><br>{{claim.due_date_D5}}</td>
+                {% elif "D5 uploaded" in claim.status.status %} D6</strong><br>{{claim.due_date_D6}}</td>
+                {% elif "D5 accepted" in claim.status.status %} D6</strong><br>{{claim.due_date_D6}}</td>
+                {% elif "D6 rejected" in claim.status.status %} D6</strong><br>{{claim.due_date_D6}}</td>
+                {% elif "D6 uploaded" in claim.status.status %} D6</strong><br>{{claim.due_date_D8}}</td>
+                {% elif "D6 accepted" in claim.status.status %} D6</strong><br>{{claim.due_date_D8}}</td>
+                {% elif "D7 rejected" in claim.status.status %} D6</strong><br>{{claim.due_date_D8}}</td>
+                {% elif "D7 uploaded" in claim.status.status %} D6</strong><br>{{claim.due_date_D8}}</td>
+                {% elif "D7 accepted" in claim.status.status %} D6</strong><br>{{claim.due_date_D8}}</td>
+                {% elif 'rejection' in claim.status.status %}</strong><br>---</td>
+                {% endif %}
+               
+          </tr>
+      </table>
+      &nbsp;
+      <table class="table">
+          <tr>
+                <td colspan="7"><h1>D4 - Root cause analysis</h1></td>
+          </tr>
+              {% if d4_tasks %}
+          <tr>
+                <td colspan="7"><strong>open tasks</strong></td>
+          </tr>
+          <tr>
+                <td><strong>Nb.</strong></td>
+                <td><strong>importance</strong></td>
+                <td><strong>type</strong></td>
+                <td><strong>action</strong></td>
+                <td><strong>task</strong></td>
+                <td><strong>pilot</strong></td>
+                <td><strong>due date</strong></td>
+          </tr>
+              {% for task in d4_tasks %}
+          <tr>
+                <td>{{task.number}}</td>
+                <td>{{task.importance}}</td>
+                <td>{{task.type}}</td>
+                <td>{{task.action}}</td>
+                <td>{{task.task}}</td>
+                <td>{{task.pilot}}</td>
+                <td>{{task.due_date}}</td>
+          </tr>
+              {% endfor %}
+              {% endif %}
+              {% if d4_tasks_done %}
+          <tr>
+                <td colspan="7"><strong>closed tasks</strong></td>
+          </tr>
+          <tr>
+                <td><strong>Nb.</strong></td>
+                <td><strong>importance</strong></td>
+                <td><strong>type</strong></td>
+                <td><strong>action</strong></td>
+                <td><strong>task</strong></td>
+                <td><strong>pilot</strong></td>
+                <td><strong>close date</strong></td>
+              </tr>
+              {% for task in d4_tasks_done %}
+          <tr>
+                <td>{{task.number}}</td>
+                <td>{{task.importance}}</td>
+                <td>{{task.type}}</td>
+                <td>{{task.action}}</td>
+                <td>{{task.task}}</td>
+                <td>{{task.pilot}}</td>
+                <td>{{task.closed_date}}</td>
+          </tr>
+              {% endfor %}
+              {% endif %}
+        {% if d4_tasks or d4_tasks_done %}
+        {% else %}
+          <tr>
+            <td><strong>No tasks yet!</strong></td>
+          </tr>
+        {% endif %}
+        </table>
+        &nbsp;
+        <table class="table">
+          <tr>
+            <td><h1>D4 - Root cause analysis - Occurance</h1></td>
+          </tr>
+          <tr>
+            <td><strong>Root cause for occurence of the failure</strong><br>
+            {{d4.root_cause_occ}}</td>
+          </tr>
+        </table>
+              
+        &nbsp;
+        <table class="table">
+          <tr>
+            <td colspan="3"><strong>Reproduction of failure</strong></td>
+          </tr>
+          <tr>
+            <td><strong>Pilot</strong><br>
+            {{d4_reproduction.reproduction_occ_pilot}}
+            </td>
+            <td><strong>Date</strong><br>
+            {{d4_reproduction.reproduction_occ_date}}
+            </td>
+            <td><strong>Occurence of defect reproduced?</strong><br>
+            {{d4_reproduction.defect_occ_reproduced}}
+            </td>
+          </tr>
+        </table>
+        &nbsp;
+        <table class="table">
+          <tr>
+            <td colspan="3"><strong>Trial run (efficiency of corrective actions)</strong></td>
+          </tr>
+          <tr>
+            <td><strong>Pilot</strong><br>
+            {{d4_reproduction.effective_occ_pilot}}
+            </td>
+            <td><strong>Date</strong><br>
+            {{d4_reproduction.effective_occ_date}}
+            </td>
+            <td><strong>Action is effective!</strong><br>
+            {{d4_reproduction.effective_occ_reproduced}}
+            </td>
+          </tr>
+        </table>
+              
+        &nbsp;
+        <table class="table">
+          <tr>
+            <td colspan="5"><strong>Ishikawa for occurence of the failure</strong></td>
+          </tr>
+        </table>
+        &nbsp;
+        <table class="table">
+          <tr>
+            <td class="no_border">method</td>
+            <td class="no_border small"></td>
+            <td class="no_border">machine</td>
+            <td class="no_border small"></td>
+            <td class="no_border">problem</td>
+          </tr>
+          <tr>
+            <td>{{ishikawa_occurance.method}}</td>
+            <td class="no_border small"></td>
+            <td>{{ishikawa_occurance.machine}}</td>
+            <td class="no_border small"></td>
+            <td class="no_border"></td>
+          </tr>
+          <tr>
+            <td class="no_border"></td>
+            <td class="no_border small"></td>
+            <td class="no_border"></td>
+            <td class="no_border small"></td>
+            <td>{{ishikawa_occurance.problem}}</td>
+          </tr>
+          <tr>
+            <td>{{ishikawa_occurance.man}}</td>
+            <td class="no_border small"></td>
+            <td>{{ishikawa_occurance.material}}</td>
+            <td class="no_border small"></td>
+            <td class="no_border"></td>
+          </tr>
+          <tr>
+            <td class="no_border">man</td>
+            <td class="no_border small"></td>
+            <td class="no_border">material</td>
+            <td class="no_border small"></td>
+            <td class="no_border"></td>
+          </tr>
+        </table>
+        &nbsp;
+        <table class="table">
+          <tr>
+            <td colspan="5"><strong>5 Why for occurence of the failure</strong></td>
+          </tr>
+        </table>
+        &nbsp;
+        <table class="table">
+          <tr>
+           <td class="no_border">problem</td>
+           <td class="no_border">1st Why</td>
+           <td class="no_border">2nd Why</td>
+           <td class="no_border">3rd Why</td>
+           <td class="no_border">4th Why</td>
+           <td class="no_border">5th Why</td>
+          </tr>
+          <tr>
+            <td>{{ishikawa_occurance.problem}}</td>
+            <td class="no_border"></td>
+            <td class="no_border"></td>
+            <td class="no_border"></td>
+            <td class="no_border"></td>
+            <td class="no_border"></td>
+          </tr>
+          <tr>
+            <td class="no_border"></td>
+            <td>{{w5_occurance.Why1}}</td>
+            <td class="no_border"></td>
+            <td class="no_border"></td>
+            <td class="no_border"></td>
+            <td class="no_border"></td>
+          </tr>
+          <tr>
+            <td class="no_border"></td>
+            <td class="no_border"></td>
+            <td>{{w5_occurance.Why2}}</td>
+            <td class="no_border"></td>
+            <td class="no_border"></td>
+            <td class="no_border"></td>
+          </tr>
+          <tr>
+            <td class="no_border"></td>
+            <td class="no_border"></td>
+            <td class="no_border"></td>
+            <td>{{w5_occurance.Why3}}</td>
+            <td class="no_border"></td>
+            <td class="no_border"></td>
+          </tr>
+          <tr>
+            <td class="no_border"></td>
+            <td class="no_border"></td>
+            <td class="no_border"></td>
+            <td class="no_border"></td>
+            <td>{{w5_occurance.Why4}}</td>
+            <td class="no_border"></td>
+          </tr>
+          <tr>
+            <td class="no_border"></td>
+            <td class="no_border"></td>
+            <td class="no_border"></td>
+            <td class="no_border"></td>
+            <td class="no_border"></td>
+            <td>{{w5_occurance.Why5}}</td>
+          </tr>
+        </table>  
+            
+              
+              
+  </div><!--Ende der Seite-->
+            
+  <div id=test><pdf:nextpage /></div>
+    <div class="card">
+        <div class="card-header">
+            <h2>8D - report (Claim Nb. {{claim.pk}}, RMA: {{claim.RMA}}, IQC: {{claim.IQC}})</h2>
+        </div>
+        <table class="table">
+          <tr>
+                <td colspan="2"><strong>Concern / Title</strong><br>
+                {{claim.speaking_name}}
+                </td>
+                <td><strong>Ref. No.</strong><br>
+                {{claim.pk}}</td>
+                <td><strong>Part Number / Index</strong><br>
+                {{claim.part_number}}</td>
+          </tr>
+          <tr>
+                <td><strong>Start Date</strong><br>
+                {{claim.created_date}}</td>
+                <td><strong>Print Date</strong><br>
+                {{pdf_data.0}}</td>
+                <td><strong>8D status</strong><br>
+                {{claim.status}}
+                </td>
+                <td><strong>Due date
+                {% if "Opened" in claim.status.status %} D3</strong><br>{{claim.due_date_D3}}</td>
+                {% elif "D3 rejected" in claim.status.status %} D3</strong><br>{{claim.due_date_D3}}</td>
+                {% elif "D3 uploaded" in claim.status.status %} D4</strong><br>{{claim.due_date_D4}}</td>
+                {% elif "D3 accepted" in claim.status.status %} D4</strong><br>{{claim.due_date_D4}}</td>
+                {% elif "D4 rejected" in claim.status.status %} D4</strong><br>{{claim.due_date_D4}}</td>
+                {% elif "D4 uploaded" in claim.status.status %} D5</strong><br>{{claim.due_date_D5}}</td>
+                {% elif "D4 accepted" in claim.status.status %} D5</strong><br>{{claim.due_date_D5}}</td>
+                {% elif "D5 rejected" in claim.status.status %} D5</strong><br>{{claim.due_date_D5}}</td>
+                {% elif "D5 uploaded" in claim.status.status %} D6</strong><br>{{claim.due_date_D6}}</td>
+                {% elif "D5 accepted" in claim.status.status %} D6</strong><br>{{claim.due_date_D6}}</td>
+                {% elif "D6 rejected" in claim.status.status %} D6</strong><br>{{claim.due_date_D6}}</td>
+                {% elif "D6 uploaded" in claim.status.status %} D6</strong><br>{{claim.due_date_D8}}</td>
+                {% elif "D6 accepted" in claim.status.status %} D6</strong><br>{{claim.due_date_D8}}</td>
+                {% elif "D7 rejected" in claim.status.status %} D6</strong><br>{{claim.due_date_D8}}</td>
+                {% elif "D7 uploaded" in claim.status.status %} D6</strong><br>{{claim.due_date_D8}}</td>
+                {% elif "D7 accepted" in claim.status.status %} D6</strong><br>{{claim.due_date_D8}}</td>
+                {% elif 'rejection' in claim.status.status %}</strong><br>---</td>
+                {% endif %}
+               
+          </tr>
+      </table>
+      &nbsp;
+      <table class="table">
+          <tr>
+                <td colspan="7"><h1>D4 - Root cause analysis - non detection of the failure</h1></td>
+          </tr>
+        </table>
+        &nbsp;
+        <table class="table">
+          <tr>
+            <td><strong>Root cause for non-detection of the failure</strong><br>
+            {{d4.root_cause_det}}</td>
+          </tr>
+        </table>
+              
+        &nbsp;
+        <table class="table">
+          <tr>
+            <td colspan="3"><strong>Reproduction of failure</strong></td>
+          </tr>
+          <tr>
+            <td><strong>Pilot</strong><br>
+            {{d4_reproduction.reproduction_det_pilot}}
+            </td>
+            <td><strong>Date</strong><br>
+            {{d4_reproduction.reproduction_det_date}}
+            </td>
+            <td><strong>non-detection of defect reproduced?</strong><br>
+            {{d4_reproduction.defect_det_reproduced}}
+            </td>
+          </tr>
+        </table>
+        &nbsp;
+        <table class="table">
+          <tr>
+            <td colspan="3"><strong>Trial run (efficiency of corrective actions)</strong></td>
+          </tr>
+          <tr>
+            <td><strong>Pilot</strong><br>
+            {{d4_reproduction.effective_det_pilot}}
+            </td>
+            <td><strong>Date</strong><br>
+            {{d4_reproduction.effective_det_date}}
+            </td>
+            <td><strong>Action is effective!</strong><br>
+            {{d4_reproduction.effective_det_reproduced}}
+            </td>
+          </tr>
+        </table>
+              
+        &nbsp;
+        <table class="table">
+          <tr>
+            <td colspan="5"><strong>Ishikawa for non-detection of the failure</strong></td>
+          </tr>
+        </table>
+        &nbsp;
+        <table class="table">
+          <tr>
+            <td class="no_border">method</td>
+            <td class="no_border small"></td>
+            <td class="no_border">machine</td>
+            <td class="no_border small"></td>
+            <td class="no_border">problem</td>
+          </tr>
+          <tr>
+            <td>{{ishikawa_detection.method}}</td>
+            <td class="no_border small"></td>
+            <td>{{ishikawa_detection.machine}}</td>
+            <td class="no_border small"></td>
+            <td class="no_border"></td>
+          </tr>
+          <tr>
+            <td class="no_border"></td>
+            <td class="no_border small"></td>
+            <td class="no_border"></td>
+            <td class="no_border small"></td>
+            <td>{{ishikawa_detection.problem}}</td>
+          </tr>
+          <tr>
+            <td>{{ishikawa_detection.man}}</td>
+            <td class="no_border small"></td>
+            <td>{{ishikawa_detection.material}}</td>
+            <td class="no_border small"></td>
+            <td class="no_border"></td>
+          </tr>
+          <tr>
+            <td class="no_border">man</td>
+            <td class="no_border small"></td>
+            <td class="no_border">material</td>
+            <td class="no_border small"></td>
+            <td class="no_border"></td>
+          </tr>
+        </table>
+        &nbsp;
+        <table class="table">
+          <tr>
+            <td colspan="5"><strong>5 Why for non-detection of the failure</strong></td>
+          </tr>
+        </table>
+        &nbsp;
+        <table class="table">
+          <tr>
+           <td class="no_border">problem</td>
+           <td class="no_border">1st Why</td>
+           <td class="no_border">2nd Why</td>
+           <td class="no_border">3rd Why</td>
+           <td class="no_border">4th Why</td>
+           <td class="no_border">5th Why</td>
+          </tr>
+          <tr>
+            <td>{{ishikawa_detection.problem}}</td>
+            <td class="no_border"></td>
+            <td class="no_border"></td>
+            <td class="no_border"></td>
+            <td class="no_border"></td>
+            <td class="no_border"></td>
+          </tr>
+          <tr>
+            <td class="no_border"></td>
+            <td>{{w5_detection.Why1}}</td>
+            <td class="no_border"></td>
+            <td class="no_border"></td>
+            <td class="no_border"></td>
+            <td class="no_border"></td>
+          </tr>
+          <tr>
+            <td class="no_border"></td>
+            <td class="no_border"></td>
+            <td>{{w5_detection.Why2}}</td>
+            <td class="no_border"></td>
+            <td class="no_border"></td>
+            <td class="no_border"></td>
+          </tr>
+          <tr>
+            <td class="no_border"></td>
+            <td class="no_border"></td>
+            <td class="no_border"></td>
+            <td>{{w5_detection.Why3}}</td>
+            <td class="no_border"></td>
+            <td class="no_border"></td>
+          </tr>
+          <tr>
+            <td class="no_border"></td>
+            <td class="no_border"></td>
+            <td class="no_border"></td>
+            <td class="no_border"></td>
+            <td>{{w5_detection.Why4}}</td>
+            <td class="no_border"></td>
+          </tr>
+          <tr>
+            <td class="no_border"></td>
+            <td class="no_border"></td>
+            <td class="no_border"></td>
+            <td class="no_border"></td>
+            <td class="no_border"></td>
+            <td>{{w5_detection.Why5}}</td>
+          </tr>
+        </table>  
+      </div><!--Ende der Seite-->
+            
+  <div id=test><pdf:nextpage /></div>
+    <div class="card">
+        <div class="card-header">
+            <h2>8D - report (Claim Nb. {{claim.pk}}, RMA: {{claim.RMA}}, IQC: {{claim.IQC}})</h2>
+        </div>
+        <table class="table">
+          <tr>
+                <td colspan="2"><strong>Concern / Title</strong><br>
+                {{claim.speaking_name}}
+                </td>
+                <td><strong>Ref. No.</strong><br>
+                {{claim.pk}}</td>
+                <td><strong>Part Number / Index</strong><br>
+                {{claim.part_number}}</td>
+          </tr>
+          <tr>
+                <td><strong>Start Date</strong><br>
+                {{claim.created_date}}</td>
+                <td><strong>Print Date</strong><br>
+                {{pdf_data.0}}</td>
+                <td><strong>8D status</strong><br>
+                {{claim.status}}
+                </td>
+                <td><strong>Due date
+                {% if "Opened" in claim.status.status %} D3</strong><br>{{claim.due_date_D3}}</td>
+                {% elif "D3 rejected" in claim.status.status %} D3</strong><br>{{claim.due_date_D3}}</td>
+                {% elif "D3 uploaded" in claim.status.status %} D4</strong><br>{{claim.due_date_D4}}</td>
+                {% elif "D3 accepted" in claim.status.status %} D4</strong><br>{{claim.due_date_D4}}</td>
+                {% elif "D4 rejected" in claim.status.status %} D4</strong><br>{{claim.due_date_D4}}</td>
+                {% elif "D4 uploaded" in claim.status.status %} D5</strong><br>{{claim.due_date_D5}}</td>
+                {% elif "D4 accepted" in claim.status.status %} D5</strong><br>{{claim.due_date_D5}}</td>
+                {% elif "D5 rejected" in claim.status.status %} D5</strong><br>{{claim.due_date_D5}}</td>
+                {% elif "D5 uploaded" in claim.status.status %} D6</strong><br>{{claim.due_date_D6}}</td>
+                {% elif "D5 accepted" in claim.status.status %} D6</strong><br>{{claim.due_date_D6}}</td>
+                {% elif "D6 rejected" in claim.status.status %} D6</strong><br>{{claim.due_date_D6}}</td>
+                {% elif "D6 uploaded" in claim.status.status %} D6</strong><br>{{claim.due_date_D8}}</td>
+                {% elif "D6 accepted" in claim.status.status %} D6</strong><br>{{claim.due_date_D8}}</td>
+                {% elif "D7 rejected" in claim.status.status %} D6</strong><br>{{claim.due_date_D8}}</td>
+                {% elif "D7 uploaded" in claim.status.status %} D6</strong><br>{{claim.due_date_D8}}</td>
+                {% elif "D7 accepted" in claim.status.status %} D6</strong><br>{{claim.due_date_D8}}</td>
+                {% elif 'rejection' in claim.status.status %}</strong><br>---</td>
+                {% endif %}
+               
+          </tr>
+      </table>
+      &nbsp;
+      <table class="table">
+          <tr>
+                <td colspan="7"><h1>D5 - Planned corrective measures - occurence of the failure</h1></td>
+          </tr>
+        </table>
+        &nbsp;
+        <table class="table">
+        {% if d5_tasks_occ %}
+          <tr>
+                <td colspan="7"><strong>open tasks</strong></td>
+          </tr>
+          <tr>
+                <td><strong>Nb.</strong></td>
+                <td><strong>importance</strong></td>
+                <td><strong>type</strong></td>
+                <td><strong>action</strong></td>
+                <td><strong>task</strong></td>
+                <td><strong>pilot</strong></td>
+                <td><strong>due date</strong></td>
+          </tr>
+              {% for task in d5_tasks_occ %}
+          <tr>
+                <td>{{task.number}}</td>
+                <td>{{task.importance}}</td>
+                <td>{{task.type}}</td>
+                <td>{{task.action}}</td>
+                <td>{{task.task}}</td>
+                <td>{{task.pilot}}</td>
+                <td>{{task.due_date}}</td>
+          </tr>
+              {% endfor %}
+              {% endif %}
+              {% if d5_tasks_done_occ %}
+          <tr>
+                <td colspan="7"><strong>closed tasks</strong></td>
+          </tr>
+          <tr>
+                <td><strong>Nb.</strong></td>
+                <td><strong>importance</strong></td>
+                <td><strong>type</strong></td>
+                <td><strong>action</strong></td>
+                <td><strong>task</strong></td>
+                <td><strong>pilot</strong></td>
+                <td><strong>close date</strong></td>
+              </tr>
+              {% for task in d5_tasks_done_occ %}
+          <tr>
+                <td>{{task.number}}</td>
+                <td>{{task.importance}}</td>
+                <td>{{task.type}}</td>
+                <td>{{task.action}}</td>
+                <td>{{task.task}}</td>
+                <td>{{task.pilot}}</td>
+                <td>{{task.closed_date}}</td>
+          </tr>
+              {% endfor %}
+              {% endif %}
+        
+        {% if d5_tasks_occ or d5_tasks_done_occ %}
+        {% else %}
+          <tr>
+            <td><strong>No tasks yet!</strong></td>
+          </tr>
+        {% endif %}
+
+        </table>
+        
+      </div><!--Ende der Seite-->  
+              
+      
+  <div id=test><pdf:nextpage /></div>
+    <div class="card">
+        <div class="card-header">
+            <h2>8D - report (Claim Nb. {{claim.pk}}, RMA: {{claim.RMA}}, IQC: {{claim.IQC}})</h2>
+        </div>
+        <table class="table">
+          <tr>
+                <td colspan="2"><strong>Concern / Title</strong><br>
+                {{claim.speaking_name}}
+                </td>
+                <td><strong>Ref. No.</strong><br>
+                {{claim.pk}}</td>
+                <td><strong>Part Number / Index</strong><br>
+                {{claim.part_number}}</td>
+          </tr>
+          <tr>
+                <td><strong>Start Date</strong><br>
+                {{claim.created_date}}</td>
+                <td><strong>Print Date</strong><br>
+                {{pdf_data.0}}</td>
+                <td><strong>8D status</strong><br>
+                {{claim.status}}
+                </td>
+                <td><strong>Due date
+                {% if "Opened" in claim.status.status %} D3</strong><br>{{claim.due_date_D3}}</td>
+                {% elif "D3 rejected" in claim.status.status %} D3</strong><br>{{claim.due_date_D3}}</td>
+                {% elif "D3 uploaded" in claim.status.status %} D4</strong><br>{{claim.due_date_D4}}</td>
+                {% elif "D3 accepted" in claim.status.status %} D4</strong><br>{{claim.due_date_D4}}</td>
+                {% elif "D4 rejected" in claim.status.status %} D4</strong><br>{{claim.due_date_D4}}</td>
+                {% elif "D4 uploaded" in claim.status.status %} D5</strong><br>{{claim.due_date_D5}}</td>
+                {% elif "D4 accepted" in claim.status.status %} D5</strong><br>{{claim.due_date_D5}}</td>
+                {% elif "D5 rejected" in claim.status.status %} D5</strong><br>{{claim.due_date_D5}}</td>
+                {% elif "D5 uploaded" in claim.status.status %} D6</strong><br>{{claim.due_date_D6}}</td>
+                {% elif "D5 accepted" in claim.status.status %} D6</strong><br>{{claim.due_date_D6}}</td>
+                {% elif "D6 rejected" in claim.status.status %} D6</strong><br>{{claim.due_date_D6}}</td>
+                {% elif "D6 uploaded" in claim.status.status %} D6</strong><br>{{claim.due_date_D8}}</td>
+                {% elif "D6 accepted" in claim.status.status %} D6</strong><br>{{claim.due_date_D8}}</td>
+                {% elif "D7 rejected" in claim.status.status %} D6</strong><br>{{claim.due_date_D8}}</td>
+                {% elif "D7 uploaded" in claim.status.status %} D6</strong><br>{{claim.due_date_D8}}</td>
+                {% elif "D7 accepted" in claim.status.status %} D6</strong><br>{{claim.due_date_D8}}</td>
+                {% elif 'rejection' in claim.status.status %}</strong><br>---</td>
+                {% endif %}
+               
+          </tr>
+      </table>
+      &nbsp;
+      <table class="table">
+          <tr>
+                <td colspan="7"><h1>D5 - Planned corrective measures - non-detection of the failure</h1></td>
+          </tr>
+        </table>
+        &nbsp;
+        <table class="table">
+        {% if d5_tasks_det %}
+          <tr>
+                <td colspan="7"><strong>open tasks</strong></td>
+          </tr>
+          <tr>
+                <td><strong>Nb.</strong></td>
+                <td><strong>importance</strong></td>
+                <td><strong>type</strong></td>
+                <td><strong>action</strong></td>
+                <td><strong>task</strong></td>
+                <td><strong>pilot</strong></td>
+                <td><strong>due date</strong></td>
+          </tr>
+              {% for task in d5_tasks_det %}
+          <tr>
+                <td>{{task.number}}</td>
+                <td>{{task.importance}}</td>
+                <td>{{task.type}}</td>
+                <td>{{task.action}}</td>
+                <td>{{task.task}}</td>
+                <td>{{task.pilot}}</td>
+                <td>{{task.due_date}}</td>
+          </tr>
+              {% endfor %}
+              {% endif %}
+              {% if d5_tasks_done_det %}
+          <tr>
+                <td colspan="7"><strong>closed tasks</strong></td>
+          </tr>
+          <tr>
+                <td><strong>Nb.</strong></td>
+                <td><strong>importance</strong></td>
+                <td><strong>type</strong></td>
+                <td><strong>action</strong></td>
+                <td><strong>task</strong></td>
+                <td><strong>pilot</strong></td>
+                <td><strong>close date</strong></td>
+              </tr>
+              {% for task in d5_tasks_done_det %}
+          <tr>
+                <td>{{task.number}}</td>
+                <td>{{task.importance}}</td>
+                <td>{{task.type}}</td>
+                <td>{{task.action}}</td>
+                <td>{{task.task}}</td>
+                <td>{{task.pilot}}</td>
+                <td>{{task.closed_date}}</td>
+          </tr>
+              {% endfor %}
+              {% endif %}
+        {% if d5_tasks_det or d5_tasks_done_det %}
+        {% else %}
+          <tr>
+            <td><strong>No tasks yet!</strong></td>
+          </tr>
+        {% endif %}
+        </table>
+      </div><!--Ende der Seite-->  
+              
+      
+  <div id=test><pdf:nextpage /></div>
+    <div class="card">
+        <div class="card-header">
+            <h2>8D - report (Claim Nb. {{claim.pk}}, RMA: {{claim.RMA}}, IQC: {{claim.IQC}})</h2>
+        </div>
+        <table class="table">
+          <tr>
+                <td colspan="2"><strong>Concern / Title</strong><br>
+                {{claim.speaking_name}}
+                </td>
+                <td><strong>Ref. No.</strong><br>
+                {{claim.pk}}</td>
+                <td><strong>Part Number / Index</strong><br>
+                {{claim.part_number}}</td>
+          </tr>
+          <tr>
+                <td><strong>Start Date</strong><br>
+                {{claim.created_date}}</td>
+                <td><strong>Print Date</strong><br>
+                {{pdf_data.0}}</td>
+                <td><strong>8D status</strong><br>
+                {{claim.status}}
+                </td>
+                <td><strong>Due date
+                {% if "Opened" in claim.status.status %} D3</strong><br>{{claim.due_date_D3}}</td>
+                {% elif "D3 rejected" in claim.status.status %} D3</strong><br>{{claim.due_date_D3}}</td>
+                {% elif "D3 uploaded" in claim.status.status %} D4</strong><br>{{claim.due_date_D4}}</td>
+                {% elif "D3 accepted" in claim.status.status %} D4</strong><br>{{claim.due_date_D4}}</td>
+                {% elif "D4 rejected" in claim.status.status %} D4</strong><br>{{claim.due_date_D4}}</td>
+                {% elif "D4 uploaded" in claim.status.status %} D5</strong><br>{{claim.due_date_D5}}</td>
+                {% elif "D4 accepted" in claim.status.status %} D5</strong><br>{{claim.due_date_D5}}</td>
+                {% elif "D5 rejected" in claim.status.status %} D5</strong><br>{{claim.due_date_D5}}</td>
+                {% elif "D5 uploaded" in claim.status.status %} D6</strong><br>{{claim.due_date_D6}}</td>
+                {% elif "D5 accepted" in claim.status.status %} D6</strong><br>{{claim.due_date_D6}}</td>
+                {% elif "D6 rejected" in claim.status.status %} D6</strong><br>{{claim.due_date_D6}}</td>
+                {% elif "D6 uploaded" in claim.status.status %} D6</strong><br>{{claim.due_date_D8}}</td>
+                {% elif "D6 accepted" in claim.status.status %} D6</strong><br>{{claim.due_date_D8}}</td>
+                {% elif "D7 rejected" in claim.status.status %} D6</strong><br>{{claim.due_date_D8}}</td>
+                {% elif "D7 uploaded" in claim.status.status %} D6</strong><br>{{claim.due_date_D8}}</td>
+                {% elif "D7 accepted" in claim.status.status %} D6</strong><br>{{claim.due_date_D8}}</td>
+                {% elif 'rejection' in claim.status.status %}</strong><br>---</td>
+                {% endif %}
+               
+          </tr>
+      </table>
+      &nbsp;
+      <table class="table">
+          <tr>
+                <td colspan="7"><h1>D6 - Implemented corrective measures - occurence of the failure</h1></td>
+          </tr>
+        </table>
+        &nbsp;
+        <table class="table">
+        {% if d6_tasks_occ %}
+          <tr>
+                <td colspan="7"><strong>open tasks</strong></td>
+          </tr>
+          <tr>
+                <td><strong>Nb.</strong></td>
+                <td><strong>importance</strong></td>
+                <td><strong>type</strong></td>
+                <td><strong>action</strong></td>
+                <td><strong>task</strong></td>
+                <td><strong>pilot</strong></td>
+                <td><strong>due date</strong></td>
+          </tr>
+              {% for task in d6_tasks_occ %}
+          <tr>
+                <td>{{task.number}}</td>
+                <td>{{task.importance}}</td>
+                <td>{{task.type}}</td>
+                <td>{{task.action}}</td>
+                <td>{{task.task}}</td>
+                <td>{{task.pilot}}</td>
+                <td>{{task.due_date}}</td>
+          </tr>
+              {% endfor %}
+              {% endif %}
+              {% if d6_tasks_done_occ %}
+          <tr>
+                <td colspan="7"><strong>closed tasks</strong></td>
+          </tr>
+          <tr>
+                <td><strong>Nb.</strong></td>
+                <td><strong>importance</strong></td>
+                <td><strong>type</strong></td>
+                <td><strong>action</strong></td>
+                <td><strong>task</strong></td>
+                <td><strong>pilot</strong></td>
+                <td><strong>close date</strong></td>
+              </tr>
+              {% for task in d6_tasks_done_occ %}
+          <tr>
+                <td>{{task.number}}</td>
+                <td>{{task.importance}}</td>
+                <td>{{task.type}}</td>
+                <td>{{task.action}}</td>
+                <td>{{task.task}}</td>
+                <td>{{task.pilot}}</td>
+                <td>{{task.closed_date}}</td>
+          </tr>
+              {% endfor %}
+              {% endif %}
+        
+        {% if d6_tasks_occ or d6_tasks_done_occ %}
+        {% else %}
+          <tr>
+            <td><strong>No tasks yet!</strong></td>
+          </tr>
+        {% endif %}
+
+        </table>
+        
+      </div><!--Ende der Seite-->  
+              
+      
+  <div id=test><pdf:nextpage /></div>
+    <div class="card">
+        <div class="card-header">
+            <h2>8D - report (Claim Nb. {{claim.pk}}, RMA: {{claim.RMA}}, IQC: {{claim.IQC}})</h2>
+        </div>
+        <table class="table">
+          <tr>
+                <td colspan="2"><strong>Concern / Title</strong><br>
+                {{claim.speaking_name}}
+                </td>
+                <td><strong>Ref. No.</strong><br>
+                {{claim.pk}}</td>
+                <td><strong>Part Number / Index</strong><br>
+                {{claim.part_number}}</td>
+          </tr>
+          <tr>
+                <td><strong>Start Date</strong><br>
+                {{claim.created_date}}</td>
+                <td><strong>Print Date</strong><br>
+                {{pdf_data.0}}</td>
+                <td><strong>8D status</strong><br>
+                {{claim.status}}
+                </td>
+                <td><strong>Due date
+                {% if "Opened" in claim.status.status %} D3</strong><br>{{claim.due_date_D3}}</td>
+                {% elif "D3 rejected" in claim.status.status %} D3</strong><br>{{claim.due_date_D3}}</td>
+                {% elif "D3 uploaded" in claim.status.status %} D4</strong><br>{{claim.due_date_D4}}</td>
+                {% elif "D3 accepted" in claim.status.status %} D4</strong><br>{{claim.due_date_D4}}</td>
+                {% elif "D4 rejected" in claim.status.status %} D4</strong><br>{{claim.due_date_D4}}</td>
+                {% elif "D4 uploaded" in claim.status.status %} D5</strong><br>{{claim.due_date_D5}}</td>
+                {% elif "D4 accepted" in claim.status.status %} D5</strong><br>{{claim.due_date_D5}}</td>
+                {% elif "D5 rejected" in claim.status.status %} D5</strong><br>{{claim.due_date_D5}}</td>
+                {% elif "D5 uploaded" in claim.status.status %} D6</strong><br>{{claim.due_date_D6}}</td>
+                {% elif "D5 accepted" in claim.status.status %} D6</strong><br>{{claim.due_date_D6}}</td>
+                {% elif "D6 rejected" in claim.status.status %} D6</strong><br>{{claim.due_date_D6}}</td>
+                {% elif "D6 uploaded" in claim.status.status %} D6</strong><br>{{claim.due_date_D8}}</td>
+                {% elif "D6 accepted" in claim.status.status %} D6</strong><br>{{claim.due_date_D8}}</td>
+                {% elif "D7 rejected" in claim.status.status %} D6</strong><br>{{claim.due_date_D8}}</td>
+                {% elif "D7 uploaded" in claim.status.status %} D6</strong><br>{{claim.due_date_D8}}</td>
+                {% elif "D7 accepted" in claim.status.status %} D6</strong><br>{{claim.due_date_D8}}</td>
+                {% elif 'rejection' in claim.status.status %}</strong><br>---</td>
+                {% endif %}
+               
+          </tr>
+      </table>
+      &nbsp;
+      <table class="table">
+          <tr>
+                <td colspan="7"><h1>D6 - Implemented corrective measures - non-detection of the failure</h1></td>
+          </tr>
+        </table>
+        &nbsp;
+        <table class="table">
+        {% if d6_tasks_det %}
+          <tr>
+                <td colspan="7"><strong>open tasks</strong></td>
+          </tr>
+          <tr>
+                <td><strong>Nb.</strong></td>
+                <td><strong>importance</strong></td>
+                <td><strong>type</strong></td>
+                <td><strong>action</strong></td>
+                <td><strong>task</strong></td>
+                <td><strong>pilot</strong></td>
+                <td><strong>due date</strong></td>
+          </tr>
+              {% for task in d6_tasks_det %}
+          <tr>
+                <td>{{task.number}}</td>
+                <td>{{task.importance}}</td>
+                <td>{{task.type}}</td>
+                <td>{{task.action}}</td>
+                <td>{{task.task}}</td>
+                <td>{{task.pilot}}</td>
+                <td>{{task.due_date}}</td>
+          </tr>
+              {% endfor %}
+              {% endif %}
+              {% if d6_tasks_done_det %}
+          <tr>
+                <td colspan="7"><strong>closed tasks</strong></td>
+          </tr>
+          <tr>
+                <td><strong>Nb.</strong></td>
+                <td><strong>importance</strong></td>
+                <td><strong>type</strong></td>
+                <td><strong>action</strong></td>
+                <td><strong>task</strong></td>
+                <td><strong>pilot</strong></td>
+                <td><strong>close date</strong></td>
+              </tr>
+              {% for task in d6_tasks_done_det %}
+          <tr>
+                <td>{{task.number}}</td>
+                <td>{{task.importance}}</td>
+                <td>{{task.type}}</td>
+                <td>{{task.action}}</td>
+                <td>{{task.task}}</td>
+                <td>{{task.pilot}}</td>
+                <td>{{task.closed_date}}</td>
+          </tr>
+              {% endfor %}
+              {% endif %}
+        {% if d6_tasks_det or d6_tasks_done_det %}
+        {% else %}
+          <tr>
+            <td><strong>No tasks yet!</strong></td>
+          </tr>
+        {% endif %}
+        </table>
+      </div><!--Ende der Seite-->  
+              
+  <div id=test><pdf:nextpage /></div>
+    <div class="card">
+        <div class="card-header">
+            <h2>8D - report (Claim Nb. {{claim.pk}}, RMA: {{claim.RMA}}, IQC: {{claim.IQC}})</h2>
+        </div>
+        <table class="table">
+          <tr>
+                <td colspan="2"><strong>Concern / Title</strong><br>
+                {{claim.speaking_name}}
+                </td>
+                <td><strong>Ref. No.</strong><br>
+                {{claim.pk}}</td>
+                <td><strong>Part Number / Index</strong><br>
+                {{claim.part_number}}</td>
+          </tr>
+          <tr>
+                <td><strong>Start Date</strong><br>
+                {{claim.created_date}}</td>
+                <td><strong>Print Date</strong><br>
+                {{pdf_data.0}}</td>
+                <td><strong>8D status</strong><br>
+                {{claim.status}}
+                </td>
+                <td><strong>Due date
+                {% if "Opened" in claim.status.status %} D3</strong><br>{{claim.due_date_D3}}</td>
+                {% elif "D3 rejected" in claim.status.status %} D3</strong><br>{{claim.due_date_D3}}</td>
+                {% elif "D3 uploaded" in claim.status.status %} D4</strong><br>{{claim.due_date_D4}}</td>
+                {% elif "D3 accepted" in claim.status.status %} D4</strong><br>{{claim.due_date_D4}}</td>
+                {% elif "D4 rejected" in claim.status.status %} D4</strong><br>{{claim.due_date_D4}}</td>
+                {% elif "D4 uploaded" in claim.status.status %} D5</strong><br>{{claim.due_date_D5}}</td>
+                {% elif "D4 accepted" in claim.status.status %} D5</strong><br>{{claim.due_date_D5}}</td>
+                {% elif "D5 rejected" in claim.status.status %} D5</strong><br>{{claim.due_date_D5}}</td>
+                {% elif "D5 uploaded" in claim.status.status %} D6</strong><br>{{claim.due_date_D6}}</td>
+                {% elif "D5 accepted" in claim.status.status %} D6</strong><br>{{claim.due_date_D6}}</td>
+                {% elif "D6 rejected" in claim.status.status %} D6</strong><br>{{claim.due_date_D6}}</td>
+                {% elif "D6 uploaded" in claim.status.status %} D6</strong><br>{{claim.due_date_D8}}</td>
+                {% elif "D6 accepted" in claim.status.status %} D6</strong><br>{{claim.due_date_D8}}</td>
+                {% elif "D7 rejected" in claim.status.status %} D6</strong><br>{{claim.due_date_D8}}</td>
+                {% elif "D7 uploaded" in claim.status.status %} D6</strong><br>{{claim.due_date_D8}}</td>
+                {% elif "D7 accepted" in claim.status.status %} D6</strong><br>{{claim.due_date_D8}}</td>
+                {% elif 'rejection' in claim.status.status %}</strong><br>---</td>
+                {% endif %}
+               
+          </tr>
+      </table>
+      &nbsp;
+      <table class="table">
+          <tr>
+                <td colspan="7"><h1>D7 - Prevent a repeat of the failure</h1></td>
+          </tr>
+        </table>
+        &nbsp;
+        <table class="table">
+          <tr>
+            <td colspan = "4"><strong>Updated documents</strong></td>
+          </tr>
+          <tr>
+            <td><strong>documentation</strong></td>
+            <td><strong>pilot</strong></td>
+            <td><strong>date</strong></td>
+            <td><strong>comment</strong></td>
+          </tr>
+          {% if d7.DFMEA_done%}
+          <tr>
+            <td>Design FMEA</td>
+            <td>{{d7.DFMEA_pilot}}</td>
+            <td>{{d7.DFMEA_date}}</td>
+            <td>{{d7.DFMEA_comment}}</td>
+          </tr>
+          {% endif %}
+          {% if d7.PFMEA_done%}
+          <tr>
+            <td>Process FMEA</td>
+            <td>{{d7.PFMEA_pilot}}</td>
+            <td>{{d7.PFMEA_date}}</td>
+            <td>{{d7.PFMEA_comment}}</td>
+          </tr>
+          {% endif %}
+          {% if d7.LFMEA_done%}
+          <tr>
+            <td>Logistics FMEA</td>
+            <td>{{d7.LFMEA_pilot}}</td>
+            <td>{{d7.LFMEA_date}}</td>
+            <td>{{d7.LFMEA_comment}}</td>
+          </tr>
+          {% endif %}
+          {% if d7.controlplan_done%}
+          <tr>
+            <td>Controlplan</td>
+            <td>{{d7.controlplan_pilot}}</td>
+            <td>{{d7.controlplan_date}}</td>
+            <td>{{d7.controlplan_comment}}</td>
+          </tr>
+          {% endif %}
+          {% if d7.WI_done %}
+          <tr>
+            <td>Work instructions</td>
+            <td>{{d7.WI_pilot}}</td>
+            <td>{{d7.WI_date}}</td>
+            <td>{{d7.WI_comment}}</td>
+          </tr>
+          {% endif %}
+          {% if d7.MP_done %}
+          <tr>
+            <td>Maintenance plan</td>
+            <td>{{d7.MP_pilot}}</td>
+            <td>{{d7.MP_date}}</td>
+            <td>{{d7.MP_comment}}</td>
+          </tr>
+          {% endif %}
+          {% if d7.Dstand_done %}
+          <tr>
+            <td>Design standards</td>
+            <td>{{d7.Dstand_pilot}}</td>
+            <td>{{d7.Dstand_date}}</td>
+            <td>{{d7.Dstand_comment}}</td>
+          </tr>
+          {% endif %}
+          {% if d7.toolDstand_done %}
+          <tr>
+            <td>Tooling design standards</td>
+            <td>{{d7.toolDstand_pilot}}</td>
+            <td>{{d7.toolDstand_date}}</td>
+            <td>{{d7.toolDstand_comment}}</td>
+          </tr>
+          {% endif %}
+          {% if d7.LLcard_done %}
+          <tr>
+            <td>Lessons Learned Card</td>
+            <td>{{d7.LLcard_pilot}}</td>
+            <td>{{d7.LLcard_date}}</td>
+            <td>{{d7.LLcard_comment}}</td>
+          </tr>
+          {% endif %}
+          {% if d7.Gstand_done %}
+          <tr>
+            <td>Gauges standard</td>
+            <td>{{d7.Gstand_pilot}}</td>
+            <td>{{d7.Gstand_date}}</td>
+            <td>{{d7.Gstand_comment}}</td>
+          </tr>
+          {% endif %}
+          {% if d7.Tstand_done %}
+          <tr>
+            <td>Training standards</td>
+            <td>{{d7.Tstand_pilot}}</td>
+            <td>{{d7.Tstand_date}}</td>
+            <td>{{d7.Tstand_comment}}</td>
+          </tr>
+          {% endif %}
+          {% if d7.procedure_done %}
+          <tr>
+            <td>Procedure</td>
+            <td>{{d7.procedure_pilot}}</td>
+            <td>{{d7.procedure_date}}</td>
+            <td>{{d7.procedure_comment}}</td>
+          </tr>
+          {% endif %}
+          {% if d7.spec_done %}
+          <tr>
+            <td>Specification</td>
+            <td>{{d7.spec_pilot}}</td>
+            <td>{{d7.spec_date}}</td>
+            <td>{{d7.spec_comment}}</td>
+          </tr>
+          {% endif %}
+          {% if d7.other_done %}
+          <tr>
+            <td>Other</td>
+            <td>{{d7.other_pilot}}</td>
+            <td>{{d7.other_date}}</td>
+            <td>{{d7.other_comment}}</td>
+          </tr>
+          {% endif %}
+        </table>
+      </div><!--Ende der Seite-->
+
+  <div id=test><pdf:nextpage /></div>
+    <div class="card">
+        <div class="card-header">
+            <h2>8D - report (Claim Nb. {{claim.pk}}, RMA: {{claim.RMA}}, IQC: {{claim.IQC}})</h2>
+        </div>
+        <table class="table">
+          <tr>
+                <td colspan="2"><strong>Concern / Title</strong><br>
+                {{claim.speaking_name}}
+                </td>
+                <td><strong>Ref. No.</strong><br>
+                {{claim.pk}}</td>
+                <td><strong>Part Number / Index</strong><br>
+                {{claim.part_number}}</td>
+          </tr>
+          <tr>
+                <td><strong>Start Date</strong><br>
+                {{claim.created_date}}</td>
+                <td><strong>Print Date</strong><br>
+                {{pdf_data.0}}</td>
+                <td><strong>8D status</strong><br>
+                {{claim.status}}
+                </td>
+                <td><strong>Due date
+                {% if "Opened" in claim.status.status %} D3</strong><br>{{claim.due_date_D3}}</td>
+                {% elif "D3 rejected" in claim.status.status %} D3</strong><br>{{claim.due_date_D3}}</td>
+                {% elif "D3 uploaded" in claim.status.status %} D4</strong><br>{{claim.due_date_D4}}</td>
+                {% elif "D3 accepted" in claim.status.status %} D4</strong><br>{{claim.due_date_D4}}</td>
+                {% elif "D4 rejected" in claim.status.status %} D4</strong><br>{{claim.due_date_D4}}</td>
+                {% elif "D4 uploaded" in claim.status.status %} D5</strong><br>{{claim.due_date_D5}}</td>
+                {% elif "D4 accepted" in claim.status.status %} D5</strong><br>{{claim.due_date_D5}}</td>
+                {% elif "D5 rejected" in claim.status.status %} D5</strong><br>{{claim.due_date_D5}}</td>
+                {% elif "D5 uploaded" in claim.status.status %} D6</strong><br>{{claim.due_date_D6}}</td>
+                {% elif "D5 accepted" in claim.status.status %} D6</strong><br>{{claim.due_date_D6}}</td>
+                {% elif "D6 rejected" in claim.status.status %} D6</strong><br>{{claim.due_date_D6}}</td>
+                {% elif "D6 uploaded" in claim.status.status %} D6</strong><br>{{claim.due_date_D8}}</td>
+                {% elif "D6 accepted" in claim.status.status %} D6</strong><br>{{claim.due_date_D8}}</td>
+                {% elif "D7 rejected" in claim.status.status %} D6</strong><br>{{claim.due_date_D8}}</td>
+                {% elif "D7 uploaded" in claim.status.status %} D6</strong><br>{{claim.due_date_D8}}</td>
+                {% elif "D7 accepted" in claim.status.status %} D6</strong><br>{{claim.due_date_D8}}</td>
+                {% elif 'rejection' in claim.status.status %}</strong><br>---</td>
+                {% endif %}
+               
+          </tr>
+      </table>
+      &nbsp;
+      <table class="table">
+          <tr>
+                <td colspan="7"><h1>D8 - Acknowledge the team's success</h1></td>
+          </tr>
+      </table>
+      &nbsp;
+        
+      {% if "Closed" in claim.status.status %}
+      <h1>Thanks to the team for the strong support!</h1>
+      {% else %}
+      <h2>The 8D-report is not in a status to be closed, yet.</h2>
+      {% endif %}
+        
+        
+        
+        
+
+      
+</div>
+<!-- Content for Static Frame 'footer_frame' -->
+<div id="footer_content">(c) - page <pdf:pagenumber> of <pdf:pagecount> </div>
+</body>
+</html>

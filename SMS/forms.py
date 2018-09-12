@@ -348,8 +348,8 @@ class TaskForm(forms.ModelForm):
     class Meta:
         model=Task
         widgets={
-          'task':forms.Textarea(attrs={'rows':1, 'cols':35}),
-          'task_comment':forms.Textarea(attrs={'rows':1, 'cols':40}),
+          'task':forms.Textarea(attrs={'rows':2, 'cols':50}),
+          'task_comment':forms.Textarea(attrs={'rows':2, 'cols':50}),
           'due_date': DatePicker(options={
                 "format": "yyyy-mm-dd",
                 "autoclose": True,
@@ -1012,7 +1012,8 @@ class PasswordForm(forms.Form):
 class UserForm(forms.ModelForm):
     class Meta:
         model = User
-        fields = ('username', 'password')  
+        fields = ('username',)  
+#         fields = ('username', 'password')  
         
 class UserProfileForm(forms.ModelForm):
     class Meta:
