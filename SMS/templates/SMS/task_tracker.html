@@ -173,6 +173,10 @@
                   {% if 'In time' in task.timely_status %}
                   <button type="button" class="btn btn-success btn-xs">in time</button> 
                   {% endif %}
+
+                  {% if 'Today' in task.timely_status %}
+                  <button type="button" class="btn btn-warning btn-xs">today</button> 
+                  {% endif %}
               </td>        
               <td>{{ task.task_comment|truncatechars:30 }}</td>        
               <td>

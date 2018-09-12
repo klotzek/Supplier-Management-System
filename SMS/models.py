@@ -393,6 +393,8 @@ class Task(models.Model):
     def timely_status(self):
         if datetime.date(timezone.now()) > self.due_date:
             return "Overdue"
+        elif datetime.date(timezone.now()) == self.due_date:
+            return "Today"
         return "In time"
     def __str__(self):
         return str(self.project) + " " + str(self.subproject) + "  Task " + str(self.pk)
