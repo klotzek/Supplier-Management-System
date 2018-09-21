@@ -589,6 +589,7 @@ def D1D8(request, claim):
         if '/SMS/D1/' in request.path:
             team_members = Team.objects.filter(claim=claim.pk)
             form=Team_Form(request.POST, company=company, hereIwork=hereIwork)    #nur User der company werden angezeigt
+#             pdb.set_trace()
 #             form=Team_Form(request.POST, company=company)    #nur User der company werden angezeigt
             if form.is_valid():
                 team_form=form.save(commit=False)

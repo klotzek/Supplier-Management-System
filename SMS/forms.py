@@ -930,10 +930,12 @@ class Team_Form(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         company = kwargs.pop('company', None)
         hereIwork = kwargs.pop('hereIwork', None)
-        hereIwork = hereIwork.name
+#         hereIwork = hereIwork.name
         super(Team_Form, self).__init__(*args, **kwargs)
-        if 'PMDM' in hereIwork:    #falls Du zu PMDM gehoerst, darfst Du auch Kollegen von PMDM in die Taskliste einfuegen.
-            self.fields['member'].queryset=(UserProfile.objects.filter(company=company) | UserProfile.objects.filter(company__name='PMDM')).distinct()    
+#         if 'PMDM' in hereIwork:    #falls Du zu PMDM gehoerst, darfst Du auch Kollegen von PMDM in die Taskliste einfuegen.
+        if hereIwork.NMB_company:    #falls Du zu PMDM gehoerst, darfst Du auch Kollegen von PMDM in die Taskliste einfuegen.
+            self.fields['member'].queryset=(UserProfile.objects.filter(company=company) | UserProfile.objects.filter(company__NMB_company = True) | UserProfile.objects.filter(company__customer=False)).distinct()    
+#             self.fields['member'].queryset=(UserProfile.objects.filter(company=company) | UserProfile.objects.filter(company__name='PMDM')).distinct()    
         else:
             self.fields['member'].queryset=UserProfile.objects.filter(company=company)
             

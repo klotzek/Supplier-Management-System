@@ -124,7 +124,8 @@
           
         </thead>
         <tbody>    
-        {% for task in tasks %}   
+        {% for task in tasks %}
+           {% if 'TASK' in task.type %}   
             {% if task.pk == task_data.2 %}
             <tr class="active">
             {% else %}
@@ -189,7 +190,117 @@
                   <button type="submit" name="task_done" class="btn btn-primary btn-xs">close</button>
                   </form> 
               </td>        
-            </tr>    
+            </tr>
+           {% endif %}     
+        {% endfor %} 
+            
+        {% for task in tasks %}
+           {% if 'INFO' in task.type %}   
+            <tr>
+              <td>{{ task.number }}
+              </td>
+              <td>
+                  {% if 'LOW' in task.importance %}
+                  <button type="button" class="btn btn-success btn-xs">low</button> 
+                  {% endif %}
+
+                  {% if 'HIGH' in task.importance %}
+                  <button type="button" class="btn btn-danger btn-xs">high</button> 
+                  {% endif %}
+                  
+                  {% if 'MID' in task.importance %}
+                  <button type="button" class="btn btn-warning btn-xs">mid</button> 
+                  {% endif %}
+              </td>
+              <td>
+                  {% if 'INFO' in task.type %}
+                  <button type="button" class="btn btn-info btn-xs">info</button> 
+                  {% endif %}
+
+                  {% if 'DEC' in task.type %}
+                  <button type="button" class="btn btn-primary btn-xs">decision</button> 
+                  {% endif %}
+                  
+                  {% if 'TASK' in task.type %}
+                  <button type="button" class="btn btn-success btn-xs">task</button> 
+                  {% endif %}
+              </td>
+              <td>{{ task.status }}</td>        
+              <td>{{ task.action }}</td>        
+              <td>{{ task.task|truncatechars:30  }}</td>        
+              <td>{{ task.pilot.user }}</td>        
+              <td>{{ task.date_issued }}</td>        
+              <td>{{ task.original_due_date }}</td>        
+              <td>{{ task.due_date }}</td>        
+              <td>
+              </td>        
+              <td>{{ task.task_comment|truncatechars:30 }}</td>        
+              <td>
+                  <a href="{% url 'task_details' task_data.3 task.project task.subproject task.pk %}"><span class="glyphicon glyphicon-pencil blue"></span></a>
+              </td>
+              <td>
+                  <form class="form-inline" method="POST" action="{{ task.pk }}" >
+                  {% csrf_token %}       
+   
+                  <button type="submit" name="task_done" class="btn btn-primary btn-xs">close</button>
+                  </form> 
+              </td>        
+            </tr>
+           {% endif %}     
+        {% endfor %}     
+        {% for task in tasks %}
+           {% if 'DEC' in task.type %}   
+            <tr>
+              <td>{{ task.number }}
+              </td>
+              <td>
+                  {% if 'LOW' in task.importance %}
+                  <button type="button" class="btn btn-success btn-xs">low</button> 
+                  {% endif %}
+
+                  {% if 'HIGH' in task.importance %}
+                  <button type="button" class="btn btn-danger btn-xs">high</button> 
+                  {% endif %}
+                  
+                  {% if 'MID' in task.importance %}
+                  <button type="button" class="btn btn-warning btn-xs">mid</button> 
+                  {% endif %}
+              </td>
+              <td>
+                  {% if 'INFO' in task.type %}
+                  <button type="button" class="btn btn-info btn-xs">info</button> 
+                  {% endif %}
+
+                  {% if 'DEC' in task.type %}
+                  <button type="button" class="btn btn-primary btn-xs">decision</button> 
+                  {% endif %}
+                  
+                  {% if 'TASK' in task.type %}
+                  <button type="button" class="btn btn-success btn-xs">task</button> 
+                  {% endif %}
+              </td>
+              <td>{{ task.status }}</td>        
+              <td>{{ task.action }}</td>        
+              <td>{{ task.task|truncatechars:30  }}</td>        
+              <td>{{ task.pilot.user }}</td>        
+              <td>{{ task.date_issued }}</td>        
+              <td>{{ task.original_due_date }}</td>        
+              <td>{{ task.due_date }}</td>        
+              <td>
+              </td>        
+              <td>{{ task.task_comment|truncatechars:30 }}</td>        
+              <td>
+                  <a href="{% url 'task_details' task_data.3 task.project task.subproject task.pk %}"><span class="glyphicon glyphicon-pencil blue"></span></a>
+              </td>
+              <td>
+                  <form class="form-inline" method="POST" action="{{ task.pk }}" >
+                  {% csrf_token %}       
+   
+                  <button type="submit" name="task_done" class="btn btn-primary btn-xs">close</button>
+                  </form> 
+              </td>        
+            </tr>
+           {% endif %}     
         {% endfor %}     
         </tbody>
       
@@ -232,7 +343,8 @@
           
         </thead>
         <tbody>
-        {% for task in tasks_done %}   
+        {% for task in tasks_done %}
+           {% if 'TASK' in task.type %}   
             <tr>
               <td>{{ task.number }}
               </td>
@@ -278,6 +390,105 @@
                   </form> 
               </td>        
             </tr>    
+        {% endif %}
+        {% endfor %}
+        {% for task in tasks_done %}
+           {% if 'INFO' in task.type %}   
+            <tr>
+              <td>{{ task.number }}
+              </td>
+              <td>
+                  {% if 'LOW' in task.importance %}
+                  <button type="button" class="btn btn-success btn-xs">low</button> 
+                  {% endif %}
+
+                  {% if 'HIGH' in task.importance %}
+                  <button type="button" class="btn btn-danger btn-xs">high</button> 
+                  {% endif %}
+                  
+                  {% if 'MID' in task.importance %}
+                  <button type="button" class="btn btn-warning btn-xs">mid</button> 
+                  {% endif %}
+              </td>
+              <td>
+                  {% if 'INFO' in task.type %}
+                  <button type="button" class="btn btn-info btn-xs">info</button> 
+                  {% endif %}
+
+                  {% if 'DEC' in task.type %}
+                  <button type="button" class="btn btn-primary btn-xs">decision</button> 
+                  {% endif %}
+                  
+                  {% if 'TASK' in task.type %}
+                  <button type="button" class="btn btn-success btn-xs">task</button> 
+                  {% endif %}
+              </td>
+              <td><del>{{ task.status }}</del></td>        
+              <td><del>{{ task.action }}</del></td>        
+              <td><del>{{ task.task|truncatechars:30 }}</del></td>        
+              <td><del>{{ task.pilot.user }}</del></td>        
+              <td><del>{{ task.date_issued }}</del></td>        
+              <td><del>{{ task.closed_date }}</del></td>        
+              <td><del>{{ task.task_comment|truncatechars:30 }}</del></td>        
+              <td>        
+                  <form action="{{ task.pk }}" method="POST" class="form-inline">
+                  {% csrf_token %}       
+                  <a href="{% url 'task_details' task_data.3 task.project task.subproject task.pk %}"><span class="glyphicon glyphicon-pencil orange"></span></a>
+                  &nbsp;
+                  <button type="submit" class="btn btn-warning btn-xs" name= "reopen">reopen</button>
+                  </form> 
+              </td>        
+            </tr>    
+        {% endif %}
+        {% endfor %}
+        {% for task in tasks_done %}
+           {% if 'DEC' in task.type %}   
+            <tr>
+              <td>{{ task.number }}
+              </td>
+              <td>
+                  {% if 'LOW' in task.importance %}
+                  <button type="button" class="btn btn-success btn-xs">low</button> 
+                  {% endif %}
+
+                  {% if 'HIGH' in task.importance %}
+                  <button type="button" class="btn btn-danger btn-xs">high</button> 
+                  {% endif %}
+                  
+                  {% if 'MID' in task.importance %}
+                  <button type="button" class="btn btn-warning btn-xs">mid</button> 
+                  {% endif %}
+              </td>
+              <td>
+                  {% if 'INFO' in task.type %}
+                  <button type="button" class="btn btn-info btn-xs">info</button> 
+                  {% endif %}
+
+                  {% if 'DEC' in task.type %}
+                  <button type="button" class="btn btn-primary btn-xs">decision</button> 
+                  {% endif %}
+                  
+                  {% if 'TASK' in task.type %}
+                  <button type="button" class="btn btn-success btn-xs">task</button> 
+                  {% endif %}
+              </td>
+              <td><del>{{ task.status }}</del></td>        
+              <td><del>{{ task.action }}</del></td>        
+              <td><del>{{ task.task|truncatechars:30 }}</del></td>        
+              <td><del>{{ task.pilot.user }}</del></td>        
+              <td><del>{{ task.date_issued }}</del></td>        
+              <td><del>{{ task.closed_date }}</del></td>        
+              <td><del>{{ task.task_comment|truncatechars:30 }}</del></td>        
+              <td>        
+                  <form action="{{ task.pk }}" method="POST" class="form-inline">
+                  {% csrf_token %}       
+                  <a href="{% url 'task_details' task_data.3 task.project task.subproject task.pk %}"><span class="glyphicon glyphicon-pencil orange"></span></a>
+                  &nbsp;
+                  <button type="submit" class="btn btn-warning btn-xs" name= "reopen">reopen</button>
+                  </form> 
+              </td>        
+            </tr>    
+        {% endif %}
         {% endfor %}
         </tbody>
       
