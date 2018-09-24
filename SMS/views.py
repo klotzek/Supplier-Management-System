@@ -25,6 +25,7 @@ class pdf_report(TemplateView):
     def get(self, request, claim):
         claim = Claim.objects.get(pk=claim)
         company = Company.objects.get(pk=claim.related_to_id)
+        hereIwork = UserProfile.objects.get(user=request.user).company
         now=datetime.now()
         trace_data = TraceData.objects.filter(claim=claim)
         team = Team.objects.filter(claim=claim)
@@ -128,6 +129,7 @@ class pdf_report(TemplateView):
         params = {
                   'request':request,
                   'company':company,
+                  'hereIwork':hereIwork,
                   'claim':claim,
                   'pdf_data':pdf_data,
                   'trace_data':trace_data,
