@@ -1,0 +1,227 @@
+{% extends 'SMS/base.html' %} 
+{% block content %} 
+
+{% load bootstrap3 %} {# Load the tag library #} 
+{% bootstrap_css %} {# Load CSS and JavaScript #} 
+{% bootstrap_javascript %} {# Embeds Bootstrap JS #}
+{% bootstrap_messages %} {# Display django.contrib.messages as Bootstrap alerts #}
+
+{{ form.media }}        {# Form required JS and CSS #}
+{{ form2.media }}        {# Form required JS and CSS #}
+
+
+
+
+<div class = "container-fluid">
+  <div class="row">  
+    <div class="col-md-12">
+      <h2>Standard certificates of {% if company.customer %}customer{% else %}vendor{% endif %} {{company.name}}</h2>
+      <form method="POST" class="form-inline" enctype="multipart/form-data">  
+      {% csrf_token %}       
+    
+      {% bootstrap_form_errors form %}
+
+      <table class="table table-hover table-condensed">           
+        <thead><tr>      
+          <td><strong>cert name</strong></td>        
+          <td><strong>mandatory</strong></td>
+          <td><strong>cert pic</strong></td>
+          <td><strong>cert board</strong></td>
+          <td><strong>valid from</strong></td>
+          <td><strong>valid till</strong></td>
+          <td><strong>NMB judgement</strong></td>
+          <td><strong>rejected</strong></td>
+        </tr></thead>
+        <tbody>
+          
+          {% if standard_certs.IATF16949_failed %}<tr class="danger">
+          {% else %}
+          {% if not standard_certs.IATF16949_validated %}<tr class="warning">
+          {% else %}
+          <tr>
+          {% endif %}
+          {% endif %}
+          
+            <td><strong>IATF 16949:2016</strong></td>
+            <td>{% bootstrap_field form.IATF16949_mandatory layout='inline' label='' %}</td>
+            
+            <td>{% if standard_certs.IATF16949_pic %}
+            <a href="../media/{{ standard_certs.IATF16949_pic }}" target="_blank"><span class="glyphicon glyphicon-cloud-download"></span></a
+            <div class="form-group">
+            <input type="checkbox" name="IATF16949_pic-clear" id="IATF16949_pic-clear_id">
+            <label for="IATF16949_pic-clear_id">Clear</label>
+            </div>
+            {% else %}
+            {% bootstrap_field form.IATF16949_pic layout='inline' %}{% endif %}
+            </td>
+            <td>{% bootstrap_field form.IATF16949_cert_board layout='inline' %}</td>
+            <td>{% bootstrap_field form.IATF16949_start layout='inline' %}</td>
+            <td>{% bootstrap_field form.IATF16949_stop layout='inline' %}</td>
+            <td>{% bootstrap_field form.IATF16949_validated layout='inline' label='' %}</td>
+            <td>{% bootstrap_field form.IATF16949_rejected layout='inline' label='' %}</td>
+        </tr>
+
+          {% if standard_certs.ISO9001_failed %}<tr class="danger">
+          {% else %}
+          {% if not standard_certs.ISO9001_validated %}<tr class="warning">
+          {% else %}
+          <tr>
+          {% endif %}
+          {% endif %}
+          
+            <td><strong>ISO 9001:2015</strong></td>
+            <td>{% bootstrap_field form.ISO9001_mandatory layout='inline' label='' %}</td>
+            <td>
+            {% if standard_certs.ISO9001_pic %}
+            <a href="../media/{{ standard_certs.ISO9001_pic }}" target="_blank"><span class="glyphicon glyphicon-cloud-download"></span></a
+            <div class="form-group">
+            <input type="checkbox" name="ISO9001_pic-clear" id="ISO9001_pic-clear_id">
+            <label for="ISO9001_pic-clear_id">Clear</label>
+            </div>
+            {% else %}
+            {% bootstrap_field form.ISO9001_pic layout='inline' %}
+            {% endif %}
+            
+            </td>
+            <td>{% bootstrap_field form.ISO9001_cert_board layout='inline' %}</td>
+            <td>{% bootstrap_field form.ISO9001_start layout='inline' %}</td>
+            <td>{% bootstrap_field form.ISO9001_stop layout='inline' %}</td>
+            <td>{% bootstrap_field form.ISO9001_validated layout='inline' label='' placeholder='sldjfhakjshdf' %}</td>
+            <td>{% bootstrap_field form.ISO9001_rejected layout='inline' label='' %}</td>
+        </tr>
+
+          {% if standard_certs.ISO14001_failed %}<tr class="danger">
+          {% else %}
+          {% if not standard_certs.ISO14001_validated %}<tr class="warning">
+          {% else %}
+          <tr>
+          {% endif %}
+          {% endif %}
+          
+            <td><strong>ISO 14001:2015</strong></td>
+            <td>{% bootstrap_field form.ISO14001_mandatory layout='inline' label='' %}</td>
+            <td>{% if standard_certs.ISO14001_pic %}
+            <a href="../media/{{ standard_certs.ISO14001_pic }}" target="_blank"><span class="glyphicon glyphicon-cloud-download"></span></a
+            <div class="form-group">
+            <input type="checkbox" name="ISO14001_pic-clear" id="ISO14001_pic-clear_id">
+            <label for="ISO14001_pic-clear_id">Clear</label>
+            </div>
+            {% else %}
+            {% bootstrap_field form.ISO14001_pic layout='inline' %}{% endif %}</td>
+            <td>{% bootstrap_field form.ISO14001_cert_board layout='inline' %}</td>
+            <td>{% bootstrap_field form.ISO14001_start layout='inline' %}</td>
+            <td>{% bootstrap_field form.ISO14001_stop layout='inline' %}</td>
+            <td>{% bootstrap_field form.ISO14001_validated layout='inline' label='' %}</td>
+            <td>{% bootstrap_field form.ISO14001_rejected layout='inline' label='' %}</td>
+        </tr>
+
+          {% if standard_certs.OHSAS18001_failed %}<tr class="danger">
+          {% else %}
+          {% if not standard_certs.OHSAS18001_validated %}<tr class="warning">
+          {% else %}
+          <tr>
+          {% endif %}
+          {% endif %}
+          
+            <td><strong>OHSAS18001:2007</strong></td>
+            <td>{% bootstrap_field form.OHSAS18001_mandatory layout='inline' label='' %}</td>
+            <td>{% if standard_certs.OHSAS18001_pic %}
+            <a href="../media/{{ standard_certs.OHSAS18001_pic }}" target="_blank"><span class="glyphicon glyphicon-cloud-download"></span></a
+            <div class="form-group">
+            <input type="checkbox" name="OHSAS18001_pic-clear" id="OHSAS18001_pic-clear_id">
+            <label for="OHSAS18001_pic-clear_id">Clear</label>
+            </div>
+            {% else %}
+            {% bootstrap_field form.OHSAS18001_pic layout='inline' %}{% endif %}</td>
+            <td>{% bootstrap_field form.OHSAS18001_cert_board layout='inline' %}</td>
+            <td>{% bootstrap_field form.OHSAS18001_start layout='inline' %}</td>
+            <td>{% bootstrap_field form.OHSAS18001_stop layout='inline' %}</td>
+            <td>{% bootstrap_field form.OHSAS18001_validated layout='inline' label='' %}</td>
+            <td>{% bootstrap_field form.OHSAS18001_rejected layout='inline' label='' %}</td>
+        </tr>
+        </tbody>           
+      </table>  
+
+
+      {% buttons %}
+      {% bootstrap_button "Save standard certificates" button_type="submit" button_class="btn-default" size="small"  name="std_cert"  %}
+       {% endbuttons %}
+      </form> 
+
+    </div>  
+  </div>
+  
+  <div class="row">  
+    <div class="col-md-12">
+      <h2>Other certificates</h2>
+      <form method="POST" class="form-inline" enctype="multipart/form-data">  
+      {% csrf_token %}       
+    
+      {% bootstrap_form_errors form2 %}
+
+      <table class="table table-hover table-condensed">           
+        <thead><tr>      
+          <td><strong>cert name</strong></td>        
+          <td><strong>mandatory</strong></td>
+          <td><strong>cert pic</strong></td>
+          <td><strong>cert board</strong></td>
+          <td><strong>valid from</strong></td>
+          <td><strong>valid till</strong></td>
+          <td><strong>NMB judgement</strong></td>
+          <td><strong>rejected</strong></td>
+        </tr></thead>
+        <tbody>
+        {% for cert in other_certs%}
+          {% if cert.failed %}<tr class="danger">
+          {% else %}
+          {% if not cert.validated %}<tr class="warning">
+          {% else %}
+          <tr>
+          {% endif %}
+          {% endif %}
+          
+          <td>                      
+          <a href="{% url 'cert_remove' cert.pk %}"><span class="glyphicon glyphicon-remove red"></span></a>
+          <a href="{% url 'cert_edit' cert.pk %}"><span class="glyphicon glyphicon-pencil orange"></span></a>
+          <strong>{{ cert.cert_name}}</strong></td>
+          <td>{{ cert.mandatory}}</td>
+          <td>{% if cert.pic %}
+                      <a href="../media/{{ cert.pic }}" target="_blank"><span class="glyphicon glyphicon-cloud-download"></span></a>
+              {% endif %}
+          </td>
+          <td>{{ cert.cert_board}}</td>
+          <td>{{ cert.start}}</td>
+          <td>{{ cert.stop}}</td>
+          <td>{{ cert.validated}}</td>
+          <td>{{ cert.rejected}}</td>
+        </tr>
+        <tr></tr>
+        {% endfor %}
+        <tr>
+          <td>{% bootstrap_field form2.cert_name layout='inline'  %}</td>
+          <td>{% bootstrap_field form2.mandatory layout='inline'  label='' %}</td>
+          <td>{% bootstrap_field form2.pic layout='inline' %}</td>
+          <td>{% bootstrap_field form2.cert_board layout='inline' %}</td>
+          <td>{% bootstrap_field form2.start layout='inline' %}</td>
+          <td>{% bootstrap_field form2.stop layout='inline' %}</td>
+          <td>{% bootstrap_field form2.validated layout='inline' label='' %}</td>
+          <td>{% bootstrap_field form2.rejected layout='inline' label='' %}</td>
+        </tr>
+        </tbody>           
+      </table>  
+
+
+      {% buttons %}
+      {% bootstrap_button "Save other certificates" button_type="submit" button_class="btn-default" size="small"  name="other_cert"  %}
+       {% endbuttons %}
+      </form> 
+
+    </div>  
+  </div>
+  
+  
+  
+  
+  
+</div>
+{% endblock %}

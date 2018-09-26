@@ -27,5 +27,7 @@ admin.site.register(File)
 admin.site.register(W5_occurance)
 admin.site.register(W5_detection)
 admin.site.register(D7)
+admin.site.register(Certifications)
+admin.site.register(OtherCertifications)
 
                  

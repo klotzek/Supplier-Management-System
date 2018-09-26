@@ -1,0 +1,73 @@
+{% extends 'SMS/base.html' %} 
+{% block content %} 
+
+{% load bootstrap3 %} {# Load the tag library #} 
+{% bootstrap_css %} {# Load CSS and JavaScript #} 
+{% bootstrap_javascript %} {# Embeds Bootstrap JS #}
+{% bootstrap_messages %} {# Display django.contrib.messages as Bootstrap alerts #}
+
+{{ form2.media }}        {# Form required JS and CSS #}
+
+
+{% if messages %}
+<ul class="messages">
+    {% for message in messages %}
+    <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>
+        {% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}Important: {% endif %}
+        {{ message }}
+    </li>
+    {% endfor %}
+</ul>
+{% endif %}
+
+
+<div class = "container-fluid">
+  <div class="row">  
+    <div class="col-md-12">
+
+      <h2>Edit certificate "{{cert.cert_name}}" of {% if company.customer %}customer{% else %}vendor{% endif %} {{company.name}}</h2>
+      <form method="POST" class="form-inline"  enctype="multipart/form-data">  
+      {% csrf_token %}       
+    
+      {% bootstrap_form_errors form2 %}
+
+      <table class="table table-hover table-condensed">           
+        <thead><tr>      
+          <td><strong>cert name</strong></td>        
+          <td><strong>mandatory</strong></td>
+          <td><strong>cert pic</strong></td>
+          <td><strong>cert board</strong></td>
+          <td><strong>valid from</strong></td>
+          <td><strong>valid till</strong></td>
+          <td><strong>NMB judgement</strong></td>
+          <td><strong>rejected</strong></td>
+        </tr></thead>
+        <tbody>
+        <tr>
+          <td>{% bootstrap_field form2.cert_name layout='inline'  %}</td>
+          <td>{% bootstrap_field form2.mandatory layout='inline'  label='' %}</td>
+          <td>{% bootstrap_field form2.pic layout='inline' %}</td>
+          <td>{% bootstrap_field form2.cert_board layout='inline' %}</td>
+          <td>{% bootstrap_field form2.start layout='inline' %}</td>
+          <td>{% bootstrap_field form2.stop layout='inline' %}</td>
+          <td>{% bootstrap_field form2.validated layout='inline' label='' %}</td>
+          <td>{% bootstrap_field form2.rejected layout='inline' label='' %}</td>
+        </tr>
+        </tbody>           
+      </table>  
+
+
+      {% buttons %}
+      {% bootstrap_button "Save certificate" button_type="submit" button_class="btn-default" size="small"  name="other_cert"  %}
+       {% endbuttons %}
+      </form> 
+
+    </div>  
+  </div>
+  
+  
+  
+  
+  
+</div>
+{% endblock %}

@@ -1,12 +1,326 @@
 import pdb
+import os
 from bootstrap_datepicker.widgets import DatePicker 
 from django import forms
 from .models import *
 # from .models import Company, Claim, TraceData, UserProfile, Team, D2_CV, D2_SV, D3, Ishikawa_occurance, Ishikawa_detection, Task, W5_occurance, W5_detection, D4, D4_reproduction, File, Comment, D7
 from django.contrib.auth.models import User
 
+class OtherCertForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        self.hereIwork = kwargs.pop('hereIwork', None)
+        super(OtherCertForm, self).__init__(*args, **kwargs)
+        if not self.hereIwork.NMB_company:  #nur NMB_companies koennen bei mandatory einen Haken machen
+           self.fields['mandatory'].widget.attrs['readonly']=True
+           self.fields['mandatory'].widget.attrs['disabled']=True
+           self.fields['validated'].widget.attrs['readonly']=True
+           self.fields['validated'].widget.attrs['disabled']=True
+           self.fields['rejected'].widget.attrs['readonly']=True
+           self.fields['rejected'].widget.attrs['disabled']=True
+
+    def clean_mandatory(self):
+        instance = getattr(self, 'instance', None)
+        if not instance:
+            instance.mandatory=False
+        if not self.hereIwork.NMB_company:  #nicht-NMB_companies speichern die Vorgabe, die bereits in der DB steht
+            return instance.mandatory
+        else:
+            return self.cleaned_data['mandatory']    
+    def clean_validated(self):
+        instance = getattr(self, 'instance', None)
+        if not instance:
+            instance.validated=False
+        if not self.hereIwork.NMB_company:  #nicht-NMB_companies speichern die Vorgabe, die bereits in der DB steht
+            return instance.validated
+        else:
+            return self.cleaned_data['validated']    
+    def clean_rejected(self):
+        instance = getattr(self, 'instance', None)
+        if not instance:
+            instance.rejected=False
+        if not self.hereIwork.NMB_company:  #nicht-NMB_companies speichern die Vorgabe, die bereits in der DB steht
+            return instance.rejected
+        else:
+            return self.cleaned_data['rejected']    
+
+    pic=forms.FileField()
+    def clean_pic(self):
+        uploaded_file = self.cleaned_data['pic']
+        try:
+            # create an ImageField instance
+            im = forms.ImageField()
+            # now check if the file is a valid image
+            im.to_python(uploaded_file)
+        except forms.ValidationError:
+            # file is not a valid image;
+            # so check if it's a pdf
+            name, ext = os.path.splitext(uploaded_file.name)
+            if ext not in ['.pdf', '.PDF']:
+                raise forms.ValidationError("Only images and PDF files allowed")
+        return uploaded_file            
+        
+    
+    class Meta:
+        model=OtherCertifications
+        fields=[
+           'cert_name',
+           'mandatory',
+           'pic',
+           'cert_board',
+           'start',
+           'stop',
+           'validated', 
+           'rejected', 
+           
+           ]
 
 
+        widgets={
+           'start': DatePicker(options={
+                "format": "yyyy-mm-dd",
+                "autoclose": True,
+                "calendarWeeks":True,
+                "weekStart":1,
+                "todayHighlight": True,
+                "daysOfWeekHighlighted": [1,2,3,4,5],
+                "showOnFocus": False,
+          }),
+           'stop': DatePicker(options={
+                "format": "yyyy-mm-dd",
+                "autoclose": True,
+                "calendarWeeks":True,
+                "weekStart":1,
+                "todayHighlight": True,
+                "daysOfWeekHighlighted": [1,2,3,4,5],
+                "showOnFocus": False,
+          }),
+        }
+          
+    
+
+class CertForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        self.hereIwork = kwargs.pop('hereIwork', None)
+        super(CertForm, self).__init__(*args, **kwargs)
+        if not self.hereIwork.NMB_company:  #nur NMB_companies koennen bei mandatory einen Haken machen
+           self.fields['IATF16949_mandatory'].widget.attrs['readonly']=True
+           self.fields['IATF16949_mandatory'].widget.attrs['disabled']=True
+           self.fields['IATF16949_validated'].widget.attrs['readonly']=True
+           self.fields['IATF16949_validated'].widget.attrs['disabled']=True
+           self.fields['IATF16949_rejected'].widget.attrs['readonly']=True
+           self.fields['IATF16949_rejected'].widget.attrs['disabled']=True
+           self.fields['ISO9001_mandatory'].widget.attrs['readonly']=True
+           self.fields['ISO9001_mandatory'].widget.attrs['disabled']=True
+           self.fields['ISO9001_validated'].widget.attrs['readonly']=True
+           self.fields['ISO9001_validated'].widget.attrs['disabled']=True
+           self.fields['ISO9001_rejected'].widget.attrs['readonly']=True
+           self.fields['ISO9001_rejected'].widget.attrs['disabled']=True
+           self.fields['ISO14001_mandatory'].widget.attrs['readonly']=True
+           self.fields['ISO14001_mandatory'].widget.attrs['disabled']=True
+           self.fields['ISO14001_validated'].widget.attrs['readonly']=True
+           self.fields['ISO14001_validated'].widget.attrs['disabled']=True
+           self.fields['ISO14001_rejected'].widget.attrs['readonly']=True
+           self.fields['ISO14001_rejected'].widget.attrs['disabled']=True
+           self.fields['OHSAS18001_mandatory'].widget.attrs['readonly']=True
+           self.fields['OHSAS18001_mandatory'].widget.attrs['disabled']=True
+           self.fields['OHSAS18001_validated'].widget.attrs['readonly']=True
+           self.fields['OHSAS18001_validated'].widget.attrs['disabled']=True
+           self.fields['OHSAS18001_rejected'].widget.attrs['readonly']=True
+           self.fields['OHSAS18001_rejected'].widget.attrs['disabled']=True
+
+    def clean_IATF16949_mandatory(self):
+        instance = getattr(self, 'instance', None)
+        if not self.hereIwork.NMB_company:  #nicht-NMB_companies speichern die Vorgabe, die bereits in der DB steht
+            return instance.IATF16949_mandatory
+        else:
+            return self.cleaned_data['IATF16949_mandatory']    
+    def clean_IATF16949_validated(self):
+        instance = getattr(self, 'instance', None)
+        if not self.hereIwork.NMB_company:  #nicht-NMB_companies speichern die Vorgabe, die bereits in der DB steht
+            return instance.IATF16949_validated
+        else:
+            return self.cleaned_data['IATF16949_validated']    
+    def clean_IATF16949_rejected(self):
+        instance = getattr(self, 'instance', None)
+        if not self.hereIwork.NMB_company:  #nicht-NMB_companies speichern die Vorgabe, die bereits in der DB steht
+            return instance.IATF16949_rejected
+        else:
+            return self.cleaned_data['IATF16949_rejected']    
+            
+    def clean_ISO9001_mandatory(self):
+        instance = getattr(self, 'instance', None)
+        if not self.hereIwork.NMB_company:  #nicht-NMB_companies speichern die Vorgabe, die bereits in der DB steht
+            return instance.ISO9001_mandatory
+        else:
+            return self.cleaned_data['ISO9001_mandatory']    
+    def clean_ISO9001_validated(self):
+        instance = getattr(self, 'instance', None)
+        if not self.hereIwork.NMB_company:  #nicht-NMB_companies speichern die Vorgabe, die bereits in der DB steht
+            return instance.ISO9001_validated
+        else:
+            return self.cleaned_data['ISO9001_validated']    
+    def clean_ISO9001_rejected(self):
+        instance = getattr(self, 'instance', None)
+        if not self.hereIwork.NMB_company:  #nicht-NMB_companies speichern die Vorgabe, die bereits in der DB steht
+            return instance.ISO9001_rejected
+        else:
+            return self.cleaned_data['ISO9001_rejected']    
+            
+    def clean_ISO14001_mandatory(self):
+        instance = getattr(self, 'instance', None)
+        if not self.hereIwork.NMB_company:  #nicht-NMB_companies speichern die Vorgabe, die bereits in der DB steht
+            return instance.ISO14001_mandatory
+        else:
+            return self.cleaned_data['ISO14001_mandatory']    
+    def clean_ISO14001_validated(self):
+        instance = getattr(self, 'instance', None)
+        if not self.hereIwork.NMB_company:  #nicht-NMB_companies speichern die Vorgabe, die bereits in der DB steht
+            return instance.ISO14001_validated
+        else:
+            return self.cleaned_data['ISO14001_validated']    
+    def clean_ISO14001_rejected(self):
+        instance = getattr(self, 'instance', None)
+        if not self.hereIwork.NMB_company:  #nicht-NMB_companies speichern die Vorgabe, die bereits in der DB steht
+            return instance.ISO14001_rejected
+        else:
+            return self.cleaned_data['ISO14001_rejected']    
+            
+    def clean_OHSAS18001_mandatory(self):
+        instance = getattr(self, 'instance', None)
+        if not self.hereIwork.NMB_company:  #nicht-NMB_companies speichern die Vorgabe, die bereits in der DB steht
+            return instance.OHSAS18001_mandatory
+        else:
+            return self.cleaned_data['OHSAS18001_mandatory']    
+    def clean_OHSAS18001_validated(self):
+        instance = getattr(self, 'instance', None)
+        if not self.hereIwork.NMB_company:  #nicht-NMB_companies speichern die Vorgabe, die bereits in der DB steht
+            return instance.OHSAS18001_validated
+        else:
+            return self.cleaned_data['OHSAS18001_validated']    
+    def clean_OHSAS18001_rejected(self):
+        instance = getattr(self, 'instance', None)
+        if not self.hereIwork.NMB_company:  #nicht-NMB_companies speichern die Vorgabe, die bereits in der DB steht
+            return instance.OHSAS18001_rejected
+        else:
+            return self.cleaned_data['OHSAS18001_rejected']    
+
+
+    class Meta:
+        model=Certifications
+        fields=[
+#             'company',
+            
+           'IATF16949_mandatory',
+           'IATF16949_pic',
+           'IATF16949_cert_board',
+           'IATF16949_start',
+           'IATF16949_stop',
+           'IATF16949_validated', 
+           'IATF16949_rejected', 
+           
+           'ISO9001_mandatory',
+           'ISO9001_pic',
+           'ISO9001_cert_board',
+           'ISO9001_start',
+           'ISO9001_stop',
+           'ISO9001_validated', 
+           'ISO9001_rejected', 
+           
+           'ISO14001_mandatory',
+           'ISO14001_pic',
+           'ISO14001_cert_board',
+           'ISO14001_start',
+           'ISO14001_stop',
+           'ISO14001_validated', 
+           'ISO14001_rejected', 
+           
+           'OHSAS18001_mandatory',
+           'OHSAS18001_pic',
+           'OHSAS18001_cert_board',
+           'OHSAS18001_start',
+           'OHSAS18001_stop',
+           'OHSAS18001_validated', 
+           'OHSAS18001_rejected', 
+           
+           ]
+        
+        widgets={
+           'IATF16949_start': DatePicker(options={
+                "format": "yyyy-mm-dd",
+                "autoclose": True,
+                "calendarWeeks":True,
+                "weekStart":1,
+                "todayHighlight": True,
+                "daysOfWeekHighlighted": [1,2,3,4,5],
+                "showOnFocus": False,
+          }),
+           'IATF16949_stop': DatePicker(options={
+                "format": "yyyy-mm-dd",
+                "autoclose": True,
+                "calendarWeeks":True,
+                "weekStart":1,
+                "todayHighlight": True,
+                "daysOfWeekHighlighted": [1,2,3,4,5],
+                "showOnFocus": False,
+          }),
+           'ISO9001_start': DatePicker(options={
+                "format": "yyyy-mm-dd",
+                "autoclose": True,
+                "calendarWeeks":True,
+                "weekStart":1,
+                "todayHighlight": True,
+                "daysOfWeekHighlighted": [1,2,3,4,5],
+                "showOnFocus": False,
+          }),
+           'ISO9001_stop': DatePicker(options={
+                "format": "yyyy-mm-dd",
+                "autoclose": True,
+                "calendarWeeks":True,
+                "weekStart":1,
+                "todayHighlight": True,
+                "daysOfWeekHighlighted": [1,2,3,4,5],
+                "showOnFocus": False,
+          }),
+           'OHSAS18001_start': DatePicker(options={
+                "format": "yyyy-mm-dd",
+                "autoclose": True,
+                "calendarWeeks":True,
+                "weekStart":1,
+                "todayHighlight": True,
+                "daysOfWeekHighlighted": [1,2,3,4,5],
+                "showOnFocus": False,
+          }),
+           'OHSAS18001_stop': DatePicker(options={
+                "format": "yyyy-mm-dd",
+                "autoclose": True,
+                "calendarWeeks":True,
+                "weekStart":1,
+                "todayHighlight": True,
+                "daysOfWeekHighlighted": [1,2,3,4,5],
+                "showOnFocus": False,
+          }),
+           'ISO14001_start': DatePicker(options={
+                "format": "yyyy-mm-dd",
+                "autoclose": True,
+                "calendarWeeks":True,
+                "weekStart":1,
+                "todayHighlight": True,
+                "daysOfWeekHighlighted": [1,2,3,4,5],
+                "showOnFocus": False,
+          }),
+           'ISO14001_stop': DatePicker(options={
+                "format": "yyyy-mm-dd",
+                "autoclose": True,
+                "calendarWeeks":True,
+                "weekStart":1,
+                "todayHighlight": True,
+                "daysOfWeekHighlighted": [1,2,3,4,5],
+                "showOnFocus": False,
+          }),
+        }
+          
+           
+           
 class D7Form(forms.ModelForm):
     class Meta:
         widgets={
@@ -932,10 +1246,8 @@ class Team_Form(forms.ModelForm):
         hereIwork = kwargs.pop('hereIwork', None)
 #         hereIwork = hereIwork.name
         super(Team_Form, self).__init__(*args, **kwargs)
-#         if 'PMDM' in hereIwork:    #falls Du zu PMDM gehoerst, darfst Du auch Kollegen von PMDM in die Taskliste einfuegen.
         if hereIwork.NMB_company:    #falls Du zu PMDM gehoerst, darfst Du auch Kollegen von PMDM in die Taskliste einfuegen.
             self.fields['member'].queryset=(UserProfile.objects.filter(company=company) | UserProfile.objects.filter(company__NMB_company = True) | UserProfile.objects.filter(company__customer=False)).distinct()    
-#             self.fields['member'].queryset=(UserProfile.objects.filter(company=company) | UserProfile.objects.filter(company__name='PMDM')).distinct()    
         else:
             self.fields['member'].queryset=UserProfile.objects.filter(company=company)
             

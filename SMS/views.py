@@ -160,6 +160,132 @@ class pdf_report(TemplateView):
                   }
 #         pdb.set_trace()
         return Render.render('SMS/pdf.html', params)
+
+@login_required
+def cert_remove(request, cert):
+    cert = get_object_or_404(OtherCertifications, pk=cert)
+    company_id = cert.company_id
+#     pdb.set_trace()
+    cert.delete()
+    return redirect('certs', company_id)
+
+@login_required
+def cert_edit(request, cert):
+    user_profile = UserProfile.objects.get(user_id=request.user)
+    cert = get_object_or_404(OtherCertifications, pk=cert)
+    company_id = cert.company_id
+    company = Company.objects.get(pk=company_id)
+    hereIwork = UserProfile.objects.get(user=request.user).company
+    companyusers = UserProfile.objects.filter(company=company.pk)
+    vendors=[(vendor.pk, vendor.name) for vendor in Company.objects.filter(can_be_viewed_by__name__startswith=user_profile.company).order_by('name')]
+
+    form2 = OtherCertForm(hereIwork=hereIwork, instance=cert)
+    if request.method == "POST":
+        form2 = OtherCertForm(request.POST, request.FILES,hereIwork=hereIwork, instance=cert)
+        if form2.is_valid():
+            path= 'uploads/' + company.name + '/Certificates'
+            others=form2.save(commit=False)
+            others.pic.field.upload_to = path
+            others.company=company
+            others.save()
+            return redirect('certs', company_id)
+    return render(request, 'SMS/cert_edit.html',{'user_profile':user_profile, 'companyusers':companyusers, 'company':company, 'vendors':vendors, 'request':request, 'form2':form2, 'cert':cert })
+
+    
+
+def certs(request, company_id):
+    user_profile = UserProfile.objects.get(user_id=request.user)
+    company = Company.objects.get(pk=company_id)
+    hereIwork = UserProfile.objects.get(user=request.user).company
+    companyusers = UserProfile.objects.filter(company=company.pk)
+    vendors=[(vendor.pk, vendor.name) for vendor in Company.objects.filter(can_be_viewed_by__name__startswith=user_profile.company).order_by('name')]
+    # wenn erstes Oeffnen, lege einen DB Satz an, damit auch bei erstem Oeffnen eine instance vorhanden ist.
+    # Das erleichtert die Bearbeitung von disabled Feldern in forms.py
+    standard_certs = Certifications.objects.filter(company=company_id).first()
+    if not standard_certs: #Es ist noch kein Datensatz angelegt
+        form = CertForm(hereIwork=hereIwork, instance=Certifications())
+        initial = form.save(commit=False)
+        initial.company=company
+        initial.save()
+    standard_certs = Certifications.objects.filter(company=company_id).first()
+    other_certs = OtherCertifications.objects.filter(company=company_id)
+    form = CertForm(hereIwork=hereIwork, instance=standard_certs)
+    form2 = OtherCertForm(hereIwork=hereIwork)
+#     pdb.set_trace()
+    
+    if request.method == "POST":
+        form = CertForm(request.POST, request.FILES, hereIwork=hereIwork, instance=standard_certs)
+        form2 = OtherCertForm(request.POST, request.FILES, hereIwork=hereIwork)
+        if 'std_cert' in request.POST:
+            if form.is_valid():
+                certs = form.save(commit=False)
+                path= 'uploads/' + company.name + '/Certificates'
+                certs.company=company
+                certs.IATF16949_pic.field.upload_to = path
+                certs.ISO9001_pic.field.upload_to = path
+                certs.ISO14001_pic.field.upload_to = path
+                certs.OHSAS18001_pic.field.upload_to = path
+                certs.save()
+            return redirect('certs', company_id)
+        if 'other_cert' in request.POST:
+            if form2.is_valid():
+                path= 'uploads/' + company.name + '/Certificates'
+                others=form2.save(commit=False)
+#                 pdb.set_trace()
+                others.pic.field.upload_to = path
+                others.company=company
+                others.save()
+                return redirect('certs', company_id)
+    # Fehlerbehandlung
+    standard_certs = Certifications.objects.filter(company=company_id).first()
+    d = timedelta(days=731)
+    if standard_certs.IATF16949_failed:
+        if (not standard_certs.IATF16949_pic) and standard_certs.IATF16949_mandatory:
+            messages.error(request,'Your IATF certificat needs to be uploaded!')
+        if standard_certs.IATF16949_rejected:
+            messages.error(request,'Your IATF certificat was rejected!')
+        if standard_certs.IATF16949_stop:
+            if  datetime.date(timezone.now()) > standard_certs.IATF16949_stop:
+                messages.error(request,'Your IATF certificat is outdated!')
+
+    if standard_certs.ISO9001_failed:
+        if (not standard_certs.ISO9001_pic) and standard_certs.ISO9001_mandatory:
+            messages.error(request,'Your ISO9001 certificat needs to be uploaded!')
+        if standard_certs.ISO9001_rejected:
+            messages.error(request,'Your ISO9001 certificat was rejected!')
+        if standard_certs.ISO9001_stop:
+            if  datetime.date(timezone.now()) > standard_certs.ISO9001_stop:
+                messages.error(request,'Your ISO9001 certificat is outdated!')
+
+    if standard_certs.ISO14001_failed:
+        if (not standard_certs.ISO14001_pic) and standard_certs.ISO14001_mandatory:
+            messages.error(request,'Your ISO14001 certificat needs to be uploaded!')
+        if standard_certs.ISO14001_rejected:
+            messages.error(request,'Your ISO14001 certificat was rejected!')
+        if standard_certs.ISO14001_stop:
+            if  datetime.date(timezone.now()) > standard_certs.ISO14001_stop:
+                messages.error(request,'Your ISO14001 certificat is outdated!')
+
+    if standard_certs.OHSAS18001_failed:
+        if (not standard_certs.OHSAS18001_pic) and standard_certs.OHSAS18001_mandatory:
+            messages.error(request,'Your OHSAS18001 certificat needs to be uploaded!')
+        if standard_certs.OHSAS18001_rejected:
+            messages.error(request,'Your OHSAS18001 certificat was rejected!')
+        if standard_certs.OHSAS18001_stop:
+            if  datetime.date(timezone.now()) > standard_certs.OHSAS18001_stop:
+                messages.error(request,'Your OHSAS18001 certificat is outdated!')
+
+    if other_certs: #nur wenn es andere certs gibt muessen diese geprueft werden
+        for cert in other_certs:
+#             pdb.set_trace()
+            if cert.rejected:
+                messages.error(request,'Your ' + cert.cert_name + ' certificat was rejected!')
+            if cert.stop:
+                if  datetime.date(timezone.now()) > cert.stop:
+                    messages.error(request,'Your ' + cert.cert_name + ' certificat is outdated!')
+        
+        
+    return render(request, 'SMS/certs.html',{'user_profile':user_profile, 'companyusers':companyusers, 'company':company, 'vendors':vendors, 'request':request, 'form':form, 'form2':form2, 'standard_certs':standard_certs, 'other_certs':other_certs })
     
 
 
@@ -591,7 +717,6 @@ def D1D8(request, claim):
         if '/SMS/D1/' in request.path:
             team_members = Team.objects.filter(claim=claim.pk)
             form=Team_Form(request.POST, company=company, hereIwork=hereIwork)    #nur User der company werden angezeigt
-#             pdb.set_trace()
 #             form=Team_Form(request.POST, company=company)    #nur User der company werden angezeigt
             if form.is_valid():
                 team_form=form.save(commit=False)
@@ -675,9 +800,9 @@ def D1D8(request, claim):
                 
 #             pdb.set_trace()
             if 'Save_W5_occ' in request.POST:
-                pdb.set_trace()
+#                 pdb.set_trace()
                 if form_W5_occ.is_valid():
-                    pdb.set_trace()
+#                     pdb.set_trace()
                     edit_W5_occ = form_W5_occ.save(commit=False)
                     edit_W5_occ.claim_id=claim.pk
                     edit_W5_occ.save()
@@ -686,7 +811,7 @@ def D1D8(request, claim):
                 
             if 'Save_W5_det' in request.POST:
                 if form_W5_det.is_valid():
-                    pdb.set_trace()
+#                     pdb.set_trace()
                     edit_W5_det = form_W5_det.save(commit=False)
                     edit_W5_det.claim_id=claim.pk
                     edit_W5_det.save()
@@ -706,25 +831,27 @@ def D1D8(request, claim):
                 if form_D4_occ.is_valid():
                     edit_repro = form_D4_occ.save(commit=False)
                     edit_repro.claim_id=claim.pk
-#                     if request.POST.get("reproduction_occ_pilot"):
-#                         try:
-#                             treffer= Team.objects.get(claim_id=claim, member=request.POST.get("reproduction_occ_pilot"))
-#                         except Team.MultipleObjectsReturned:
-#                             pass
-#                         except Team.DoesNotExist:
-#                             instance=UserProfile(pk=request.POST.get("reproduction_occ_pilot"))
-#                             new_member = Team(claim=claim, member=instance, isPilot=False)
-#                             new_member.save()        
-# 
-#                     if request.POST.get("reproduction_det_pilot"):
-#                         try:
-#                             treffer= Team.objects.get(claim_id=claim, member=request.POST.get("reproduction_det_pilot"))
-#                         except Team.MultipleObjectsReturned:
-#                             pass
-#                         except Team.DoesNotExist:
-#                             instance=UserProfile(pk=request.POST.get("reproduction_det_pilot"))
-#                             new_member = Team(claim=claim, member=instance, isPilot=False)
-#                             new_member.save()        
+                    if request.POST.get("reproduction_occ_pilot"):
+                        try:
+                            treffer= Team.objects.get(claim_id=claim, member=request.POST.get("reproduction_occ_pilot"))
+                        except Team.MultipleObjectsReturned:
+                            pass
+                        except Team.DoesNotExist:
+                            instance=UserProfile(pk=request.POST.get("reproduction_occ_pilot"))
+                            new_member = Team(claim=claim, member=instance, isPilot=False)
+                            new_member.save()        
+                            messages.warning(request, "Member was added to the 8D-Team!")
+
+                    if request.POST.get("reproduction_det_pilot"):
+                        try:
+                            treffer= Team.objects.get(claim_id=claim, member=request.POST.get("reproduction_det_pilot"))
+                        except Team.MultipleObjectsReturned:
+                            pass
+                        except Team.DoesNotExist:
+                            instance=UserProfile(pk=request.POST.get("reproduction_det_pilot"))
+                            new_member = Team(claim=claim, member=instance, isPilot=False)
+                            new_member.save()        
+                            messages.warning(request, "Member was added to the 8D-Team!")
 # 
 #                     if request.POST.get("effective_occ_pilot"):
 #                         try:
@@ -816,7 +943,7 @@ def D1D8(request, claim):
             tasks_D5_det = Task.objects.filter(project=claim, subproject='D5_Detection', closed=False).order_by('due_date')
             tasks_D5_occ_all = Task.objects.filter(project=claim, subproject='D5_Occurance').order_by('due_date')
             tasks_D5_det_all = Task.objects.filter(project=claim, subproject='D5_Detection').order_by('due_date')
-            pdb.set_trace()
+#             pdb.set_trace()
             
             if 'SubmitD5' in request.POST:
                 if tasks_D5_occ:
@@ -859,32 +986,35 @@ def D1D8(request, claim):
             tasks_D6_det_all = Task.objects.filter(project=claim, subproject='D6_Detection').order_by('due_date')
             eff_D6 = D6_effectiveness.objects.filter(claim_id = claim).first()
             form_D6_eff =  D6Form_effectiveness(request.POST, instance= eff_D6, company=company, hereIwork=hereIwork)
-#             pdb.set_trac e()
+#             pdb.set_trace()
             
             if 'save_effectiveness' in request.POST:
                 if form_D6_eff.is_valid():
                     edit_repro = form_D6_eff.save(commit=False)
                     edit_repro.claim_id=claim.pk
 
-#                     if request.POST.get("effective_occ_pilot"):
-#                         try:
-#                             treffer= Team.objects.get(claim_id=claim, member=request.POST.get("effective_occ_pilot"))
-#                         except Team.MultipleObjectsReturned:
-#                             pass
-#                         except Team.DoesNotExist:
-#                             instance=UserProfile(pk=request.POST.get("effective_occ_pilot"))
-#                             new_member = Team(claim=claim, member=instance, isPilot=False)
-#                             new_member.save()        
-# 
-#                     if request.POST.get("effective_det_pilot"):
-#                         try:
-#                             treffer= Team.objects.get(claim_id=claim, member=request.POST.get("effective_det_pilot"))
-#                         except Team.MultipleObjectsReturned:
-#                             pass
-#                         except Team.DoesNotExist:
-#                             instance=UserProfile(pk=request.POST.get("effective_det_pilot"))
-#                             new_member = Team(claim=claim, member=instance, isPilot=False)
-#                             new_member.save()        
+                    if request.POST.get("effective_occ_pilot"):
+                        try:
+                            treffer= Team.objects.get(claim_id=claim, member=request.POST.get("effective_occ_pilot"))
+                        except Team.MultipleObjectsReturned:
+                            pass
+                        except Team.DoesNotExist:
+                            instance=UserProfile(pk=request.POST.get("effective_occ_pilot"))
+                            new_member = Team(claim=claim, member=instance, isPilot=False)
+                            new_member.save()
+                            messages.warning(request, "Member was added to the 8D-Team!")
+                                    
+
+                    if request.POST.get("effective_det_pilot"):
+                        try:
+                            treffer= Team.objects.get(claim_id=claim, member=request.POST.get("effective_det_pilot"))
+                        except Team.MultipleObjectsReturned:
+                            pass
+                        except Team.DoesNotExist:
+                            instance=UserProfile(pk=request.POST.get("effective_det_pilot"))
+                            new_member = Team(claim=claim, member=instance, isPilot=False)
+                            new_member.save()        
+                            messages.warning(request, "Member was added to the 8D-Team!")
 
 
 #                     pdb.set_trace()
@@ -1294,5 +1424,6 @@ def task_details(request, order, project, subproject, id):
                                                       'comments':comments, 
                                                       })        
     
+
     
     

@@ -2,11 +2,10 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
 from django_countries.fields import CountryField
-from datetime import datetime
+from datetime import datetime, timedelta
 
 # Create your models here.
-
-class Company(models.Model):
+class Company(models.Model):                                        
    name =  models.CharField(max_length=200, unique=True, verbose_name='Company name')
    NMB_company = models.BooleanField(default=False)
    customer = models.BooleanField(default = False)
@@ -20,7 +19,107 @@ class Company(models.Model):
    country = CountryField()
    
    def __str__(self):
-       return self.name
+      return self.name
+
+class OtherCertifications(models.Model):
+    company = models.ForeignKey(Company, on_delete=models.SET_NULL, null=True)
+    cert_name = models.CharField(blank=True, null=True, max_length=200) 
+    mandatory = models.BooleanField(default= False)
+    pic = models.FileField(blank=True, null=True)
+    cert_board = models.CharField(blank=True, null=True, max_length=200)
+    start = models.DateField(blank=True, null=True)
+    stop = models.DateField(blank=True, null=True)
+    validated = models.BooleanField(default= False)
+    rejected = models.BooleanField(default= False)
+   
+    @property
+    def failed(self):
+        if self.rejected:
+            return True
+        if (not self.pic)  and self.mandatory:
+            return True
+        if self.stop:
+           if datetime.date(timezone.now()) > self.stop:
+                return True
+#         return False  
+   
+    def __str__(self):
+       return str(self.company)      
+
+class Certifications(models.Model):
+    
+    company = models.OneToOneField(Company, on_delete=models.SET_NULL, null=True) 
+    IATF16949_mandatory = models.BooleanField(default= True)
+    IATF16949_pic = models.FileField(blank=True, null=True)
+    IATF16949_cert_board = models.CharField(blank=True, null=True, max_length=200)
+    IATF16949_start = models.DateField(blank=True, null=True)
+    IATF16949_stop = models.DateField(blank=True, null=True)
+    IATF16949_validated = models.BooleanField(default= False)
+    IATF16949_rejected = models.BooleanField(default= False)
+   
+    ISO9001_mandatory = models.BooleanField(default= False)
+    ISO9001_pic = models.FileField(blank=True, null=True, upload_to='uploads/')
+    ISO9001_cert_board = models.CharField(blank=True, null=True, max_length=200)
+    ISO9001_start = models.DateField(blank=True, null=True)
+    ISO9001_stop = models.DateField(blank=True, null=True)
+    ISO9001_validated = models.BooleanField(default= False)
+    ISO9001_rejected = models.BooleanField(default= False)
+   
+    ISO14001_mandatory = models.BooleanField(default= False)
+    ISO14001_pic = models.FileField(blank=True, null=True, upload_to='uploads/')
+    ISO14001_cert_board = models.CharField(blank=True, null=True, max_length=200)
+    ISO14001_start = models.DateField(blank=True, null=True)
+    ISO14001_stop = models.DateField(blank=True, null=True)
+    ISO14001_validated = models.BooleanField(default= False)
+    ISO14001_rejected = models.BooleanField(default= False)
+   
+    OHSAS18001_mandatory = models.BooleanField(default= False)
+    OHSAS18001_pic = models.FileField(blank=True, null=True, upload_to='uploads/')
+    OHSAS18001_cert_board = models.CharField(blank=True, null=True, max_length=200)
+    OHSAS18001_start = models.DateField(blank=True, null=True)
+    OHSAS18001_stop = models.DateField(blank=True, null=True)
+    OHSAS18001_validated = models.BooleanField(default= False)
+    OHSAS18001_rejected = models.BooleanField(default= False)
+   
+    @property
+    def IATF16949_failed(self):
+        if self.IATF16949_rejected:
+            return True
+        if (not self.IATF16949_pic)  and self.IATF16949_mandatory:
+            return True
+        if self.IATF16949_stop:
+           if datetime.date(timezone.now()) > self.IATF16949_stop:
+                return True
+          
+    def ISO9001_failed(self):
+        if self.ISO9001_rejected:
+            return True
+        if (not self.ISO9001_pic)  and self.ISO9001_mandatory:
+            return True
+        if self.ISO9001_stop:
+           if datetime.date(timezone.now()) > self.ISO9001_stop:
+                return True
+          
+    def ISO14001_failed(self):
+        if self.ISO14001_rejected:
+            return True
+        if (not self.ISO14001_pic)  and self.ISO14001_mandatory:
+            return True
+        if self.ISO14001_stop:
+           if datetime.date(timezone.now()) > self.ISO14001_stop:
+                return True
+          
+    def OHSAS18001_failed(self):
+        if self.OHSAS18001_rejected:
+            return True
+        if (not self.OHSAS18001_pic)  and self.OHSAS18001_mandatory:
+            return True
+        if self.OHSAS18001_stop:
+           if datetime.date(timezone.now()) > self.OHSAS18001_stop:
+                return True
+          
+    def __str__(self):
+       return str(self.company)      
 
 class ClaimStatus(models.Model):
     status = models.CharField(max_length=50)
@@ -157,6 +256,7 @@ class UserProfile(models.Model):
         
     def __str__(self):
         return str(self.firstname) + " " + str(self.lastname) 
+#         return str(self.pk) 
         
 class Team(models.Model):
     claim = models.ForeignKey(Claim, on_delete=models.SET_NULL, null=True)
@@ -482,6 +582,4 @@ class D7(models.Model):
     
     def __str__(self):
         return str(self.claim)    
-    
-    
                            
