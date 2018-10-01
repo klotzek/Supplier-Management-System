@@ -44,6 +44,9 @@ class pdf_report(TemplateView):
         d6_tasks_det = Task.objects.filter(project=claim, subproject='D6 Detection', closed=False, status='ALL').order_by('date_issued')
         d6_tasks_done_det = Task.objects.filter(project=claim, subproject='D6 Detection', closed = True, status='ALL').order_by('date_issued')
         d3=D3.objects.filter(claim_id=claim).first()
+        files_occ = File.objects.filter(project = claim, subproject='occ')
+        files_det = File.objects.filter(project = claim, subproject='det')
+
 
 #         pdb.set_trace()
         
@@ -157,6 +160,8 @@ class pdf_report(TemplateView):
                   'd6_tasks_det':d6_tasks_det,
                   'd6_tasks_done_det':d6_tasks_done_det,
                   'd7':d7,
+                  'files_occ':files_occ,
+                  'files_det':files_det,
                   }
 #         pdb.set_trace()
         return Render.render('SMS/pdf.html', params)
@@ -1315,7 +1320,7 @@ def task_tracker(request, order, project, subproject, id):
 
     user_profile = UserProfile.objects.get(user_id=request.user)
     company = Claim.objects.get(pk=project).related_to
-    if not user_profile.isStaff:                  #der eingloggte User gehoert NICHT zu PMDM
+    if not user_profile.company.NMB_company:                   #der eingloggte User gehoert NICHT zu PMDM
         if not company == user_profile.company:   #der eingloggte User ruft Daten einer anderen Firma auf!
             messages.add_message(request, messages.ERROR, 'You are not allowed to see other companies items!')
          
@@ -1371,7 +1376,7 @@ def task_details(request, order, project, subproject, id):
     actual_user_id = request.user
     user_profile = UserProfile.objects.get(user_id=request.user)
     company = Claim.objects.get(pk=project).related_to
-    if not user_profile.isStaff:                  #der eingloggte User gehoert NICHT zu PMDM
+    if not user_profile.company.NMB_company:                   #der eingloggte User gehoert NICHT zu PMDM
         if not company == user_profile.company:   #der eingloggte User ruft Daten einer anderen Firma auf!
             messages.add_message(request, messages.ERROR, 'You are not allowed to see other companies items!')
             return render(request, 'SMS/error.html', {'user_profile':user_profile, 'company':company,}) 
