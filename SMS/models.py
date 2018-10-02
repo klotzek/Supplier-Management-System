@@ -299,7 +299,7 @@ class D3(models.Model):
     actions_ongoing = models.BooleanField(choices=BOOL_CHOICES, default=False)
     actions_necessary = models.BooleanField(choices=BOOL_CHOICES, default=False)
     completion_date = models.DateTimeField(blank=True, null=True)
-#     action_1= models.CharField(max_length=50, blank=True, null=True)
+    action= models.CharField(max_length=200, blank=True, null=True)
 #     pilot_1= models.CharField(max_length=50, blank=True, null=True)
 #     date_1= models.DateTimeField(blank=True, null=True)
 #     action_2= models.CharField(max_length=50, blank=True, null=True)

@@ -1,8 +1,9 @@
+import pdb
 from django.core.management.base import BaseCommand, CommandError
 from django.core.mail import send_mail
 from datetime import datetime, timedelta
 from django.utils import timezone, http
-from SMS.models import Task
+from SMS.models import Task, UserProfile
 
 
 class Command(BaseCommand):
@@ -16,7 +17,7 @@ class Command(BaseCommand):
         i=0
         pilots = []
         
-        tasks = Task.objects.filter(closed=False ) #gehe ueber alle aktiven Tasks und sammle die Piloten
+        tasks = Task.objects.filter(closed=False, type = 'TASK' ) #gehe ueber alle aktiven Tasks und sammle die Piloten
         for task in tasks:
             if 'Overdue' in task.timely_status:
                 pilot= task.pilot
@@ -24,10 +25,12 @@ class Command(BaseCommand):
                     pilots.append(pilot)    
 
         for pilot in pilots:
-            mail_text ='Dear ' + task.pilot.firstname + ' '+ task.pilot.lastname + ','        
+            receiver = Task.objects.filter(closed=False, pilot=pilot, type = 'TASK').first()
+#             pdb.set_trace()
+            mail_text ='Dear ' + receiver.pilot.firstname + ' '+ receiver.pilot.lastname + ','        
             mail_text += '\r\n'
             mail_text += '\r\n'
-            tasks = Task.objects.filter(closed=False, pilot=pilot)
+            tasks = Task.objects.filter(closed=False, pilot=pilot, type = 'TASK')
             for task in tasks:
                 if 'Overdue' in task.timely_status:
                     mail_text += 'Task "' + task.task + '" overdue. Due date was: ' + str(task.due_date)
@@ -39,6 +42,8 @@ class Command(BaseCommand):
                     mail_text += '\r\n'
                     mail_text += ''
                     mail_text += '\r\n'
-            subject = 'There are delayed tasks (' + str(Task.objects.filter(closed=False, pilot=pilot).count()) + ' pcs.)'
+#             pdb.set_trace()
+            subject = 'There are delayed tasks (' + str(Task.objects.filter(closed=False, pilot=pilot, type='TASK').count()) + ' pcs.)'
             send_mail(subject, mail_text, 'juergen.klotzek@nmb-minebea.com', [task.pilot.email, 'juergen.klotzek@nmb-minebea.com'])
+#             send_mail(subject, mail_text, 'juergen.klotzek@nmb-minebea.com', [ 'juergen.klotzek@nmb-minebea.com', 'juergen.klotzek@nmb-minebea.com'])
 

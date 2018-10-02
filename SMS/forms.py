@@ -757,6 +757,7 @@ class TaskFormEdit(forms.ModelForm):
           'due_date',
 #           'task_comment',
           'importance',
+          'status',
 #           'file',
         ]
     def __init__(self, *args, **kwargs):
@@ -873,6 +874,7 @@ class D3_Form(forms.ModelForm):
                 "todayHighlight": True,
                 }
               ), 
+          'action':forms.Textarea(attrs={'rows':3, 'cols':85}),
 #            'date_1': DatePicker(options={
 #                 "format": "yyyy-mm-dd",
 #                 "autoclose": True,
@@ -1108,7 +1110,7 @@ class D3_Form(forms.ModelForm):
         'actions_ongoing',
         'actions_necessary',
         'completion_date',
-#         'action_1',
+        'action',
 #         'pilot_1',
 #         'date_1',
 #         'action_2',
