@@ -19,7 +19,7 @@ LOGGING = {
     'disable_existing_loggers': False,
     'handlers': {
         'file': {
-            'level': 'DEBUG',
+            'level': 'INFO',
             'class': 'logging.FileHandler',
             'filename': 'debug.log',
         },
@@ -27,7 +27,7 @@ LOGGING = {
     'loggers': {
         'django': {
             'handlers': ['file'],
-            'level': 'DEBUG',
+            'level': 'INFO',
             'propagate': True,
         },
     },
@@ -53,9 +53,9 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = '#p=7dv9rrdbr1w*k#)kpwk4$i(-u4k)g=df8wck((179!r_6_d'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+# DEBUG = True
 
-ALLOWED_HOSTS = ['192.168.160.8', 'srvsms', 'sms.pmdm.de']
+ALLOWED_HOSTS = ['192.168.160.8', 'srvsms', 'sms.pmdm.de', 'mdm.pmdm.de']
 
 
 # Application definition
