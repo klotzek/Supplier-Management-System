@@ -21,6 +21,50 @@ from .render import Render
 # from django.core.files.storage import FileSystemStorage
 
 # Create your views here.
+@login_required
+def tasks(request, company_id):
+    user_profile = UserProfile.objects.get(user_id=request.user)
+    company = Company.objects.get(pk=company_id)
+    vendors=[(vendor.pk, vendor.name) for vendor in Company.objects.filter(can_be_viewed_by__name__startswith=user_profile.company).order_by('name')]
+#     pdb.set_trace()
+    if not user_profile.company.NMB_company:                   #der eingloggte User gehoert NICHT zu PMDM
+        if not company == user_profile.company:   #der eingloggte User ruft Daten einer anderen Firma auf!
+            messages.add_message(request, messages.ERROR, 'You are not allowed to see other companies items!')
+            return render(request, 'SMS/error.html', {'vendors':vendors, 'user_profile':user_profile, 'company':company,}) 
+         
+    project = company_id + 6000000 #project ist int, hier company_id + 6.000.000
+    form = NewTaskListForm()
+    tasklists = TaskList.objects.filter(company = company)
+#     tasklists = TaskList.objects.filter(company = company).exclude(subproject = '').distinct()
+          
+#     tasklists = Task.objects.filter(project = project).values_list('subproject').distinct()
+#    tasklists = Task.objects.filter(project = project).values_list('subproject', flat=True).distinct()
+# OrderNotes.objects.filter(item=item).values_list('shared_note', flat=True).distinct()
+          
+#    tasklists = Task.objects.filter(project = project).exclude(subproject = '').distinct()      
+#     tasklists = Claim.objects.filter(project = company.name).exclude(status__status = 'Closed')
+#     claims_closed = Claim.objects.filter(related_to = company_id, valid = 'True', status__status = 'Closed')
+#     pdb.set_trace()
+
+    if request.method == "POST":
+        form = NewTaskListForm(request.POST)
+        if form.is_valid():
+            new_list = form.save(commit=False)
+            new_list.company = company
+            new_list.project = project
+        
+            order='due_date'
+#             project=company.pk + 6000000
+            subproject=request.POST.get('subproject')
+#             pdb.set_trace()
+            new_list.save()
+#             return redirect('task_tracker','due_date', company.name, request.POST.get('subproject'), 9999)
+#             return redirect('task_tracker','due_date', company.name, request.POST.get('subproject'), 9999)
+            return redirect('task_tracker', order, project, subproject, 9999)
+            
+     
+    return render(request, 'SMS/tasklists.html', {'vendors':vendors, 'user_profile':user_profile, 'tasklists':tasklists, 'company':company, 'form':form }) 
+    
 class pdf_report(TemplateView):
     def get(self, request, claim):
         claim = Claim.objects.get(pk=claim)
@@ -1319,12 +1363,21 @@ def D1D8(request, claim):
 def task_tracker(request, order, project, subproject, id):
 
     user_profile = UserProfile.objects.get(user_id=request.user)
-    company = Claim.objects.get(pk=project).related_to
+
+    if project > 6000000:
+        company = Company.objects.get(pk=project-6000000)
+    else:
+        company = Claim.objects.get(pk=project).related_to
+
     if not user_profile.company.NMB_company:                   #der eingloggte User gehoert NICHT zu PMDM
         if not company == user_profile.company:   #der eingloggte User ruft Daten einer anderen Firma auf!
             messages.add_message(request, messages.ERROR, 'You are not allowed to see other companies items!')
          
-    path = 'uploads/' + company.name + '/Claim_' + str(project)
+    if project > 6000000:
+        path = 'uploads/' + company.name + subproject
+    else:
+        path = 'uploads/' + company.name + '/Claim_' + str(project)
+
     tasks = Task.objects.filter(project=project, subproject=subproject, closed=False).order_by(order)
     tasks_done = Task.objects.filter(project=project, subproject=subproject, closed = True).order_by(order)
     task_to_edit = None
@@ -1332,8 +1385,14 @@ def task_tracker(request, order, project, subproject, id):
     if id < 9000:
         task_to_edit = Task.objects.get(project=project, subproject=subproject, pk=id)
 
-    proj = 'Claim Nb. ' + str(project)
-    subproj = ', Division ' + subproject
+    if project > 6000000:
+        proj = ''
+        subproj = subproject + 'Tasklist'
+    else:
+        proj = 'Claim Nb. ' + str(project)
+        subproj = ', Division ' + subproject
+    
+        
     task_data = [proj, subproj, id, order, company]
     
     hereIwork = UserProfile.objects.get(user=request.user).company
@@ -1359,6 +1418,7 @@ def task_tracker(request, order, project, subproject, id):
             task_to_edit.closed = False
             task_to_edit.closed_date = None
             task_to_edit.save()
+#             pdb.set_trace()
             return redirect('task_tracker', order, project, subproject, 9999)
 
         if 'task_done' in request.POST:
@@ -1375,22 +1435,35 @@ def task_tracker(request, order, project, subproject, id):
 def task_details(request, order, project, subproject, id):
     actual_user_id = request.user
     user_profile = UserProfile.objects.get(user_id=request.user)
-    company = Claim.objects.get(pk=project).related_to
+    if project > 6000000:
+        company = Company.objects.get(pk=project-6000000)
+    else:
+        company = Claim.objects.get(pk=project).related_to
+
     if not user_profile.company.NMB_company:                   #der eingloggte User gehoert NICHT zu PMDM
         if not company == user_profile.company:   #der eingloggte User ruft Daten einer anderen Firma auf!
             messages.add_message(request, messages.ERROR, 'You are not allowed to see other companies items!')
             return render(request, 'SMS/error.html', {'user_profile':user_profile, 'company':company,}) 
          
-    path = 'uploads/' + company.name + '/Claim_' + str(project) + '/Task_' + str(id)
+    if project > 6000000:
+        path = 'uploads/' + company.name + subproject
+    else:
+        path = 'uploads/' + company.name + '/Claim_' + str(project)
+
     task_to_edit = Task.objects.get(project=project, subproject=subproject, pk=id)
     try:
         comments = Comment.objects.filter(project=project, subproject=subproject, task=id).order_by('-pk')
     except:
         comments = None
 
-    proj = 'Claim Nb. ' + str(project)
-    subproj = ', Division ' + subproject
-    task_data = [proj, subproj, id, order, company]
+    if project > 6000000:
+        proj = ''
+        subproj = subproject + 'Tasklist'
+    else:
+        proj = 'Claim Nb. ' + str(project)
+        subproj = ', Division ' + subproject
+    
+    task_data = [proj, subproj, task_to_edit.number, order, company]
     hereIwork = UserProfile.objects.get(user=request.user).company
     
     form = TaskFormEdit(instance = task_to_edit, firma=company, hereIwork=hereIwork)
@@ -1408,7 +1481,7 @@ def task_details(request, order, project, subproject, id):
                 new_task.task_comment=request.POST.get('comment')
             new_task.save()
             if request.POST.get('comment'):
-                subject = 'new comment ( ' + proj + subproj + ', Task Nb. ' + str(id) + ')'
+                subject = 'new comment ( ' + proj + subproj + ', Task Nb. ' + str(task_to_edit.number) + ')'
                 mail_text = str(user_profile.user) + ' wrote: ' +  request.POST.get('comment')
                 new_comment=form2.save(commit=False)
                 new_comment.project=project
@@ -1417,7 +1490,8 @@ def task_details(request, order, project, subproject, id):
                 new_comment.author=user_profile
                 new_comment.file.field.upload_to = path
                 new_comment.save()
-                send_mail(subject, mail_text, 'juergen.klotzek@nmb-minebea.com', [task_to_edit.pilot.email], fail_silently=False,)
+#                 send_mail(subject, mail_text, 'juergen.klotzek@nmb-minebea.com', [task_to_edit.pilot.email], fail_silently=False,)
+                send_mail(subject, mail_text, 'juergen.klotzek@nmb-minebea.com', [task_to_edit.pilot.email], fail_silently=True,)
             if 'new_comment' in request.POST:
                 return redirect('task_details', order, project, subproject, id)
             return redirect('task_tracker', order, project, subproject, 9999)

@@ -1,0 +1,64 @@
+{% extends 'SMS/base.html' %} 
+{% block content %} 
+{% load staticfiles %}
+
+
+{% load bootstrap3 %} {# Load the tag library #} 
+{% bootstrap_css %} {# Load CSS and JavaScript #} 
+{% bootstrap_javascript %} {# Embeds Bootstrap JS #}
+{% bootstrap_messages %} {# Display django.contrib.messages as Bootstrap alerts #}
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-md-10"><h3>Task-lists</h3>
+    {% if user_profile.company.NMB_company == True %}
+
+       <form method="POST" class="form-inline" target="_blank">    
+       {% csrf_token %}       
+      {% bootstrap_form_errors form type='non_fields' %}       
+      {% bootstrap_form form layout='inline' exclude='company' %}
+      {% buttons %}
+      {% bootstrap_button "New task-list" name="new_task_list" button_type="submit" button_class="btn-success"  icon="glyphicon glyphicon-calendar" %} 
+      {% endbuttons %}
+      </form>
+    {% endif %}
+    &nbsp;
+    </div>
+    </div>
+    <div class="row">
+    <div class = "col-md-10">   
+    {% if tasklists %}
+      <table class="table table-hover table-condensed">    
+        <thead>        
+          <th>task-list name
+          </th>        
+          <th>nb. open tasks
+          </th>        
+          <th>nb. closed tasks
+          </th>        
+          <th>nb. overdue tasks
+          </th>        
+          <th>creation date
+          </th>        
+        </thead>    
+        <tbody>    
+        {% for list in tasklists %}     
+            <tr>
+                <td><a target="_blank" href="{% url 'task_tracker' 'due_date' list.project list.subproject 9999 %}">{{ list.subproject }}</a></td>
+                
+                    
+                <td></td>    
+                <td></td>    
+                <td></td>    
+                <td>{{ list.creation_date }}</td>    
+            </tr>    
+            {% endfor %} 
+        </tbody>
+      </table>
+      {% else %}
+      no task-lists yet
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -29,5 +29,6 @@ admin.site.register(W5_detection)
 admin.site.register(D7)
 admin.site.register(Certifications)
 admin.site.register(OtherCertifications)
+admin.site.register(TaskList)
 
                  

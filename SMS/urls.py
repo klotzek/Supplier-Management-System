@@ -17,6 +17,7 @@ urlpatterns = [
     path('certs/<int:company_id>', views.certs, name='certs'),
     path('user_activate/<int:user_Nb>/', views.user_activate, name='user_activate'),
     path('claims/<int:company_id>/', views.claims, name='claims'),
+    path('tasks/<int:company_id>/', views.tasks, name='tasks'),
     path('claim_remove/<int:claim>/', views.claim_remove, name='claim_remove'),
     path('claim_edit/<int:claim>/', views.claim_edit, name='claim_edit'),
     path('claim_Data/<int:claim>/', views.D1D8, name='claim_Data'),

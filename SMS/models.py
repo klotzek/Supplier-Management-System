@@ -582,4 +582,15 @@ class D7(models.Model):
     
     def __str__(self):
         return str(self.claim)    
+        
+class TaskList(models.Model):
+    company = models.ForeignKey(Company, on_delete=models.SET_NULL, null=True, blank=True)
+    project = models.IntegerField()
+    subproject = models.CharField(max_length=100, unique=True)
+    creation_date = models.DateField(auto_now_add=True)
+    
+    def __str__(self):
+        return str(self.company) + ' ' + self.subproject   
+    
+         
                            

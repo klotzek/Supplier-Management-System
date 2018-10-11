@@ -6,6 +6,17 @@ from .models import *
 # from .models import Company, Claim, TraceData, UserProfile, Team, D2_CV, D2_SV, D3, Ishikawa_occurance, Ishikawa_detection, Task, W5_occurance, W5_detection, D4, D4_reproduction, File, Comment, D7
 from django.contrib.auth.models import User
 
+
+class NewTaskListForm(forms.ModelForm):
+    class Meta:
+        model=TaskList
+        fields=[
+            'company',
+            'subproject',
+            ]
+        
+    subproject = forms.CharField(label='Tasklist name', max_length=100)
+
 class OtherCertForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         self.hereIwork = kwargs.pop('hereIwork', None)

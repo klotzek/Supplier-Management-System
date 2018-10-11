@@ -38,6 +38,7 @@
                        <li role="presentation" {% if '/SMS/certs/'  in request.path %}class="active"{% endif %}><a href="{% url 'certs' company.pk %}">certificates</a></li>
                        <li role="presentation" {% if '/SMS/claim' in request.path or '/SMS/D' in request.path %}class="active"{% endif %}><a href="{% url 'claims' company.pk %}">claims</a></li>
                        <li role="presentation" {% if '/SMS/ppaps/'  in request.path %}class="active"{% endif %}><a href="{% url 'index' %}">PPAP</a></li>
+                       <li role="presentation" {% if '/SMS/tasks/'  in request.path %}class="active"{% endif %}><a href="{% url 'tasks' company.pk%}">tasks</a></li>
                    {% if user_profile.company.NMB_company == True %}
                    <form class="form-inline" action="{% url 'index' %}" method="post">
                    {% csrf_token %}
