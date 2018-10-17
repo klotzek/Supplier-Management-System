@@ -12,6 +12,12 @@ https://docs.djangoproject.com/en/2.0/ref/settings/
 
 import os
 
+# SECURITY WARNING: don't run with debug turned on in production!
+DEBUG = True
+
+FILE_UPLOAD_PERMISSIONS = 0o644
+FILE_UPLOAD_DIRECTORY_PERMISSIONS = 0o644
+
 USE_THOUSAND_SEPARATOR = True
 
 LOGGING = {
@@ -49,9 +55,6 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = '#p=7dv9rrdbr1w*k#)kpwk4$i(-u4k)g=df8wck((179!r_6_d'
-
-# SECURITY WARNING: don't run with debug turned on in production!
-# DEBUG = True
 
 ALLOWED_HOSTS = ['192.168.160.8', 'srvsms', 'sms.pmdm.de', 'mdm.pmdm.de']
 

@@ -1343,7 +1343,7 @@ class Claim_New_Form(forms.ModelForm):
 class CompanyForm(forms.ModelForm):
     class Meta:
         model = Company
-        fields = ['name', 'DUNS', 'adress1', 'adress2', 'postcode', 'town', 'country', 'customer', 'NMB_company', ]
+        fields = ['name', 'vendor_nb', 'DUNS', 'adress1', 'adress2', 'postcode', 'town', 'country', 'customer', 'NMB_company', ]
         
 
 class PasswordForm(forms.Form):

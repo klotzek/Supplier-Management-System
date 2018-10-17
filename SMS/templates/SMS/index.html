@@ -67,6 +67,14 @@
         </tr>           
         <tr>        <td><strong>NMB-company:</strong></td>        <td>{{company.NMB_company}}</td>           
         </tr>           
+
+        {% if company.customer %}
+        <tr>        <td><strong>Customer Nb.:</strong></td>        <td>{{company.vendor_nb}}</td>           
+        </tr>           
+        {% else %}
+        <tr>        <td><strong>Vendor Nb.:</strong></td>        <td>{{company.vendor_nb}}</td>           
+        </tr>
+        {% endif %}                   
         <tr>        <td><strong>DUNS:</strong></td>        <td>{{company.DUNS}}</td>           
         </tr>           
         <tr>        <td><strong>Adress:</strong></td>        <td>{{company.adress1}}</td>           

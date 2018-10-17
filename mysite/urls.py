@@ -17,10 +17,12 @@ from django.contrib import admin
 from django.conf.urls import include, url
 from django.urls import path
 from django.contrib.auth import views
+# from django.views.static import serve
 # from django.urls import path, include, url
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+#     url(r'^SMS/media/(?P<path>.*)$', serve,{'document_root': settings.MEDIA_ROOT}),
     path('SMS/', include('SMS.urls')),
     #     path(r'^accounts/login/$', views.login, name='login'),
     url(r'^accounts/login/$', views.login, name='login'),

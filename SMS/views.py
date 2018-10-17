@@ -1446,7 +1446,7 @@ def task_details(request, order, project, subproject, id):
             return render(request, 'SMS/error.html', {'user_profile':user_profile, 'company':company,}) 
          
     if project > 6000000:
-        path = 'uploads/' + company.name + subproject
+        path = 'uploads/' + company.name + '/Tasklist_' + subproject
     else:
         path = 'uploads/' + company.name + '/Claim_' + str(project)
 
