@@ -520,7 +520,7 @@ class Comment(models.Model):
     file = models.FileField(blank=True, null=True, upload_to='uploads/')
     
     def __str__(self):
-        return str(self.project) + " " + str(self.subproject) + "  Comment " + str(self.pk)
+        return str(self.project) + " " + str(self.subproject) + "  Task " + str(self.task) + "  Comment " + str(self.pk)
         
 class D7(models.Model):
     claim = models.OneToOneField(Claim, on_delete=models.SET_NULL, null=True)
