@@ -1378,8 +1378,8 @@ def task_tracker(request, order, project, subproject, id):
     else:
         path = 'uploads/' + company.name + '/Claim_' + str(project)
 
-    tasks = Task.objects.filter(project=project, subproject=subproject, closed=False).order_by(order)
-    tasks_done = Task.objects.filter(project=project, subproject=subproject, closed = True).order_by(order)
+    tasks = Task.objects.filter(project=project, subproject=subproject, closed=False, valid=True).order_by(order)
+    tasks_done = Task.objects.filter(project=project, subproject=subproject, closed = True, valid = True).order_by(order)
     task_to_edit = None
 #     pdb.set_trace()
     if id < 9000:

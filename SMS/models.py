@@ -472,6 +472,7 @@ TYPE_CHOICES = (('TASK', 'task'),
 class Task(models.Model):
     project = models.CharField(max_length=25)
     subproject = models.CharField(max_length=25)
+    valid = models.BooleanField(default=True)
     number = models.IntegerField(null=True)
     importance = models.CharField(max_length=10, choices=IMPORTANCE_CHOICES, default='IMP')
     type = models.CharField(max_length=10, choices=TYPE_CHOICES, default='TASK') 
@@ -498,7 +499,7 @@ class Task(models.Model):
             return "Today"
         return "In time"
     def __str__(self):
-        return str(self.project) + " " + str(self.subproject) + "  Task " + str(self.pk)
+        return str(self.project) + " " + str(self.subproject) + "  Task " + str(self.pk) +" Nb. " + str(self.number)
         
 class File(models.Model):
     project = models.CharField(max_length=25)
